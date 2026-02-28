@@ -37,7 +37,7 @@ dependencies:
   http: any
   flutter_svg: any
   animations: any
-  flutter_stuggered_grid_view: any
+  flutter_staggered_grid_view: any
 
 dev_dependencies:
   flutter_test:
