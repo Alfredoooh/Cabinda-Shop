@@ -1,0 +1,34 @@
+name: leya
+description: App de alfabeto interativo com letras, sílabas e drawer estilo Duolingo.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  fonts:
+    - family: ComicSansMS
+      fonts:
+        - asset: assets/fonts/ComicSansMS.ttf
+    - family: SystemUI
+      fonts:
+        - asset: assets/fonts/SegoeUI.ttf
+
+  assets:
+    - assets/icons/alphabet-icon.png
+    - assets/icons/games-icon.png
+    - assets/icons/videos-icon.png
