@@ -387,17 +387,23 @@ class _AppBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isAlphabet = currentSection == DrawerSection.alphabet;
+
     return SafeArea(
       bottom: false,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
         decoration: BoxDecoration(
-          color: colors.bgCardNeutral,
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(24),
-            bottomRight: Radius.circular(24),
-          ),
+          // Para Alfabeto: cor neutra e sem curvas (bordas retas)
+          // Para Jogos/Vídeos: mesma cor do fundo do app, com curvas
+          color: isAlphabet ? colors.bgCardNeutral : colors.bg,
+          borderRadius: isAlphabet
+              ? BorderRadius.zero
+              : const BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -409,7 +415,7 @@ class _AppBarWidget extends StatelessWidget {
             ),
             // O toggle só faz sentido na secção do alfabeto. Nas outras
             // secções o appbar mostra só o hambúrguer, mais compacto.
-            if (currentSection == DrawerSection.alphabet) ...[
+            if (isAlphabet) ...[
               const SizedBox(height: 14),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 480),
@@ -653,14 +659,14 @@ class _AlphabetSection extends StatelessWidget {
             ),
             itemBuilder: (context, index) {
               final letter = letters[index];
-              final colorIndex = index % 6;
               return _LetterCard(
                 colors: colors,
                 letter: letter,
-                colorIndex: colorIndex,
-                onTap: () {
-                  // Toca sempre o som da letra ao tocar no card.
+                onTapDown: () {
+                  // Som disparado imediatamente no toque (resposta rápida)
                   SoundManager.instance.playLetter(letter);
+                },
+                onTap: () {
                   if (isConsonantMode) {
                     final consonantIndex = kConsonants.indexOf(letter);
                     onConsonantTap(consonantIndex);
@@ -730,17 +736,18 @@ class _ToggleButton extends StatelessWidget {
   }
 }
 
-// LETTER CARD - equivalente a .card / .card.c0..c5 (botão real via GestureDetector)
+// LETTER CARD - agora com cores únicas por letra (matiz HSL) e resposta
+// imediata no toque (som no onTapDown)
 class _LetterCard extends StatefulWidget {
   final AppColors colors;
   final String letter;
-  final int colorIndex;
+  final VoidCallback? onTapDown;
   final VoidCallback onTap;
 
   const _LetterCard({
     required this.colors,
     required this.letter,
-    required this.colorIndex,
+    this.onTapDown,
     required this.onTap,
   });
 
@@ -751,20 +758,61 @@ class _LetterCard extends StatefulWidget {
 class _LetterCardState extends State<_LetterCard> {
   bool _pressed = false;
 
+  // Gera uma cor única baseada na letra (posição no alfabeto)
+  Color _generateLetterColor({
+    required bool isDark,
+    required int letterIndex,
+    required bool foreground,
+  }) {
+    final hue = (letterIndex * 360.0 / 26.0) % 360.0;
+
+    if (foreground) {
+      // Cor do texto: saturada e legível
+      return HSLColor.fromAHSL(
+        1,
+        hue,
+        isDark ? 0.55 : 0.70,
+        isDark ? 0.75 : 0.42,
+      ).toColor();
+    } else {
+      // Cor de fundo: clara no modo claro, escura no modo escuro
+      return HSLColor.fromAHSL(
+        1,
+        hue,
+        isDark ? 0.35 : 0.45,
+        isDark ? 0.24 : 0.92,
+      ).toColor();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bg = widget.colors.cardBgList[widget.colorIndex];
-    final fg = widget.colors.cardFgList[widget.colorIndex];
-    final shadow = widget.colors.cardShadowList[widget.colorIndex];
+    final letterIndex =
+        widget.letter.toLowerCase().codeUnitAt(0) - 'a'.codeUnitAt(0);
+    final bg = _generateLetterColor(
+      isDark: widget.colors.isDark,
+      letterIndex: letterIndex,
+      foreground: false,
+    );
+    final fg = _generateLetterColor(
+      isDark: widget.colors.isDark,
+      letterIndex: letterIndex,
+      foreground: true,
+    );
+    final shadow = fg.withOpacity(widget.colors.isDark ? 0.35 : 0.25);
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: widget.onTap,
-      onTapDown: (_) => setState(() => _pressed = true),
+      onTapDown: (_) {
+        setState(() => _pressed = true);
+        widget.onTapDown?.call();
+      },
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 100),
+        // Duração reduzida para resposta mais rápida
+        duration: const Duration(milliseconds: 60),
         transform: Matrix4.identity()..translate(0.0, _pressed ? 4.0 : 0.0),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 6),
         decoration: BoxDecoration(
