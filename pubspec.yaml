@@ -36,23 +36,23 @@ flutter:
     - assets/audios/vowels/
     - assets/audios/consonants/
     - assets/audios/syllables/b/
-    - assets/audios/syllables/c/
-    - assets/audios/syllables/d/
-    - assets/audios/syllables/f/
-    - assets/audios/syllables/g/
-    - assets/audios/syllables/h/
-    - assets/audios/syllables/j/
-    - assets/audios/syllables/k/
-    - assets/audios/syllables/l/
-    - assets/audios/syllables/m/
-    - assets/audios/syllables/n/
-    - assets/audios/syllables/p/
-    - assets/audios/syllables/q/
-    - assets/audios/syllables/r/
-    - assets/audios/syllables/s/
-    - assets/audios/syllables/t/
-    - assets/audios/syllables/v/
-    - assets/audios/syllables/w/
-    - assets/audios/syllables/x/
-    - assets/audios/syllables/y/
-    - assets/audios/syllables/z/
+    #- assets/audios/syllables/c/
+    #- assets/audios/syllables/d/
+    #- assets/audios/syllables/f/
+    #- assets/audios/syllables/g/
+    #- assets/audios/syllables/h/
+    #- assets/audios/syllables/j/
+    #- assets/audios/syllables/k/
+    #- assets/audios/syllables/l/
+    #- assets/audios/syllables/m/
+    #- assets/audios/syllables/n/
+    #- assets/audios/syllables/p/
+    #- assets/audios/syllables/q/
+    #- assets/audios/syllables/r/
+    #- assets/audios/syllables/s/
+    #- assets/audios/syllables/t/
+    #- assets/audios/syllables/v/
+    #- assets/audios/syllables/w/
+    #- assets/audios/syllables/x/
+    #- assets/audios/syllables/y/
+    #- assets/audios/syllables/z/
