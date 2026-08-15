@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   audioplayers: ^6.0.0
+  flutter_svg: ^2.0.10
 
 dev_dependencies:
   flutter_test:
@@ -33,26 +34,32 @@ flutter:
     - assets/icons/alphabet-icon.png
     - assets/icons/games-icon.png
     - assets/icons/videos-icon.png
-    - assets/audios/vowels/
-    - assets/audios/consonants/
-    - assets/audios/syllables/b/
-    #- assets/audios/syllables/c/
-    #- assets/audios/syllables/d/
-    #- assets/audios/syllables/f/
-    #- assets/audios/syllables/g/
-    #- assets/audios/syllables/h/
-    #- assets/audios/syllables/j/
-    #- assets/audios/syllables/k/
-    #- assets/audios/syllables/l/
-    #- assets/audios/syllables/m/
-    #- assets/audios/syllables/n/
-    #- assets/audios/syllables/p/
-    #- assets/audios/syllables/q/
-    #- assets/audios/syllables/r/
-    #- assets/audios/syllables/s/
-    #- assets/audios/syllables/t/
-    #- assets/audios/syllables/v/
-    #- assets/audios/syllables/w/
-    #- assets/audios/syllables/x/
-    #- assets/audios/syllables/y/
-    #- assets/audios/syllables/z/
+    - assets/icons/menu-icon.svg
+    - assets/icons/sun-icon.svg
+    - assets/icons/moon-icon.svg
+    - assets/icons/chevron-left.svg
+    - assets/icons/chevron-right.svg
+    - assets/icons/speaker-icon.svg
+    - assets/audio/vowels/
+    - assets/audio/consonants/
+    - assets/audio/syllables/b/
+    #- assets/audio/syllables/c/
+    #- assets/audio/syllables/d/
+    #- assets/audio/syllables/f/
+    #- assets/audio/syllables/g/
+    #- assets/audio/syllables/h/
+    #- assets/audio/syllables/j/
+    #- assets/audio/syllables/k/
+    #- assets/audio/syllables/l/
+    #- assets/audio/syllables/m/
+    #- assets/audio/syllables/n/
+    #- assets/audio/syllables/p/
+    #- assets/audio/syllables/q/
+    #- assets/audio/syllables/r/
+    #- assets/audio/syllables/s/
+    #- assets/audio/syllables/t/
+    #- assets/audio/syllables/v/
+    #- assets/audio/syllables/w/
+    #- assets/audio/syllables/x/
+    #- assets/audio/syllables/y/
+    #- assets/audio/syllables/z/

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 void main() {
@@ -131,9 +132,9 @@ enum DrawerSection { alphabet, games, videos }
 
 // =====================================================================
 // SOUND MANAGER - organiza sozinho os sons a partir das pastas
-// assets/audio/vowels/<letra>.mp3
-// assets/audio/consonants/<letra>.mp3
-// assets/audio/syllables/<consoante>/<silaba>.mp3
+// assets/audio/vowels/<letra>.wav
+// assets/audio/consonants/<letra>.wav
+// assets/audio/syllables/<consoante>/<silaba>.wav
 // =====================================================================
 
 class SoundManager {
@@ -148,14 +149,14 @@ class SoundManager {
     if (l.isEmpty || l.length != 1) return;
 
     final path = kVowels.contains(l)
-        ? 'audio/vowels/$l.mp3'
-        : 'audio/consonants/$l.mp3';
+        ? 'audio/vowels/$l.wav'
+        : 'audio/consonants/$l.wav';
 
     await _play(path);
   }
 
   // Toca o som de uma sílaba (ex: "ba", "que", "gui"), a partir da
-  // pasta da sua consoante inicial: assets/audio/syllables/<consoante>/<silaba>.mp3
+  // pasta da sua consoante inicial: assets/audio/syllables/<consoante>/<silaba>.wav
   Future<void> playSyllable(String syllable) async {
     final s = syllable.toLowerCase();
     if (s.isEmpty) return;
@@ -168,7 +169,7 @@ class SoundManager {
       return;
     }
 
-    final path = 'audio/syllables/$firstConsonant/$s.mp3';
+    final path = 'audio/syllables/$firstConsonant/$s.wav';
     await _play(path);
   }
 
@@ -187,8 +188,7 @@ class SoundManager {
       await _player.stop();
       await _player.play(AssetSource(assetPath));
     } catch (_) {
-      // Áudio ausente ou falha de reprodução: falha silenciosamente,
-      // igual ao comportamento original (playSound ainda "não implementado").
+      // Áudio ausente ou falha de reprodução: falha silenciosamente.
     }
   }
 }
@@ -296,19 +296,29 @@ class _HomeScreenState extends State<HomeScreen>
               );
             },
             child: SafeArea(
+              bottom: false,
               child: Column(
                 children: [
-                  // APP BAR - bordas curvadas em baixo, cor do container de toggles
-                  _AppBarWidget(colors: colors, onMenuTap: openDrawer),
+                  // APP BAR - contém o hambúrguer E o toggle ABC/AEI/BCD,
+                  // bordas curvadas em baixo, cor do container de toggles.
+                  _AppBarWidget(
+                    colors: colors,
+                    onMenuTap: openDrawer,
+                    currentSection: currentSection,
+                    currentMode: currentMode,
+                    onModeChange: (m) => setState(() => currentMode = m),
+                  ),
 
                   // SECTIONS - com slide suave entre tabs
                   Expanded(
-                    child: _AnimatedSection(
-                      colors: colors,
-                      currentSection: currentSection,
-                      currentMode: currentMode,
-                      onModeChange: (m) => setState(() => currentMode = m),
-                      onConsonantTap: openDetail,
+                    child: SafeArea(
+                      top: false,
+                      child: _AnimatedSection(
+                        colors: colors,
+                        currentSection: currentSection,
+                        currentMode: currentMode,
+                        onConsonantTap: openDetail,
+                      ),
                     ),
                   ),
                 ],
@@ -355,40 +365,97 @@ class _HomeScreenState extends State<HomeScreen>
 }
 
 // =====================================================================
-// APP BAR - cor do container de toggles, bordas curvadas só em baixo,
-// botão de menu circular e menor
+// APP BAR - cor do container de toggles, bordas curvadas só em baixo.
+// Contém o hambúrguer (circular) NA MESMA linha, e por baixo, dentro do
+// próprio appbar, o toggle ABC/AEI/BCD (com a cor do corpo/bg).
 // =====================================================================
 
 class _AppBarWidget extends StatelessWidget {
   final AppColors colors;
   final VoidCallback onMenuTap;
+  final DrawerSection currentSection;
+  final GridMode currentMode;
+  final ValueChanged<GridMode> onModeChange;
 
-  const _AppBarWidget({required this.colors, required this.onMenuTap});
+  const _AppBarWidget({
+    required this.colors,
+    required this.onMenuTap,
+    required this.currentSection,
+    required this.currentMode,
+    required this.onModeChange,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
-      decoration: BoxDecoration(
-        color: colors.bgCardNeutral,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
+    return SafeArea(
+      bottom: false,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+        decoration: BoxDecoration(
+          color: colors.bgCardNeutral,
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(24),
+            bottomRight: Radius.circular(24),
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          _HamburgerButton(colors: colors, onTap: onMenuTap),
-        ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                _HamburgerButton(colors: colors, onTap: onMenuTap),
+              ],
+            ),
+            // O toggle só faz sentido na secção do alfabeto. Nas outras
+            // secções o appbar mostra só o hambúrguer, mais compacto.
+            if (currentSection == DrawerSection.alphabet) ...[
+              const SizedBox(height: 14),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: colors.bg,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    children: [
+                      _ToggleButton(
+                        colors: colors,
+                        label: 'ABC',
+                        active: currentMode == GridMode.all,
+                        onTap: () => onModeChange(GridMode.all),
+                      ),
+                      const SizedBox(width: 8),
+                      _ToggleButton(
+                        colors: colors,
+                        label: 'AEI',
+                        active: currentMode == GridMode.vowels,
+                        onTap: () => onModeChange(GridMode.vowels),
+                      ),
+                      const SizedBox(width: 8),
+                      _ToggleButton(
+                        colors: colors,
+                        label: 'BCD',
+                        active: currentMode == GridMode.consonants,
+                        onTap: () => onModeChange(GridMode.consonants),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
 }
 
 // =====================================================================
-// HAMBURGER BUTTON - agora circular e mais pequeno, equivalente a
-// .hamburger-btn
+// HAMBURGER BUTTON - circular, ícone SVG real (não Material, não painter)
 // =====================================================================
 
 class _HamburgerButton extends StatelessWidget {
@@ -409,36 +476,16 @@ class _HamburgerButton extends StatelessWidget {
           shape: BoxShape.circle,
         ),
         child: Center(
-          child: CustomPaint(
-            size: const Size(18, 18),
-            painter: _LinesIconPainter(color: colors.textMuted),
+          child: SvgPicture.asset(
+            'assets/icons/menu-icon.svg',
+            width: 18,
+            height: 18,
+            colorFilter: ColorFilter.mode(colors.textMuted, BlendMode.srcIn),
           ),
         ),
       ),
     );
   }
-}
-
-// SVG do hambúrguer (3 linhas) redesenhado como CustomPainter
-class _LinesIconPainter extends CustomPainter {
-  final Color color;
-  _LinesIconPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round;
-    final ys = [size.height * 0.29, size.height * 0.5, size.height * 0.71];
-    for (final y in ys) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _LinesIconPainter oldDelegate) =>
-      oldDelegate.color != color;
 }
 
 // helper genérico de "pressionar" -> scale, usado em vários botões pequenos
@@ -485,14 +532,12 @@ class _AnimatedSection extends StatelessWidget {
   final AppColors colors;
   final DrawerSection currentSection;
   final GridMode currentMode;
-  final ValueChanged<GridMode> onModeChange;
   final ValueChanged<int> onConsonantTap;
 
   const _AnimatedSection({
     required this.colors,
     required this.currentSection,
     required this.currentMode,
-    required this.onModeChange,
     required this.onConsonantTap,
   });
 
@@ -503,7 +548,6 @@ class _AnimatedSection extends StatelessWidget {
           key: const ValueKey(DrawerSection.alphabet),
           colors: colors,
           currentMode: currentMode,
-          onModeChange: onModeChange,
           onConsonantTap: onConsonantTap,
         );
       case DrawerSection.games:
@@ -560,20 +604,19 @@ class _AnimatedSection extends StatelessWidget {
 }
 
 // =====================================================================
-// ALPHABET SECTION - equivalente a #section-alphabet (toggles + grid)
+// ALPHABET SECTION - equivalente a #section-alphabet (agora só o grid;
+// o toggle ABC/AEI/BCD subiu para dentro do appbar)
 // =====================================================================
 
 class _AlphabetSection extends StatelessWidget {
   final AppColors colors;
   final GridMode currentMode;
-  final ValueChanged<GridMode> onModeChange;
   final ValueChanged<int> onConsonantTap;
 
   const _AlphabetSection({
     super.key,
     required this.colors,
     required this.currentMode,
-    required this.onModeChange,
     required this.onConsonantTap,
   });
 
@@ -593,88 +636,41 @@ class _AlphabetSection extends StatelessWidget {
     final isConsonantMode = currentMode == GridMode.consonants;
     final letters = _letters;
 
-    return Column(
-      children: [
-        // TOGGLES ROW - agora com a cor do corpo (bg), afastado do limite do appbar
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: colors.bg,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: [
-                  _ToggleButton(
-                    colors: colors,
-                    label: 'ABC',
-                    active: currentMode == GridMode.all,
-                    onTap: () => onModeChange(GridMode.all),
-                  ),
-                  const SizedBox(width: 8),
-                  _ToggleButton(
-                    colors: colors,
-                    label: 'AEI',
-                    active: currentMode == GridMode.vowels,
-                    onTap: () => onModeChange(GridMode.vowels),
-                  ),
-                  const SizedBox(width: 8),
-                  _ToggleButton(
-                    colors: colors,
-                    label: 'BCD',
-                    active: currentMode == GridMode.consonants,
-                    onTap: () => onModeChange(GridMode.consonants),
-                  ),
-                ],
-              ),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: letters.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 1.05,
             ),
+            itemBuilder: (context, index) {
+              final letter = letters[index];
+              final colorIndex = index % 6;
+              return _LetterCard(
+                colors: colors,
+                letter: letter,
+                colorIndex: colorIndex,
+                onTap: () {
+                  // Toca sempre o som da letra ao tocar no card.
+                  SoundManager.instance.playLetter(letter);
+                  if (isConsonantMode) {
+                    final consonantIndex = kConsonants.indexOf(letter);
+                    onConsonantTap(consonantIndex);
+                  }
+                },
+              );
+            },
           ),
         ),
-
-        // GRID SCROLL
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 480),
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: letters.length,
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 1.05,
-                  ),
-                  itemBuilder: (context, index) {
-                    final letter = letters[index];
-                    final colorIndex = index % 6;
-                    return _LetterCard(
-                      colors: colors,
-                      letter: letter,
-                      colorIndex: colorIndex,
-                      onTap: () {
-                        if (isConsonantMode) {
-                          final consonantIndex = kConsonants.indexOf(letter);
-                          onConsonantTap(consonantIndex);
-                        } else {
-                          SoundManager.instance.playLetter(letter);
-                        }
-                      },
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -1064,7 +1060,7 @@ class _DrawerItemState extends State<_DrawerItem> {
   }
 }
 
-// THEME SWITCH - equivalente a .theme-switch, troca ícone sol/lua
+// THEME SWITCH - equivalente a .theme-switch, troca ícone sol/lua (SVG)
 class _ThemeSwitch extends StatelessWidget {
   final AppColors colors;
   final bool isDark;
@@ -1106,11 +1102,14 @@ class _ThemeSwitch extends StatelessWidget {
               ],
             ),
             child: Center(
-              child: CustomPaint(
-                size: const Size(14, 14),
-                painter: isDark
-                    ? _MoonIconPainter(color: AppColors.orange)
-                    : _SunIconPainter(color: AppColors.orange),
+              child: SvgPicture.asset(
+                isDark
+                    ? 'assets/icons/moon-icon.svg'
+                    : 'assets/icons/sun-icon.svg',
+                width: 14,
+                height: 14,
+                colorFilter:
+                    const ColorFilter.mode(AppColors.orange, BlendMode.srcIn),
               ),
             ),
           ),
@@ -1118,74 +1117,6 @@ class _ThemeSwitch extends StatelessWidget {
       ),
     );
   }
-}
-
-// SVG do sol redesenhado como CustomPainter (stroke, vazado)
-class _SunIconPainter extends CustomPainter {
-  final Color color;
-  _SunIconPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.6
-      ..strokeCap = StrokeCap.round;
-
-    final center = Offset(size.width / 2, size.height / 2);
-    canvas.drawCircle(center, size.width * 0.28, paint);
-
-    final rayLen = size.width * 0.16;
-    final positions = [
-      [Offset(center.dx, 0), Offset(center.dx, rayLen)],
-      [Offset(center.dx, size.height), Offset(center.dx, size.height - rayLen)],
-      [Offset(0, center.dy), Offset(rayLen, center.dy)],
-      [Offset(size.width, center.dy), Offset(size.width - rayLen, center.dy)],
-    ];
-    for (final p in positions) {
-      canvas.drawLine(p[0], p[1], paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _SunIconPainter oldDelegate) =>
-      oldDelegate.color != color;
-}
-
-// SVG da lua redesenhado como CustomPainter (fill, cheia)
-class _MoonIconPainter extends CustomPainter {
-  final Color color;
-  _MoonIconPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    final fullCircle = Path()
-      ..addOval(Rect.fromCircle(
-        center: Offset(size.width * 0.42, size.height * 0.5),
-        radius: size.width * 0.42,
-      ));
-    final cutoutCircle = Path()
-      ..addOval(Rect.fromCircle(
-        center: Offset(size.width * 0.62, size.height * 0.38),
-        radius: size.width * 0.36,
-      ));
-
-    final crescent = Path.combine(
-      PathOperation.difference,
-      fullCircle,
-      cutoutCircle,
-    );
-    canvas.drawPath(crescent, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _MoonIconPainter oldDelegate) =>
-      oldDelegate.color != color;
 }
 
 // =====================================================================
@@ -1424,7 +1355,7 @@ class _DetailScreenState extends State<DetailScreen>
 
 enum _NavIconType { back, forward }
 
-// NAV BUTTON - equivalente a .nav-btn (prev/next)
+// NAV BUTTON - equivalente a .nav-btn (prev/next), ícone SVG real
 class _NavButton extends StatelessWidget {
   final AppColors colors;
   final _NavIconType icon;
@@ -1452,51 +1383,20 @@ class _NavButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
           ),
           child: Center(
-            child: CustomPaint(
-              size: const Size(22, 22),
-              painter: _ChevronPainter(
-                color: colors.textMuted,
-                pointRight: icon == _NavIconType.forward,
-              ),
+            child: SvgPicture.asset(
+              icon == _NavIconType.forward
+                  ? 'assets/icons/chevron-right.svg'
+                  : 'assets/icons/chevron-left.svg',
+              width: 22,
+              height: 22,
+              colorFilter:
+                  ColorFilter.mode(colors.textMuted, BlendMode.srcIn),
             ),
           ),
         ),
       ),
     );
   }
-}
-
-// SVG das setas prev/next redesenhado como CustomPainter
-class _ChevronPainter extends CustomPainter {
-  final Color color;
-  final bool pointRight;
-  _ChevronPainter({required this.color, required this.pointRight});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    final path = Path();
-    if (pointRight) {
-      path.moveTo(size.width * 0.37, size.height * 0.16);
-      path.lineTo(size.width * 0.75, size.height * 0.5);
-      path.lineTo(size.width * 0.37, size.height * 0.84);
-    } else {
-      path.moveTo(size.width * 0.63, size.height * 0.16);
-      path.lineTo(size.width * 0.25, size.height * 0.5);
-      path.lineTo(size.width * 0.63, size.height * 0.84);
-    }
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _ChevronPainter oldDelegate) =>
-      oldDelegate.color != color || oldDelegate.pointRight != pointRight;
 }
 
 // CASE TAB - equivalente a .case-tab / .case-tab.active
@@ -1673,7 +1573,7 @@ class _SyllableRow extends StatelessWidget {
   }
 }
 
-// LETTER BUTTON pequeno - equivalente a .letter-btn
+// LETTER BUTTON pequeno - equivalente a .letter-btn (toca o som da letra)
 class _SmallLetterButton extends StatefulWidget {
   final AppColors colors;
   final String label;
@@ -1727,7 +1627,8 @@ class _SmallLetterButtonState extends State<_SmallLetterButton> {
   }
 }
 
-// OPERADOR - equivalente a .syl-op ( + e = ) - sem fonte personalizada
+// OPERADOR - equivalente a .syl-op ( + e = ) - sem fonte personalizada,
+// não toca som (não é letra nem sílaba).
 class _Operator extends StatelessWidget {
   final AppColors colors;
   final String symbol;
@@ -1753,7 +1654,8 @@ class _Operator extends StatelessWidget {
   }
 }
 
-// SYLLABLE BUTTON - equivalente a .syllable-btn (verde, resultado da soma)
+// SYLLABLE BUTTON - equivalente a .syllable-btn (verde, resultado da soma,
+// toca o som da sílaba completa)
 class _SyllableButton extends StatefulWidget {
   final AppColors colors;
   final String label;
@@ -1807,7 +1709,7 @@ class _SyllableButtonState extends State<_SyllableButton> {
   }
 }
 
-// SPEAKER BUTTON - equivalente a .speaker-btn
+// SPEAKER BUTTON - equivalente a .speaker-btn, ícone SVG real
 class _SpeakerButton extends StatelessWidget {
   final AppColors colors;
   final VoidCallback onTap;
@@ -1824,57 +1726,17 @@ class _SpeakerButton extends StatelessWidget {
         height: 40,
         decoration: const BoxDecoration(shape: BoxShape.circle),
         child: Center(
-          child: CustomPaint(
-            size: const Size(22, 22),
-            painter: _SpeakerIconPainter(color: colors.textMuted),
+          child: SvgPicture.asset(
+            'assets/icons/speaker-icon.svg',
+            width: 22,
+            height: 22,
+            colorFilter:
+                ColorFilter.mode(colors.textMuted, BlendMode.srcIn),
           ),
         ),
       ),
     );
   }
-}
-
-// SVG do speaker redesenhado como CustomPainter
-class _SpeakerIconPainter extends CustomPainter {
-  final Color color;
-  _SpeakerIconPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    final w = size.width;
-    final h = size.height;
-
-    final speaker = Path()
-      ..moveTo(w * 0.46, h * 0.21)
-      ..lineTo(w * 0.25, h * 0.375)
-      ..lineTo(w * 0.08, h * 0.375)
-      ..lineTo(w * 0.08, h * 0.625)
-      ..lineTo(w * 0.25, h * 0.625)
-      ..lineTo(w * 0.46, h * 0.79)
-      ..close();
-    canvas.drawPath(speaker, paint);
-
-    final wave1 = Path()
-      ..moveTo(w * 0.645, h * 0.354)
-      ..quadraticBezierTo(w * 0.85, h * 0.5, w * 0.645, h * 0.646);
-    canvas.drawPath(wave1, paint);
-
-    final wave2 = Path()
-      ..moveTo(w * 0.77, h * 0.25)
-      ..quadraticBezierTo(w * 1.02, h * 0.5, w * 0.77, h * 0.75);
-    canvas.drawPath(wave2, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _SpeakerIconPainter oldDelegate) =>
-      oldDelegate.color != color;
 }
 
 // CLOSE BUTTON - equivalente a .close-btn (vermelho, fecha o detail)
