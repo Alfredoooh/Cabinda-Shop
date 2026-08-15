@@ -131,9 +131,9 @@ enum DrawerSection { alphabet, games, videos }
 
 // =====================================================================
 // SOUND MANAGER - organiza sozinho os sons a partir das pastas
-// assets/audios/vowels/<letra>.mp3
-// assets/audios/consonants/<letra>.mp3
-// assets/audios/syllables/<consoante>/<silaba>.mp3
+// assets/audio/vowels/<letra>.mp3
+// assets/audio/consonants/<letra>.mp3
+// assets/audio/syllables/<consoante>/<silaba>.mp3
 // =====================================================================
 
 class SoundManager {
@@ -148,14 +148,14 @@ class SoundManager {
     if (l.isEmpty || l.length != 1) return;
 
     final path = kVowels.contains(l)
-        ? 'audios/vowels/$l.mp3'
-        : 'audios/consonants/$l.mp3';
+        ? 'audio/vowels/$l.mp3'
+        : 'audio/consonants/$l.mp3';
 
     await _play(path);
   }
 
   // Toca o som de uma sílaba (ex: "ba", "que", "gui"), a partir da
-  // pasta da sua consoante inicial: assets/audios/syllables/<consoante>/<silaba>.mp3
+  // pasta da sua consoante inicial: assets/audio/syllables/<consoante>/<silaba>.mp3
   Future<void> playSyllable(String syllable) async {
     final s = syllable.toLowerCase();
     if (s.isEmpty) return;
@@ -168,7 +168,7 @@ class SoundManager {
       return;
     }
 
-    final path = 'audios/syllables/$firstConsonant/$s.mp3';
+    final path = 'audio/syllables/$firstConsonant/$s.mp3';
     await _play(path);
   }
 
