@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 void main() {
   runApp(const AlfabetoApp());
@@ -27,37 +29,61 @@ class AppColors {
   AppColors(this.isDark);
 
   Color get bg => isDark ? const Color(0xFF1E1B16) : const Color(0xFFFFF8EE);
-  Color get bgCardNeutral => isDark ? const Color(0xFF2E2A22) : const Color(0xFFF0E6D2);
-  Color get textMain => isDark ? const Color(0xFFF5EEDD) : const Color(0xFF3D2B1F);
-  Color get textMuted => isDark ? const Color(0xFF9C9082) : const Color(0xFFA08868);
-  Color get divider => isDark ? const Color(0xFF3A352A) : const Color(0xFFEDE1C8);
-  Color get drawerBg => isDark ? const Color(0xFF26221B) : const Color(0xFFFFFFFF);
-  Color get overlay => isDark ? const Color(0x99000000) : const Color(0x66000000);
+  Color get bgCardNeutral =>
+      isDark ? const Color(0xFF2E2A22) : const Color(0xFFF0E6D2);
+  Color get textMain =>
+      isDark ? const Color(0xFFF5EEDD) : const Color(0xFF3D2B1F);
+  Color get textMuted =>
+      isDark ? const Color(0xFF9C9082) : const Color(0xFFA08868);
+  Color get divider =>
+      isDark ? const Color(0xFF3A352A) : const Color(0xFFEDE1C8);
+  Color get drawerBg =>
+      isDark ? const Color(0xFF26221B) : const Color(0xFFFFFFFF);
+  Color get overlay =>
+      isDark ? const Color(0x99000000) : const Color(0x66000000);
+
+  // Sombra neutra usada em botões pequenos e speaker/close (dependente do tema)
+  Color get neutralShadow =>
+      isDark ? const Color(0x40000000) : const Color(0x1A000000);
+  // Sombra do drawer (dependente do tema, evita "preto puro" no dark)
+  Color get drawerShadow =>
+      isDark ? const Color(0x66000000) : const Color(0x33000000);
+  // Fundo do polegar do theme switch (branco no claro, tom mais suave no escuro)
+  Color get switchThumb =>
+      isDark ? const Color(0xFFF5EEDD) : const Color(0xFFFFFFFF);
+  Color get switchThumbShadow =>
+      isDark ? const Color(0x40000000) : const Color(0x33000000);
 
   // Cores dos cards do grid (c0-c5), claro e escuro
   Color get c0Bg => isDark ? const Color(0xFF17394A) : const Color(0xFFDDF4FF);
   Color get c0Fg => isDark ? const Color(0xFF6FCBFA) : const Color(0xFF1CB0F6);
-  Color get c0Shadow => isDark ? const Color(0xFF0E2732) : const Color(0x591CB0F6);
+  Color get c0Shadow =>
+      isDark ? const Color(0xFF0E2732) : const Color(0x591CB0F6);
 
   Color get c1Bg => isDark ? const Color(0xFF4A3320) : const Color(0xFFFFE8D6);
   Color get c1Fg => isDark ? const Color(0xFFFFB05C) : const Color(0xFFFF9600);
-  Color get c1Shadow => isDark ? const Color(0xFF302014) : const Color(0x59FF9600);
+  Color get c1Shadow =>
+      isDark ? const Color(0xFF302014) : const Color(0x59FF9600);
 
   Color get c2Bg => isDark ? const Color(0xFF22421C) : const Color(0xFFE3F9D9);
   Color get c2Fg => isDark ? const Color(0xFF86E048) : const Color(0xFF58CC02);
-  Color get c2Shadow => isDark ? const Color(0xFF152912) : const Color(0x5958CC02);
+  Color get c2Shadow =>
+      isDark ? const Color(0xFF152912) : const Color(0x5958CC02);
 
   Color get c3Bg => isDark ? const Color(0xFF4A2333) : const Color(0xFFFFE0EC);
   Color get c3Fg => isDark ? const Color(0xFFFF83B0) : const Color(0xFFFF4B8C);
-  Color get c3Shadow => isDark ? const Color(0xFF2E1521) : const Color(0x59FF4B8C);
+  Color get c3Shadow =>
+      isDark ? const Color(0xFF2E1521) : const Color(0x59FF4B8C);
 
   Color get c4Bg => isDark ? const Color(0xFF362142) : const Color(0xFFF1E4FF);
   Color get c4Fg => isDark ? const Color(0xFFDCA6FF) : const Color(0xFFCE82FF);
-  Color get c4Shadow => isDark ? const Color(0xFF21142A) : const Color(0x59CE82FF);
+  Color get c4Shadow =>
+      isDark ? const Color(0xFF21142A) : const Color(0x59CE82FF);
 
   Color get c5Bg => isDark ? const Color(0xFF453A16) : const Color(0xFFFFF4CC);
   Color get c5Fg => isDark ? const Color(0xFFFFDD6B) : const Color(0xFFFFC800);
-  Color get c5Shadow => isDark ? const Color(0xFF2B240E) : const Color(0x59FFC800);
+  Color get c5Shadow =>
+      isDark ? const Color(0xFF2B240E) : const Color(0x59FFC800);
 
   static const green = Color(0xFF58CC02);
   static const greenShadow = Color(0xFF46A302);
@@ -67,7 +93,8 @@ class AppColors {
 
   List<Color> get cardBgList => [c0Bg, c1Bg, c2Bg, c3Bg, c4Bg, c5Bg];
   List<Color> get cardFgList => [c0Fg, c1Fg, c2Fg, c3Fg, c4Fg, c5Fg];
-  List<Color> get cardShadowList => [c0Shadow, c1Shadow, c2Shadow, c3Shadow, c4Shadow, c5Shadow];
+  List<Color> get cardShadowList =>
+      [c0Shadow, c1Shadow, c2Shadow, c3Shadow, c4Shadow, c5Shadow];
 }
 
 // =====================================================================
@@ -84,7 +111,8 @@ final List<String> kConsonants =
 
 // equivalente à função buildSyllable(consonant, vowel, consonantUpper)
 String buildSyllable(String consonant, String vowel, bool consonantUpper) {
-  final cRaw = consonantUpper ? consonant.toUpperCase() : consonant.toLowerCase();
+  final cRaw =
+      consonantUpper ? consonant.toUpperCase() : consonant.toLowerCase();
   final v = vowel.toLowerCase();
 
   if (consonant.toLowerCase() == 'q') {
@@ -102,6 +130,70 @@ enum GridMode { all, vowels, consonants }
 enum DrawerSection { alphabet, games, videos }
 
 // =====================================================================
+// SOUND MANAGER - organiza sozinho os sons a partir das pastas
+// assets/audios/vowels/<letra>.mp3
+// assets/audios/consonants/<letra>.mp3
+// assets/audios/syllables/<consoante>/<silaba>.mp3
+// =====================================================================
+
+class SoundManager {
+  SoundManager._();
+  static final SoundManager instance = SoundManager._();
+
+  final AudioPlayer _player = AudioPlayer();
+
+  // Toca o som de uma única letra (vogal ou consoante), minúscula ou não.
+  Future<void> playLetter(String letter) async {
+    final l = letter.toLowerCase();
+    if (l.isEmpty || l.length != 1) return;
+
+    final path = kVowels.contains(l)
+        ? 'audios/vowels/$l.mp3'
+        : 'audios/consonants/$l.mp3';
+
+    await _play(path);
+  }
+
+  // Toca o som de uma sílaba (ex: "ba", "que", "gui"), a partir da
+  // pasta da sua consoante inicial: assets/audios/syllables/<consoante>/<silaba>.mp3
+  Future<void> playSyllable(String syllable) async {
+    final s = syllable.toLowerCase();
+    if (s.isEmpty) return;
+
+    final firstConsonant = s[0];
+    if (!kConsonants.contains(firstConsonant)) {
+      // fallback de segurança: se por algum motivo não começar por
+      // consoante conhecida, tenta tocar como letra simples.
+      await playLetter(firstConsonant);
+      return;
+    }
+
+    final path = 'audios/syllables/$firstConsonant/$s.mp3';
+    await _play(path);
+  }
+
+  // Decide automaticamente se o texto é uma letra única ou uma sílaba.
+  Future<void> play(String text) async {
+    final t = text.toLowerCase();
+    if (t.length == 1) {
+      await playLetter(t);
+    } else {
+      await playSyllable(t);
+    }
+  }
+
+  Future<void> _play(String assetPath) async {
+    try {
+      await _player.stop();
+      await _player.play(AssetSource(assetPath));
+    } catch (_) {
+      // Áudio ausente ou falha de reprodução: falha silenciosamente,
+      // igual ao comportamento original (playSound ainda "não implementado").
+    }
+  }
+}
+
+// =====================================================================
 // HOME SCREEN - equivalente a #app com top-bar, toggles, sections e drawer
 // =====================================================================
 
@@ -113,14 +205,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   bool isDark = false;
   GridMode currentMode = GridMode.all;
   DrawerSection currentSection = DrawerSection.alphabet;
 
   late AnimationController _drawerController;
   late Animation<Offset> _drawerSlide;
+  // Deslocamento "push" do conteúdo principal, estilo iOS: só um pouquinho,
+  // não empurra a tela toda.
+  late Animation<double> _contentPush;
   bool _drawerOpen = false;
+
+  static const double _drawerWidthFactor = 0.78;
+  static const double _pushFactor = 0.24; // quanto do drawer "empurra" o corpo
 
   @override
   void initState() {
@@ -137,6 +235,12 @@ class _HomeScreenState extends State<HomeScreen>
       parent: _drawerController,
       curve: const Cubic(0.22, 1, 0.36, 1),
     ));
+    _contentPush = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _drawerController,
+        curve: const Cubic(0.22, 1, 0.36, 1),
+      ),
+    );
   }
 
   @override
@@ -162,16 +266,11 @@ class _HomeScreenState extends State<HomeScreen>
 
   void openDetail(int consonantIndex) {
     Navigator.of(context).push(
-      PageRouteBuilder(
-        opaque: false,
-        transitionDuration: const Duration(milliseconds: 180),
-        pageBuilder: (_, __, ___) => DetailScreen(
+      CupertinoPageRoute(
+        builder: (_) => DetailScreen(
           colors: AppColors(isDark),
           initialConsonantIndex: consonantIndex,
         ),
-        transitionsBuilder: (_, animation, __, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
       ),
     );
   }
@@ -179,49 +278,41 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     final colors = AppColors(isDark);
+    final drawerWidth =
+        MediaQuery.of(context).size.width * _drawerWidthFactor;
 
     return Scaffold(
       backgroundColor: colors.bg,
       body: Stack(
         children: [
-          SafeArea(
-            child: Column(
-              children: [
-                // TOP BAR - hambúrguer sozinho
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                  child: Row(
-                    children: [
-                      _HamburgerButton(colors: colors, onTap: openDrawer),
-                    ],
-                  ),
-                ),
+          // CONTEÚDO PRINCIPAL - recebe o efeito "push" quando o drawer abre
+          AnimatedBuilder(
+            animation: _contentPush,
+            builder: (context, child) {
+              final dx = drawerWidth * _pushFactor * _contentPush.value;
+              return Transform.translate(
+                offset: Offset(dx, 0),
+                child: child,
+              );
+            },
+            child: SafeArea(
+              child: Column(
+                children: [
+                  // APP BAR - bordas curvadas em baixo, cor do container de toggles
+                  _AppBarWidget(colors: colors, onMenuTap: openDrawer),
 
-                // SECTIONS
-                Expanded(
-                  child: IndexedStack(
-                    index: currentSection.index,
-                    children: [
-                      _AlphabetSection(
-                        colors: colors,
-                        currentMode: currentMode,
-                        onModeChange: (m) => setState(() => currentMode = m),
-                        onConsonantTap: openDetail,
-                      ),
-                      _PlaceholderSection(
-                        colors: colors,
-                        iconBg: colors.c1Bg,
-                        assetPath: 'assets/icons/games-icon.png',
-                      ),
-                      _PlaceholderSection(
-                        colors: colors,
-                        iconBg: colors.c4Bg,
-                        assetPath: 'assets/icons/videos-icon.png',
-                      ),
-                    ],
+                  // SECTIONS - com slide suave entre tabs
+                  Expanded(
+                    child: _AnimatedSection(
+                      colors: colors,
+                      currentSection: currentSection,
+                      currentMode: currentMode,
+                      onModeChange: (m) => setState(() => currentMode = m),
+                      onConsonantTap: openDetail,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
@@ -264,7 +355,40 @@ class _HomeScreenState extends State<HomeScreen>
 }
 
 // =====================================================================
-// HAMBURGER BUTTON - equivalente a .hamburger-btn
+// APP BAR - cor do container de toggles, bordas curvadas só em baixo,
+// botão de menu circular e menor
+// =====================================================================
+
+class _AppBarWidget extends StatelessWidget {
+  final AppColors colors;
+  final VoidCallback onMenuTap;
+
+  const _AppBarWidget({required this.colors, required this.onMenuTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+      decoration: BoxDecoration(
+        color: colors.bgCardNeutral,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
+      ),
+      child: Row(
+        children: [
+          _HamburgerButton(colors: colors, onTap: onMenuTap),
+        ],
+      ),
+    );
+  }
+}
+
+// =====================================================================
+// HAMBURGER BUTTON - agora circular e mais pequeno, equivalente a
+// .hamburger-btn
 // =====================================================================
 
 class _HamburgerButton extends StatelessWidget {
@@ -278,15 +402,15 @@ class _HamburgerButton extends StatelessWidget {
     return _PressableScale(
       onTap: onTap,
       child: Container(
-        width: 46,
-        height: 46,
+        width: 38,
+        height: 38,
         decoration: BoxDecoration(
-          color: colors.bgCardNeutral,
-          borderRadius: BorderRadius.circular(14),
+          color: colors.bg,
+          shape: BoxShape.circle,
         ),
         child: Center(
           child: CustomPaint(
-            size: const Size(22, 22),
+            size: const Size(18, 18),
             painter: _LinesIconPainter(color: colors.textMuted),
           ),
         ),
@@ -304,7 +428,7 @@ class _LinesIconPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
-      ..strokeWidth = 2.6
+      ..strokeWidth = 2.4
       ..strokeCap = StrokeCap.round;
     final ys = [size.height * 0.29, size.height * 0.5, size.height * 0.71];
     for (final y in ys) {
@@ -353,6 +477,89 @@ class _PressableScaleState extends State<_PressableScale> {
 }
 
 // =====================================================================
+// ANIMATED SECTION - equivalente ao IndexedStack, mas com slide suave
+// entre tabs (alfabeto / jogos / vídeos)
+// =====================================================================
+
+class _AnimatedSection extends StatelessWidget {
+  final AppColors colors;
+  final DrawerSection currentSection;
+  final GridMode currentMode;
+  final ValueChanged<GridMode> onModeChange;
+  final ValueChanged<int> onConsonantTap;
+
+  const _AnimatedSection({
+    required this.colors,
+    required this.currentSection,
+    required this.currentMode,
+    required this.onModeChange,
+    required this.onConsonantTap,
+  });
+
+  Widget _buildSection(DrawerSection section) {
+    switch (section) {
+      case DrawerSection.alphabet:
+        return _AlphabetSection(
+          key: const ValueKey(DrawerSection.alphabet),
+          colors: colors,
+          currentMode: currentMode,
+          onModeChange: onModeChange,
+          onConsonantTap: onConsonantTap,
+        );
+      case DrawerSection.games:
+        return _PlaceholderSection(
+          key: const ValueKey(DrawerSection.games),
+          colors: colors,
+          iconBg: colors.c1Bg,
+          assetPath: 'assets/icons/games-icon.png',
+        );
+      case DrawerSection.videos:
+        return _PlaceholderSection(
+          key: const ValueKey(DrawerSection.videos),
+          colors: colors,
+          iconBg: colors.c4Bg,
+          assetPath: 'assets/icons/videos-icon.png',
+        );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 260),
+      switchInCurve: const Cubic(0.22, 1, 0.36, 1),
+      switchOutCurve: const Cubic(0.22, 1, 0.36, 1),
+      transitionBuilder: (child, animation) {
+        final inFromRight = Tween<Offset>(
+          begin: const Offset(0.06, 0),
+          end: Offset.zero,
+        ).animate(animation);
+
+        return ClipRect(
+          child: SlideTransition(
+            position: inFromRight,
+            child: FadeTransition(
+              opacity: animation,
+              child: child,
+            ),
+          ),
+        );
+      },
+      layoutBuilder: (currentChild, previousChildren) {
+        return Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            ...previousChildren,
+            if (currentChild != null) currentChild,
+          ],
+        );
+      },
+      child: _buildSection(currentSection),
+    );
+  }
+}
+
+// =====================================================================
 // ALPHABET SECTION - equivalente a #section-alphabet (toggles + grid)
 // =====================================================================
 
@@ -363,6 +570,7 @@ class _AlphabetSection extends StatelessWidget {
   final ValueChanged<int> onConsonantTap;
 
   const _AlphabetSection({
+    super.key,
     required this.colors,
     required this.currentMode,
     required this.onModeChange,
@@ -387,32 +595,35 @@ class _AlphabetSection extends StatelessWidget {
 
     return Column(
       children: [
-        // TOGGLES ROW
+        // TOGGLES ROW - agora com a cor do corpo (bg), afastado do limite do appbar
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
             child: Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: colors.bgCardNeutral,
+                color: colors.bg,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
                 children: [
                   _ToggleButton(
+                    colors: colors,
                     label: 'ABC',
                     active: currentMode == GridMode.all,
                     onTap: () => onModeChange(GridMode.all),
                   ),
                   const SizedBox(width: 8),
                   _ToggleButton(
+                    colors: colors,
                     label: 'AEI',
                     active: currentMode == GridMode.vowels,
                     onTap: () => onModeChange(GridMode.vowels),
                   ),
                   const SizedBox(width: 8),
                   _ToggleButton(
+                    colors: colors,
                     label: 'BCD',
                     active: currentMode == GridMode.consonants,
                     onTap: () => onModeChange(GridMode.consonants),
@@ -434,7 +645,8 @@ class _AlphabetSection extends StatelessWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: letters.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
@@ -451,9 +663,9 @@ class _AlphabetSection extends StatelessWidget {
                         if (isConsonantMode) {
                           final consonantIndex = kConsonants.indexOf(letter);
                           onConsonantTap(consonantIndex);
+                        } else {
+                          SoundManager.instance.playLetter(letter);
                         }
-                        // fora do modo consoante, o clique tocaria o som
-                        // (playSound ainda não implementado, igual ao HTML original)
                       },
                     );
                   },
@@ -468,12 +680,15 @@ class _AlphabetSection extends StatelessWidget {
 }
 
 // TOGGLE BUTTON - equivalente a .toggle-btn / .toggle-btn.active
+// Sem fonte personalizada - usa a fonte padrão do tema.
 class _ToggleButton extends StatelessWidget {
+  final AppColors colors;
   final String label;
   final bool active;
   final VoidCallback onTap;
 
   const _ToggleButton({
+    required this.colors,
     required this.label,
     required this.active,
     required this.onTap,
@@ -507,13 +722,10 @@ class _ToggleButton extends StatelessWidget {
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontFamily: 'SystemUI',
               fontSize: 16,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.5,
-              color: active ? Colors.white : null,
-            ).copyWith(
-              color: active ? Colors.white : Theme.of(context).disabledColor,
+              color: active ? Colors.white : colors.textMuted,
             ),
           ),
         ),
@@ -613,6 +825,7 @@ class _PlaceholderSection extends StatelessWidget {
   final String assetPath;
 
   const _PlaceholderSection({
+    super.key,
     required this.colors,
     required this.iconBg,
     required this.assetPath,
@@ -698,10 +911,10 @@ class _AppDrawer extends StatelessWidget {
       height: double.infinity,
       decoration: BoxDecoration(
         color: colors.drawerBg,
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x33000000),
-            offset: Offset(4, 0),
+            color: colors.drawerShadow,
+            offset: const Offset(4, 0),
             blurRadius: 24,
           ),
         ],
@@ -745,14 +958,14 @@ class _AppDrawer extends StatelessWidget {
                 border: Border(top: BorderSide(color: colors.divider)),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'Tema',
                       style: TextStyle(
-                        fontFamily: 'SystemUI',
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: colors.textMain,
@@ -800,7 +1013,8 @@ class _DrawerItemState extends State<_DrawerItem> {
   @override
   Widget build(BuildContext context) {
     final bg = widget.active ? AppColors.green : widget.colors.bgCardNeutral;
-    final shadowColor = widget.active ? AppColors.greenShadow : widget.colors.divider;
+    final shadowColor =
+        widget.active ? AppColors.greenShadow : widget.colors.divider;
     final labelColor = widget.active ? Colors.white : widget.colors.textMain;
 
     return GestureDetector(
@@ -838,7 +1052,6 @@ class _DrawerItemState extends State<_DrawerItem> {
             Text(
               widget.label,
               style: TextStyle(
-                fontFamily: 'SystemUI',
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
                 color: labelColor,
@@ -881,13 +1094,13 @@ class _ThemeSwitch extends StatelessWidget {
           child: Container(
             width: 24,
             height: 24,
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: colors.switchThumb,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Color(0x33000000),
-                  offset: Offset(0, 2),
+                  color: colors.switchThumbShadow,
+                  offset: const Offset(0, 2),
                   blurRadius: 4,
                 ),
               ],
@@ -1053,7 +1266,7 @@ class _DetailScreenState extends State<DetailScreen>
   }
 
   void playSound(String letterOrSyllable) {
-    // som será adicionado depois, igual ao HTML original
+    SoundManager.instance.play(letterOrSyllable);
   }
 
   @override
@@ -1112,12 +1325,14 @@ class _DetailScreenState extends State<DetailScreen>
                         child: Row(
                           children: [
                             _CaseTab(
+                              colors: colors,
                               label: '${consonant.toUpperCase()}+a',
                               active: isUpperCase,
                               onTap: () => switchCase(true),
                             ),
                             const SizedBox(width: 4),
                             _CaseTab(
+                              colors: colors,
                               label: '$consonant+a',
                               active: !isUpperCase,
                               onTap: () => switchCase(false),
@@ -1194,6 +1409,7 @@ class _DetailScreenState extends State<DetailScreen>
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 480),
                   child: _CloseButton(
+                    colors: colors,
                     onTap: () => Navigator.of(context).pop(),
                   ),
                 ),
@@ -1285,11 +1501,13 @@ class _ChevronPainter extends CustomPainter {
 
 // CASE TAB - equivalente a .case-tab / .case-tab.active
 class _CaseTab extends StatelessWidget {
+  final AppColors colors;
   final String label;
   final bool active;
   final VoidCallback onTap;
 
   const _CaseTab({
+    required this.colors,
     required this.label,
     required this.active,
     required this.onTap,
@@ -1319,10 +1537,9 @@ class _CaseTab extends StatelessWidget {
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontFamily: 'SystemUI',
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: active ? Colors.white : Theme.of(context).disabledColor,
+              color: active ? Colors.white : colors.textMuted,
             ),
           ),
         ),
@@ -1348,6 +1565,9 @@ class _SyllablePane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayLetter = isUpper ? consonant.toUpperCase() : consonant;
+    // A letra grande do topo usa sempre a consoante em minúscula para
+    // referência sonora (o texto exibido mantém maiúscula/minúscula).
+    final soundLetter = consonant.toLowerCase();
 
     return SingleChildScrollView(
       child: Center(
@@ -1358,17 +1578,20 @@ class _SyllablePane extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 4, bottom: 20),
-                  child: Text(
-                    displayLetter,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'ComicSansMS',
-                      fontSize: 64,
-                      fontWeight: FontWeight.w700,
-                      height: 1.0,
-                      color: colors.textMain,
+                GestureDetector(
+                  onTap: () => onPlaySound(soundLetter),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 4, bottom: 20),
+                    child: Text(
+                      displayLetter,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'ComicSansMS',
+                        fontSize: 64,
+                        fontWeight: FontWeight.w700,
+                        height: 1.0,
+                        color: colors.textMain,
+                      ),
                     ),
                   ),
                 ),
@@ -1376,6 +1599,7 @@ class _SyllablePane extends StatelessWidget {
                   _SyllableRow(
                     colors: colors,
                     consonantDisplay: displayLetter,
+                    consonantSound: soundLetter,
                     vowel: vowel,
                     syllable: buildSyllable(consonant, vowel, isUpper),
                     isLast: vowel == kVowels.last,
@@ -1394,6 +1618,7 @@ class _SyllablePane extends StatelessWidget {
 class _SyllableRow extends StatelessWidget {
   final AppColors colors;
   final String consonantDisplay;
+  final String consonantSound;
   final String vowel;
   final String syllable;
   final bool isLast;
@@ -1402,6 +1627,7 @@ class _SyllableRow extends StatelessWidget {
   const _SyllableRow({
     required this.colors,
     required this.consonantDisplay,
+    required this.consonantSound,
     required this.vowel,
     required this.syllable,
     required this.isLast,
@@ -1422,7 +1648,7 @@ class _SyllableRow extends StatelessWidget {
           _SmallLetterButton(
             colors: colors,
             label: consonantDisplay,
-            onTap: () => onPlaySound(consonantDisplay),
+            onTap: () => onPlaySound(consonantSound),
           ),
           _Operator(colors: colors, symbol: '+'),
           _SmallLetterButton(
@@ -1432,6 +1658,7 @@ class _SyllableRow extends StatelessWidget {
           ),
           _Operator(colors: colors, symbol: '='),
           _SyllableButton(
+            colors: colors,
             label: syllable,
             onTap: () => onPlaySound(syllable),
           ),
@@ -1481,7 +1708,7 @@ class _SmallLetterButtonState extends State<_SmallLetterButton> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: const Color(0x1A000000),
+              color: widget.colors.neutralShadow,
               offset: Offset(0, _pressed ? 1 : 3),
             ),
           ],
@@ -1500,7 +1727,7 @@ class _SmallLetterButtonState extends State<_SmallLetterButton> {
   }
 }
 
-// OPERADOR - equivalente a .syl-op ( + e = )
+// OPERADOR - equivalente a .syl-op ( + e = ) - sem fonte personalizada
 class _Operator extends StatelessWidget {
   final AppColors colors;
   final String symbol;
@@ -1516,7 +1743,6 @@ class _Operator extends StatelessWidget {
         child: Text(
           symbol,
           style: TextStyle(
-            fontFamily: 'SystemUI',
             fontWeight: FontWeight.w700,
             fontSize: 18,
             color: colors.textMain,
@@ -1529,10 +1755,15 @@ class _Operator extends StatelessWidget {
 
 // SYLLABLE BUTTON - equivalente a .syllable-btn (verde, resultado da soma)
 class _SyllableButton extends StatefulWidget {
+  final AppColors colors;
   final String label;
   final VoidCallback onTap;
 
-  const _SyllableButton({required this.label, required this.onTap});
+  const _SyllableButton({
+    required this.colors,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   State<_SyllableButton> createState() => _SyllableButtonState();
@@ -1647,10 +1878,12 @@ class _SpeakerIconPainter extends CustomPainter {
 }
 
 // CLOSE BUTTON - equivalente a .close-btn (vermelho, fecha o detail)
+// Sem fonte personalizada.
 class _CloseButton extends StatefulWidget {
+  final AppColors colors;
   final VoidCallback onTap;
 
-  const _CloseButton({required this.onTap});
+  const _CloseButton({required this.colors, required this.onTap});
 
   @override
   State<_CloseButton> createState() => _CloseButtonState();
@@ -1685,7 +1918,6 @@ class _CloseButtonState extends State<_CloseButton> {
           child: Text(
             'Fechar',
             style: TextStyle(
-              fontFamily: 'SystemUI',
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: Colors.white,
