@@ -17,13 +17,8 @@ class VideoStreamInfo {
 class VideoStreamExtractor {
   static final YoutubeExplode _yt = YoutubeExplode();
 
-  /// Recebe o ID do vídeo (ex: "dQw4w9WgXcQ") e devolve o URL real do
-  /// stream de vídeo, pronto para o teu player usar diretamente.
   static Future<VideoStreamInfo> extrairLinkDireto(String videoId) async {
     final manifest = await _yt.videos.streamsClient.getManifest(videoId);
-
-    // Pega o stream com melhor qualidade que já vem com vídeo+áudio juntos
-    // (muxed), para não precisares de sincronizar duas streams separadas.
     final streamInfo = manifest.muxed.withHighestBitrate();
 
     return VideoStreamInfo(

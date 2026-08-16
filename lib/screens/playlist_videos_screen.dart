@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../models/playlist_model.dart';
 import 'video_player_screen.dart';
 
@@ -19,7 +21,16 @@ class PlaylistVideosScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: colors.bg,
         elevation: 0,
-        iconTheme: IconThemeData(color: colors.textMain),
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: SvgPicture.asset(
+            'assets/icons/back.svg',
+            width: 20,
+            height: 20,
+            colorFilter: ColorFilter.mode(colors.textMain, BlendMode.srcIn),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: Text(
           playlist.nome,
           style: TextStyle(
@@ -50,7 +61,7 @@ class PlaylistVideosScreen extends StatelessWidget {
                     corIndex: index % 6,
                     onTap: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(
+                        CupertinoPageRoute(
                           builder: (_) => VideoPlayerScreen(
                             colors: colors,
                             video: video,
@@ -68,7 +79,7 @@ class PlaylistVideosScreen extends StatelessWidget {
 
 class _VideoCard extends StatefulWidget {
   final dynamic colors;
-  final VideoItem video;
+  final dynamic video;
   final int corIndex;
   final VoidCallback onTap;
 
@@ -109,10 +120,7 @@ class _VideoCardState extends State<_VideoCard> {
           color: bg,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(
-              color: shadow,
-              offset: Offset(0, _pressed ? 1 : 4),
-            ),
+            BoxShadow(color: shadow, offset: Offset(0, _pressed ? 1 : 4)),
           ],
         ),
         child: Row(
@@ -132,28 +140,19 @@ class _VideoCardState extends State<_VideoCard> {
                       width: 100,
                       height: 70,
                       color: colors.bgCardNeutral,
-                      child: Icon(
-                        Icons.smart_display_rounded,
-                        color: colors.textMuted,
-                        size: 28,
-                      ),
+                      child: Icon(Icons.smart_display_rounded,
+                          color: colors.textMuted, size: 28),
                     ),
                   ),
                 ),
                 Positioned.fill(
                   child: Center(
-                    child: Container(
-                      width: 30,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.45),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.play_arrow_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
+                    child: SvgPicture.asset(
+                      'assets/icons/play.svg',
+                      width: 26,
+                      height: 26,
+                      colorFilter:
+                          const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                     ),
                   ),
                 ),
@@ -201,15 +200,17 @@ class _VideoCardState extends State<_VideoCard> {
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        Icon(Icons.schedule_rounded,
-                            size: 13, color: colors.textMuted),
+                        SvgPicture.asset(
+                          'assets/icons/clock.svg',
+                          width: 13,
+                          height: 13,
+                          colorFilter: ColorFilter.mode(
+                              colors.textMuted, BlendMode.srcIn),
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           widget.video.duracaoFormatada,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: colors.textMuted,
-                          ),
+                          style: TextStyle(fontSize: 12, color: colors.textMuted),
                         ),
                       ],
                     ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:video_player/video_player.dart';
 import '../models/playlist_model.dart';
 import '../services/video_stream_extractor.dart';
@@ -32,12 +33,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     try {
       final streamInfo =
           await VideoStreamExtractor.extrairLinkDireto(widget.video.id);
-
       final controller =
           VideoPlayerController.networkUrl(Uri.parse(streamInfo.urlDireto));
-
       await controller.initialize();
-
       if (!mounted) return;
       setState(() {
         _controller = controller;
@@ -61,14 +59,20 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = widget.colors;
-
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        leading: IconButton(
+          icon: SvgPicture.asset(
+            'assets/icons/back.svg',
+            width: 20,
+            height: 20,
+            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: Text(
           widget.video.titulo,
           maxLines: 1,
@@ -107,10 +111,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 }
 
-// CONTROLOS PRÓPRIOS - substitui pelos teus botões estilo Duolingo/CapCut
 class _CustomControls extends StatefulWidget {
   final VideoPlayerController controller;
-
   const _CustomControls({required this.controller});
 
   @override
@@ -135,8 +137,6 @@ class _CustomControlsState extends State<_CustomControls> {
   @override
   Widget build(BuildContext context) {
     final value = widget.controller.value;
-    final posicao = value.position;
-    final duracao = value.duration;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 20, 12, 12),
@@ -163,12 +163,11 @@ class _CustomControlsState extends State<_CustomControls> {
           Row(
             children: [
               IconButton(
-                icon: Icon(
-                  value.isPlaying
-                      ? Icons.pause_rounded
-                      : Icons.play_arrow_rounded,
-                  color: Colors.white,
-                  size: 32,
+                icon: SvgPicture.asset(
+                  value.isPlaying ? 'assets/icons/pause.svg' : 'assets/icons/play.svg',
+                  width: 26,
+                  height: 26,
+                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                 ),
                 onPressed: () {
                   setState(() {
@@ -179,7 +178,7 @@ class _CustomControlsState extends State<_CustomControls> {
                 },
               ),
               Text(
-                '${_formatar(posicao)} / ${_formatar(duracao)}',
+                '${_formatar(value.position)} / ${_formatar(value.duration)}',
                 style: const TextStyle(color: Colors.white70, fontSize: 12),
               ),
             ],

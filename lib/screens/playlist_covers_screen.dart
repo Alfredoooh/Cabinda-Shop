@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../models/playlist_model.dart';
 import '../services/playlist_loader.dart';
+import '../widgets/abc_loader.dart';
 import 'playlist_videos_screen.dart';
 
 class PlaylistCoversScreen extends StatefulWidget {
@@ -30,7 +33,7 @@ class _PlaylistCoversScreenState extends State<PlaylistCoversScreen> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
-            child: CircularProgressIndicator(color: colors.textMuted),
+            child: AbcLoader(corMuted: colors.textMuted),
           );
         }
 
@@ -58,41 +61,29 @@ class _PlaylistCoversScreenState extends State<PlaylistCoversScreen> {
           );
         }
 
-        return SingleChildScrollView(
+        return ListView.builder(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: playlists.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 14,
-                  childAspectRatio: 0.85,
-                ),
-                itemBuilder: (context, index) {
-                  final playlist = playlists[index];
-                  return _PlaylistCard(
-                    colors: colors,
-                    playlist: playlist,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => PlaylistVideosScreen(
-                            colors: colors,
-                            playlist: playlist,
-                          ),
-                        ),
-                      );
-                    },
+          itemCount: playlists.length,
+          itemBuilder: (context, index) {
+            final playlist = playlists[index];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: _PlaylistCard(
+                colors: colors,
+                playlist: playlist,
+                onTap: () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (_) => PlaylistVideosScreen(
+                        colors: colors,
+                        playlist: playlist,
+                      ),
+                    ),
                   );
                 },
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -121,20 +112,12 @@ class _PlaylistCardState extends State<_PlaylistCard> {
   Widget build(BuildContext context) {
     final colors = widget.colors;
     final bgList = colors.cardBgList as List<Color>;
-    final fgList = colors.cardFgList as List<Color>;
     final shadowList = colors.cardShadowList as List<Color>;
 
     final idx = widget.playlist.corIndex;
     final bg = bgList[idx];
-    final fg = fgList[idx];
     final shadow = shadowList[idx];
-
-    final palavras = widget.playlist.nome.trim().split(' ');
-    final iniciais = palavras.isNotEmpty
-        ? (palavras.length > 1
-            ? '${palavras[0][0]}${palavras[1][0]}'
-            : palavras[0].substring(0, palavras[0].length >= 2 ? 2 : 1))
-        : '??';
+    final videoCapa = widget.playlist.videoCapa;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -144,61 +127,81 @@ class _PlaylistCardState extends State<_PlaylistCard> {
       onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 100),
-        transform: Matrix4.identity()..translate(0.0, _pressed ? 4.0 : 0.0),
+        transform: Matrix4.identity()..translate(0.0, _pressed ? 3.0 : 0.0),
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
-            BoxShadow(
-              color: shadow,
-              offset: Offset(0, _pressed ? 1 : 4),
-            ),
+            BoxShadow(color: shadow, offset: Offset(0, _pressed ? 1 : 4)),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Row(
           children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                bottomLeft: Radius.circular(20),
+              ),
+              child: videoCapa != null
+                  ? Image.network(
+                      videoCapa.thumbnailUrl,
+                      width: 110,
+                      height: 90,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 110,
+                        height: 90,
+                        color: Colors.black12,
+                        child: Icon(
+                          Icons.smart_display_rounded,
+                          color: colors.textMuted,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      width: 110,
+                      height: 90,
+                      color: Colors.black12,
+                      child: Icon(
+                        Icons.smart_display_rounded,
+                        color: colors.textMuted,
+                      ),
+                    ),
+            ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Center(
-                  child: Text(
-                    iniciais.toUpperCase(),
-                    style: TextStyle(
-                      fontFamily: 'ComicSansMS',
-                      fontSize: 34,
-                      fontWeight: FontWeight.w700,
-                      color: fg,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      widget.playlist.nome,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: 'ComicSansMS',
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: colors.textMain,
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${widget.playlist.totalVideos} vídeos',
+                      style: TextStyle(fontSize: 12, color: colors.textMuted),
+                    ),
+                  ],
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.playlist.nome,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: 'ComicSansMS',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: colors.textMain,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${widget.playlist.totalVideos} vídeos',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colors.textMuted,
-                    ),
-                  ),
-                ],
+              padding: const EdgeInsets.only(right: 14),
+              child: SvgPicture.asset(
+                'assets/icons/chevron-right.svg',
+                width: 16,
+                height: 16,
+                colorFilter: ColorFilter.mode(colors.textMuted, BlendMode.srcIn),
               ),
             ),
           ],

@@ -65,4 +65,7 @@ class PlaylistItem {
       corIndex: corIndex,
     );
   }
+
+  /// Primeiro vídeo da playlist, usado como capa/cover do card.
+  VideoItem? get videoCapa => videos.isNotEmpty ? videos.first : null;
 }
