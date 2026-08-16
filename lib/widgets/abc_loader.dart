@@ -15,6 +15,9 @@ class _AbcLoaderState extends State<AbcLoader>
   static const List<String> _letras = ['A', 'B', 'C', 'D'];
   static const Color verde = Color(0xFF58CC02);
 
+  static const double _janela = 0.35;
+  static const double _atraso = 0.20;
+
   @override
   void initState() {
     super.initState();
@@ -30,50 +33,54 @@ class _AbcLoaderState extends State<AbcLoader>
     super.dispose();
   }
 
+  double _pulso(int index, double t) {
+    final inicio = index * _atraso;
+    final local = ((t - inicio) % 1.0 + 1.0) % 1.0;
+    if (local > _janela) return 0.0;
+    final norm = local / _janela;
+    return norm < 0.5
+        ? Curves.easeOut.transform(norm * 2)
+        : Curves.easeIn.transform(1.0 - (norm - 0.5) * 2);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _controller,
-      builder: (context, child) {
+      builder: (context, _) {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: List.generate(_letras.length, (index) {
-            // Desfasamento por letra, criando o efeito de onda sequencial
-            final atraso = index * 0.2;
-            final progresso = (_controller.value - atraso) % 1.0;
-            final pulso = progresso < 0.5
-                ? Curves.easeOut.transform(progresso * 2)
-                : Curves.easeIn.transform(1 - (progresso - 0.5) * 2);
-
-            final escala = 0.85 + (pulso * 0.35);
+            final p = _pulso(index, _controller.value);
+            final escala = 0.80 + p * 0.40;
             final corFundo = Color.lerp(
-              widget.corMuted.withOpacity(0.15),
+              widget.corMuted.withOpacity(0.12),
               verde,
-              pulso,
+              p,
             )!;
             final corTexto = Color.lerp(
               widget.corMuted,
               Colors.white,
-              pulso,
+              p,
             )!;
 
             return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Transform.scale(
                 scale: escala,
                 child: Container(
-                  width: 42,
-                  height: 42,
+                  width: 26,
+                  height: 26,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: corFundo,
                     shape: BoxShape.circle,
-                    boxShadow: pulso > 0.3
+                    boxShadow: p > 0.2
                         ? [
                             BoxShadow(
-                              color: verde.withOpacity(pulso * 0.4),
-                              blurRadius: 12,
-                              spreadRadius: 1,
+                              color: verde.withOpacity(p * 0.35),
+                              blurRadius: 8,
+                              spreadRadius: 0,
                             ),
                           ]
                         : [],
@@ -83,7 +90,7 @@ class _AbcLoaderState extends State<AbcLoader>
                     style: TextStyle(
                       fontFamily: 'ComicSansMS',
                       fontWeight: FontWeight.w700,
-                      fontSize: 18,
+                      fontSize: 12,
                       color: corTexto,
                     ),
                   ),

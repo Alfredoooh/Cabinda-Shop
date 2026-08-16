@@ -77,6 +77,7 @@ class _PlaylistCoversScreenState extends State<PlaylistCoversScreen> {
                       builder: (_) => PlaylistVideosScreen(
                         colors: colors,
                         playlist: playlist,
+                        todasPlaylists: playlists,
                       ),
                     ),
                   );
@@ -152,25 +153,18 @@ class _PlaylistCardState extends State<_PlaylistCard> {
                         width: 110,
                         height: 90,
                         color: Colors.black12,
-                        child: Icon(
-                          Icons.smart_display_rounded,
-                          color: colors.textMuted,
-                        ),
                       ),
                     )
                   : Container(
                       width: 110,
                       height: 90,
                       color: Colors.black12,
-                      child: Icon(
-                        Icons.smart_display_rounded,
-                        color: colors.textMuted,
-                      ),
                     ),
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -201,7 +195,8 @@ class _PlaylistCardState extends State<_PlaylistCard> {
                 'assets/icons/chevron-right.svg',
                 width: 16,
                 height: 16,
-                colorFilter: ColorFilter.mode(colors.textMuted, BlendMode.srcIn),
+                colorFilter:
+                    ColorFilter.mode(colors.textMuted, BlendMode.srcIn),
               ),
             ),
           ],

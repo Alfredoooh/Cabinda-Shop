@@ -14,8 +14,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool isDark = false;
   GridMode currentMode = GridMode.all;
   DrawerSection currentSection = DrawerSection.alphabet;
@@ -280,7 +279,7 @@ class _AppBarWidget extends StatelessWidget {
                       _iconeAtivo,
                       width: 22,
                       height: 22,
-                      color: colors.textMain,
+                      // SEM color: — PNG original sem tint
                       errorBuilder: (context, error, stackTrace) =>
                           const SizedBox(width: 22, height: 22),
                     ),
@@ -692,8 +691,7 @@ class _AppDrawer extends StatelessWidget {
                 border: Border(top: BorderSide(color: colors.divider)),
               ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -775,6 +773,7 @@ class _DrawerItemState extends State<_DrawerItem> {
               width: 24,
               height: 24,
               fit: BoxFit.contain,
+              // SEM color: — PNG original no drawer também
               errorBuilder: (context, error, stackTrace) =>
                   const SizedBox(width: 24, height: 24),
             ),
@@ -841,8 +840,8 @@ class _ThemeSwitch extends StatelessWidget {
                     : 'assets/icons/sun-icon.svg',
                 width: 14,
                 height: 14,
-                colorFilter:
-                    const ColorFilter.mode(AppColors.orange, BlendMode.srcIn),
+                colorFilter: const ColorFilter.mode(
+                    AppColors.orange, BlendMode.srcIn),
               ),
             ),
           ),

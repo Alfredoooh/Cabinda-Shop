@@ -7,11 +7,13 @@ import 'video_player_screen.dart';
 class PlaylistVideosScreen extends StatelessWidget {
   final dynamic colors;
   final PlaylistItem playlist;
+  final List<PlaylistItem> todasPlaylists;
 
   const PlaylistVideosScreen({
     super.key,
     required this.colors,
     required this.playlist,
+    this.todasPlaylists = const [],
   });
 
   @override
@@ -65,6 +67,8 @@ class PlaylistVideosScreen extends StatelessWidget {
                           builder: (_) => VideoPlayerScreen(
                             colors: colors,
                             video: video,
+                            playlist: playlist,
+                            todasPlaylists: todasPlaylists,
                           ),
                         ),
                       );
@@ -140,8 +144,6 @@ class _VideoCardState extends State<_VideoCard> {
                       width: 100,
                       height: 70,
                       color: colors.bgCardNeutral,
-                      child: Icon(Icons.smart_display_rounded,
-                          color: colors.textMuted, size: 28),
                     ),
                   ),
                 ),
@@ -151,8 +153,8 @@ class _VideoCardState extends State<_VideoCard> {
                       'assets/icons/play.svg',
                       width: 26,
                       height: 26,
-                      colorFilter:
-                          const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                      colorFilter: const ColorFilter.mode(
+                          Colors.white, BlendMode.srcIn),
                     ),
                   ),
                 ),
@@ -210,7 +212,8 @@ class _VideoCardState extends State<_VideoCard> {
                         const SizedBox(width: 4),
                         Text(
                           widget.video.duracaoFormatada,
-                          style: TextStyle(fontSize: 12, color: colors.textMuted),
+                          style: TextStyle(
+                              fontSize: 12, color: colors.textMuted),
                         ),
                       ],
                     ),
