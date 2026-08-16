@@ -34,6 +34,8 @@ flutter:
 
   assets:
     - assets/icons/alphabet-icon.png
+    - assets/covers/game_memory_cover.png
+    - assets/covers/game_quiz_cover.png
     - assets/icons/games-icon.png
     - assets/icons/videos-icon.png
     - assets/icons/menu-icon.svg

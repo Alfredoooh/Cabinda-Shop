@@ -28,24 +28,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   static const double _drawerWidthFactor = 0.78;
   static const double _pushFactor = 0.24;
 
+  // Curva linear para que drawer e push se movam exatamente ao mesmo ritmo
+  static const Curve _drawerCurve = Curves.easeInOutCubic;
+
   @override
   void initState() {
     super.initState();
     _drawerController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 320),
+      duration: const Duration(milliseconds: 340),
     );
     _drawerSlide = Tween<Offset>(
       begin: const Offset(-1, 0),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _drawerController,
-      curve: const Cubic(0.22, 1, 0.36, 1),
+      curve: _drawerCurve,
     ));
     _contentPush = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _drawerController,
-        curve: const Cubic(0.22, 1, 0.36, 1),
+        curve: _drawerCurve, // mesma curva → sincronizados
       ),
     );
   }
@@ -67,9 +70,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
 
-  void toggleTheme() {
-    setState(() => isDark = !isDark);
-  }
+  void toggleTheme() => setState(() => isDark = !isDark);
 
   void toggleSound() {
     setState(() {
@@ -114,13 +115,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors(isDark);
-    final drawerWidth =
-        MediaQuery.of(context).size.width * _drawerWidthFactor;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final drawerWidth = screenWidth * _drawerWidthFactor;
 
     return Scaffold(
       backgroundColor: colors.bg,
       body: Stack(
         children: [
+          // ── Conteúdo principal com push suave ──
           AnimatedBuilder(
             animation: _contentPush,
             builder: (context, child) {
@@ -151,13 +153,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         switchInCurve: const Cubic(0.22, 1, 0.36, 1),
                         switchOutCurve: const Cubic(0.22, 1, 0.36, 1),
                         transitionBuilder: (child, animation) {
-                          final inFromRight = Tween<Offset>(
+                          final slide = Tween<Offset>(
                             begin: const Offset(0.06, 0),
                             end: Offset.zero,
                           ).animate(animation);
                           return ClipRect(
                             child: SlideTransition(
-                              position: inFromRight,
+                              position: slide,
                               child: FadeTransition(
                                 opacity: animation,
                                 child: child,
@@ -182,12 +184,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
           ),
+
+          // ── Overlay escuro ──
           if (_drawerOpen)
-            GestureDetector(
-              onTap: closeDrawer,
-              child: AnimatedBuilder(
-                animation: _drawerController,
-                builder: (context, child) => Container(
+            AnimatedBuilder(
+              animation: _drawerController,
+              builder: (context, _) => GestureDetector(
+                onTap: closeDrawer,
+                child: Container(
                   color: Color.lerp(
                     Colors.transparent,
                     colors.overlay,
@@ -196,6 +200,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
+
+          // ── Drawer ──
           if (_drawerOpen)
             SlideTransition(
               position: _drawerSlide,
@@ -219,6 +225,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 }
 
+// ─────────────────────────────────────────────
+// AppBar
+// ─────────────────────────────────────────────
 class _AppBarWidget extends StatelessWidget {
   final AppColors colors;
   final VoidCallback onMenuTap;
@@ -273,18 +282,17 @@ class _AppBarWidget extends StatelessWidget {
             Row(
               children: [
                 _HamburgerButton(colors: colors, onTap: onMenuTap),
-                Expanded(
-                  child: Center(
-                    child: Image.asset(
-                      _iconeAtivo,
-                      width: 22,
-                      height: 22,
-                      // SEM color: — PNG original sem tint
-                      errorBuilder: (context, error, stackTrace) =>
-                          const SizedBox(width: 22, height: 22),
-                    ),
-                  ),
+                const SizedBox(width: 10),
+                // Ícone à esquerda, junto ao botão de menu
+                Image.asset(
+                  _iconeAtivo,
+                  width: 22,
+                  height: 22,
+                  // SEM color — PNG original
+                  errorBuilder: (_, __, ___) =>
+                      const SizedBox(width: 22, height: 22),
                 ),
+                const Spacer(),
                 _SpeakerToggleButton(
                   colors: colors,
                   soundEnabled: soundEnabled,
@@ -450,6 +458,9 @@ class _ToggleButton extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────
+// Alphabet section
+// ─────────────────────────────────────────────
 class _AlphabetSection extends StatelessWidget {
   final AppColors colors;
   final GridMode currentMode;
@@ -471,7 +482,7 @@ class _AlphabetSection extends StatelessWidget {
       case GridMode.all:
         return const [
           'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-          'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+          'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
         ];
     }
   }
@@ -558,10 +569,14 @@ class _LetterCardState extends State<_LetterCard> {
     final letterIndex =
         widget.letter.toLowerCase().codeUnitAt(0) - 'a'.codeUnitAt(0);
     final bg = _generateLetterColor(
-      isDark: widget.colors.isDark, letterIndex: letterIndex, foreground: false,
+      isDark: widget.colors.isDark,
+      letterIndex: letterIndex,
+      foreground: false,
     );
     final fg = _generateLetterColor(
-      isDark: widget.colors.isDark, letterIndex: letterIndex, foreground: true,
+      isDark: widget.colors.isDark,
+      letterIndex: letterIndex,
+      foreground: true,
     );
     final shadow = fg.withOpacity(widget.colors.isDark ? 0.35 : 0.25);
 
@@ -619,6 +634,9 @@ class _LetterCardState extends State<_LetterCard> {
   }
 }
 
+// ─────────────────────────────────────────────
+// Drawer
+// ─────────────────────────────────────────────
 class _AppDrawer extends StatelessWidget {
   final AppColors colors;
   final bool isDark;
@@ -691,7 +709,8 @@ class _AppDrawer extends StatelessWidget {
                 border: Border(top: BorderSide(color: colors.divider)),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -746,7 +765,8 @@ class _DrawerItemState extends State<_DrawerItem> {
     final bg = widget.active ? AppColors.green : widget.colors.bgCardNeutral;
     final shadowColor =
         widget.active ? AppColors.greenShadow : widget.colors.divider;
-    final labelColor = widget.active ? Colors.white : widget.colors.textMain;
+    final labelColor =
+        widget.active ? Colors.white : widget.colors.textMain;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -758,12 +778,15 @@ class _DrawerItemState extends State<_DrawerItem> {
         duration: const Duration(milliseconds: 100),
         width: double.infinity,
         transform: Matrix4.identity()..translate(0.0, _pressed ? 3.0 : 0.0),
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        padding:
+            const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
-            BoxShadow(color: shadowColor, offset: Offset(0, _pressed ? 1 : 4)),
+            BoxShadow(
+                color: shadowColor,
+                offset: Offset(0, _pressed ? 1 : 4)),
           ],
         ),
         child: Row(
@@ -773,8 +796,8 @@ class _DrawerItemState extends State<_DrawerItem> {
               width: 24,
               height: 24,
               fit: BoxFit.contain,
-              // SEM color: — PNG original no drawer também
-              errorBuilder: (context, error, stackTrace) =>
+              // SEM color — PNG original
+              errorBuilder: (_, __, ___) =>
                   const SizedBox(width: 24, height: 24),
             ),
             const SizedBox(width: 14),
@@ -818,7 +841,8 @@ class _ThemeSwitch extends StatelessWidget {
         ),
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 250),
-          alignment: isDark ? Alignment.centerRight : Alignment.centerLeft,
+          alignment:
+              isDark ? Alignment.centerRight : Alignment.centerLeft,
           child: Container(
             width: 24,
             height: 24,
