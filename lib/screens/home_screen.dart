@@ -2,13 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../main.dart'
-    show
-        AppColors,
-        GridMode,
-        DrawerSection,
-        SoundManager,
-        DetailScreen,
-        kConsonants;
+    show AppColors, GridMode, DrawerSection, SoundManager, kConsonants;
+import 'detail_screen.dart';
 import 'games_screen.dart';
 import 'playlist_covers_screen.dart';
 
@@ -224,10 +219,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 }
-
-// =====================================================================
-// APP BAR - ícone da tab activa (PNG) sempre no centro
-// =====================================================================
 
 class _AppBarWidget extends StatelessWidget {
   final AppColors colors;
