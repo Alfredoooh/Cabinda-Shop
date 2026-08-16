@@ -43,6 +43,10 @@ flutter:
     - assets/icons/chevron-right.svg
     - assets/icons/speaker-icon.svg
     - assets/icons/speaker-off-icon.svg
+    - assets/icons/back.svg
+    - assets/icons/play.svg
+    - assets/icons/pause.svg
+    - assets/icons/clock.svg
     - assets/audio/vowels/
     - assets/audio/consonants/
     - assets/audio/syllables/b/

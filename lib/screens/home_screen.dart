@@ -226,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen>
 }
 
 // =====================================================================
-// APP BAR - agora com ícone da tab activa sempre no centro
+// APP BAR - ícone da tab activa (PNG) sempre no centro
 // =====================================================================
 
 class _AppBarWidget extends StatelessWidget {
@@ -251,11 +251,11 @@ class _AppBarWidget extends StatelessWidget {
   String get _iconeAtivo {
     switch (currentSection) {
       case DrawerSection.alphabet:
-        return 'assets/icons/alphabet-icon.svg';
+        return 'assets/icons/alphabet-icon.png';
       case DrawerSection.games:
-        return 'assets/icons/games-icon.svg';
+        return 'assets/icons/games-icon.png';
       case DrawerSection.videos:
-        return 'assets/icons/videos-icon.svg';
+        return 'assets/icons/videos-icon.png';
     }
   }
 
@@ -285,14 +285,13 @@ class _AppBarWidget extends StatelessWidget {
                 _HamburgerButton(colors: colors, onTap: onMenuTap),
                 Expanded(
                   child: Center(
-                    child: SvgPicture.asset(
+                    child: Image.asset(
                       _iconeAtivo,
                       width: 22,
                       height: 22,
-                      colorFilter: ColorFilter.mode(
-                        colors.textMain,
-                        BlendMode.srcIn,
-                      ),
+                      color: colors.textMain,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const SizedBox(width: 22, height: 22),
                     ),
                   ),
                 ),
@@ -673,7 +672,7 @@ class _AppDrawer extends StatelessWidget {
                   _DrawerItem(
                     colors: colors,
                     label: 'Alfabeto',
-                    assetPath: 'assets/icons/alphabet-icon.svg',
+                    assetPath: 'assets/icons/alphabet-icon.png',
                     active: currentSection == DrawerSection.alphabet,
                     onTap: () => onSectionSelected(DrawerSection.alphabet),
                   ),
@@ -681,7 +680,7 @@ class _AppDrawer extends StatelessWidget {
                   _DrawerItem(
                     colors: colors,
                     label: 'Jogos',
-                    assetPath: 'assets/icons/games-icon.svg',
+                    assetPath: 'assets/icons/games-icon.png',
                     active: currentSection == DrawerSection.games,
                     onTap: () => onSectionSelected(DrawerSection.games),
                   ),
@@ -689,7 +688,7 @@ class _AppDrawer extends StatelessWidget {
                   _DrawerItem(
                     colors: colors,
                     label: 'Vídeos',
-                    assetPath: 'assets/icons/videos-icon.svg',
+                    assetPath: 'assets/icons/videos-icon.png',
                     active: currentSection == DrawerSection.videos,
                     onTap: () => onSectionSelected(DrawerSection.videos),
                   ),
@@ -759,7 +758,6 @@ class _DrawerItemState extends State<_DrawerItem> {
     final shadowColor =
         widget.active ? AppColors.greenShadow : widget.colors.divider;
     final labelColor = widget.active ? Colors.white : widget.colors.textMain;
-    final iconColor = widget.active ? Colors.white : widget.colors.textMain;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -781,11 +779,13 @@ class _DrawerItemState extends State<_DrawerItem> {
         ),
         child: Row(
           children: [
-            SvgPicture.asset(
+            Image.asset(
               widget.assetPath,
-              width: 22,
-              height: 22,
-              colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+              width: 24,
+              height: 24,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) =>
+                  const SizedBox(width: 24, height: 24),
             ),
             const SizedBox(width: 14),
             Text(

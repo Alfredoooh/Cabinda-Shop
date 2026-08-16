@@ -164,10 +164,13 @@ class _CustomControlsState extends State<_CustomControls> {
             children: [
               IconButton(
                 icon: SvgPicture.asset(
-                  value.isPlaying ? 'assets/icons/pause.svg' : 'assets/icons/play.svg',
+                  value.isPlaying
+                      ? 'assets/icons/pause.svg'
+                      : 'assets/icons/play.svg',
                   width: 26,
                   height: 26,
-                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  colorFilter:
+                      const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                 ),
                 onPressed: () {
                   setState(() {
