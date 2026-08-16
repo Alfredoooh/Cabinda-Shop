@@ -1,0 +1,28 @@
+{
+  "playlist": "De onde vem",
+  "playlist_link": "https://www.youtube.com/playlist?list=PLXp791kGmCs0",
+  "total_videos": 3,
+  "videos": [
+    {
+      "posicao": 1,
+      "titulo": "Where Does CHOCOLATE Come From? 🍫 (You Won't Believe It!)",
+      "link": "https://www.youtube.com/watch?v=o4JOBWZRNew",
+      "id": "o4JOBWZRNew",
+      "duracao_segundos": 126
+    },
+    {
+      "posicao": 2,
+      "titulo": "Where Do Cell Phones Come From? How a Cell Phone Is Made",
+      "link": "https://www.youtube.com/watch?v=3E5yWS0d-gQ",
+      "id": "3E5yWS0d-gQ",
+      "duracao_segundos": 122
+    },
+    {
+      "posicao": 3,
+      "titulo": "Financial education for children. The history of money!",
+      "link": "https://www.youtube.com/watch?v=igVkMqsz9Pc",
+      "id": "igVkMqsz9Pc",
+      "duracao_segundos": 193
+    }
+  ]
+}

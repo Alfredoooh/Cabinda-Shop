@@ -1,0 +1,56 @@
+{
+  "playlist": "Videos de Geografia",
+  "playlist_link": "https://www.youtube.com/playlist?list=PLbJFFlKBGuS4byudOfTPCOhrpHspbfGGE",
+  "total_videos": 7,
+  "videos": [
+    {
+      "posicao": 1,
+      "titulo": "Mapa do Brasil completo e suas regiões - Para crianças - vídeo educativo",
+      "link": "https://www.youtube.com/watch?v=_wuU_61Sp3w",
+      "id": "_wuU_61Sp3w",
+      "duracao_segundos": 87
+    },
+    {
+      "posicao": 2,
+      "titulo": "Planetas do sistema solar - Educativo infantil",
+      "link": "https://www.youtube.com/watch?v=HDIKEIeNJmA",
+      "id": "HDIKEIeNJmA",
+      "duracao_segundos": 135
+    },
+    {
+      "posicao": 3,
+      "titulo": "Mapa dos estados e capitais do Brasil",
+      "link": "https://www.youtube.com/watch?v=_APvbpuThL0",
+      "id": "_APvbpuThL0",
+      "duracao_segundos": 350
+    },
+    {
+      "posicao": 4,
+      "titulo": "Meios de transporte para educação infantil",
+      "link": "https://www.youtube.com/watch?v=gxEKGSwQ3qs",
+      "id": "gxEKGSwQ3qs",
+      "duracao_segundos": 177
+    },
+    {
+      "posicao": 5,
+      "titulo": "Os biomas do Brasil",
+      "link": "https://www.youtube.com/watch?v=Of6wKKSQUOk",
+      "id": "Of6wKKSQUOk",
+      "duracao_segundos": 174
+    },
+    {
+      "posicao": 6,
+      "titulo": "Mapa dos países e capitais da América do sul e suas bandeiras",
+      "link": "https://www.youtube.com/watch?v=6YGB7esUwlE",
+      "id": "6YGB7esUwlE",
+      "duracao_segundos": 199
+    },
+    {
+      "posicao": 7,
+      "titulo": "Palavras cruzadas - caça palavras Países da América do Sul",
+      "link": "https://www.youtube.com/watch?v=WwIVqa8JNrk",
+      "id": "WwIVqa8JNrk",
+      "duracao_segundos": 501
+    }
+  ]
+}

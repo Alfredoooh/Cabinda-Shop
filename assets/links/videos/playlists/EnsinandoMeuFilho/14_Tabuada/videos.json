@@ -1,0 +1,105 @@
+{
+  "playlist": "Tabuada",
+  "playlist_link": "https://www.youtube.com/playlist?list=PLbJFFlKBGuS6pGrUTOujGsOVlRhwgWkEQ",
+  "total_videos": 14,
+  "videos": [
+    {
+      "posicao": 1,
+      "titulo": "Matematica para crianças. Aprender  multiplicar.  Multiplicação. Video educativo infantil",
+      "link": "https://www.youtube.com/watch?v=Eh7XY7VlfAM",
+      "id": "Eh7XY7VlfAM",
+      "duracao_segundos": 299
+    },
+    {
+      "posicao": 2,
+      "titulo": "Tabuada do Dois - Aprendendo tabuada de forma rápida e divertida",
+      "link": "https://www.youtube.com/watch?v=H-0AlAN1VRY",
+      "id": "H-0AlAN1VRY",
+      "duracao_segundos": 100
+    },
+    {
+      "posicao": 3,
+      "titulo": "Tabuada do 3. Ensinando matemática para crianças",
+      "link": "https://www.youtube.com/watch?v=NJkH8ND3Pu4",
+      "id": "NJkH8ND3Pu4",
+      "duracao_segundos": 94
+    },
+    {
+      "posicao": 4,
+      "titulo": "Tabuada do 4 - Matemática infantil",
+      "link": "https://www.youtube.com/watch?v=WWXBKCzQgbI",
+      "id": "WWXBKCzQgbI",
+      "duracao_segundos": 115
+    },
+    {
+      "posicao": 5,
+      "titulo": "Tabuada do 5. Matemática",
+      "link": "https://www.youtube.com/watch?v=tX-jJm0Pl0Q",
+      "id": "tX-jJm0Pl0Q",
+      "duracao_segundos": 161
+    },
+    {
+      "posicao": 6,
+      "titulo": "Tabuada do 6 - Matemática infantil",
+      "link": "https://www.youtube.com/watch?v=Ikl1WuJ5Wt8",
+      "id": "Ikl1WuJ5Wt8",
+      "duracao_segundos": 162
+    },
+    {
+      "posicao": 7,
+      "titulo": "Aprender a tabuada do 7. Multiplicação",
+      "link": "https://www.youtube.com/watch?v=XeCqWiz44-M",
+      "id": "XeCqWiz44-M",
+      "duracao_segundos": 187
+    },
+    {
+      "posicao": 8,
+      "titulo": "Tabuada do 8. Aprendendo matemática.",
+      "link": "https://www.youtube.com/watch?v=og7UHoQgOwM",
+      "id": "og7UHoQgOwM",
+      "duracao_segundos": 208
+    },
+    {
+      "posicao": 9,
+      "titulo": "Tabuada do 9 Tabuada de multiplicação  Aprender tabuada",
+      "link": "https://www.youtube.com/watch?v=o7ZIUKRxsmw",
+      "id": "o7ZIUKRxsmw",
+      "duracao_segundos": 211
+    },
+    {
+      "posicao": 10,
+      "titulo": "Tabuada do 10",
+      "link": "https://www.youtube.com/watch?v=L-8_cJksnaY",
+      "id": "L-8_cJksnaY",
+      "duracao_segundos": 231
+    },
+    {
+      "posicao": 11,
+      "titulo": "2 Times Table - Two Times Table",
+      "link": "https://www.youtube.com/watch?v=YF6ClHbKv7Y",
+      "id": "YF6ClHbKv7Y",
+      "duracao_segundos": 57
+    },
+    {
+      "posicao": 12,
+      "titulo": "3 times table",
+      "link": "https://www.youtube.com/watch?v=C6QbpMbRZGM",
+      "id": "C6QbpMbRZGM",
+      "duracao_segundos": 59
+    },
+    {
+      "posicao": 13,
+      "titulo": "Multiplication Table of 4 - 4 Times Table ✖️🔢",
+      "link": "https://www.youtube.com/watch?v=bqy-jEeVbj0",
+      "id": "bqy-jEeVbj0",
+      "duracao_segundos": 60
+    },
+    {
+      "posicao": 14,
+      "titulo": "Multiplication table of 5 - Multiplication table of five ✖️🖐️",
+      "link": "https://www.youtube.com/watch?v=A-fJ12tVfQk",
+      "id": "A-fJ12tVfQk",
+      "duracao_segundos": 68
+    }
+  ]
+}

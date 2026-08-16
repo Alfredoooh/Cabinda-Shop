@@ -1,0 +1,21 @@
+{
+  "playlist": "História do Brasil",
+  "playlist_link": "https://www.youtube.com/playlist?list=PLbJFFlKBGuS4ihi9suvedqdiAix-dQDF_",
+  "total_videos": 2,
+  "videos": [
+    {
+      "posicao": 1,
+      "titulo": "Descobrimento do Brasil e os índios - Animação infantil - Educação infantil",
+      "link": "https://www.youtube.com/watch?v=hEd6rMcjNmg",
+      "id": "hEd6rMcjNmg",
+      "duracao_segundos": 72
+    },
+    {
+      "posicao": 2,
+      "titulo": "Independência do Brasil - 7 de setembro - Animação infantil - Educação infantil",
+      "link": "https://www.youtube.com/watch?v=kGrj_y8SpSw",
+      "id": "kGrj_y8SpSw",
+      "duracao_segundos": 119
+    }
+  ]
+}

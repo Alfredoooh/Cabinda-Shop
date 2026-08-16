@@ -1,0 +1,63 @@
+{
+  "playlist": "As Vogais A E I O U",
+  "playlist_link": "https://www.youtube.com/playlist?list=PLbJFFlKBGuS4xX4H2F2sqxsXHVlsfehWf",
+  "total_videos": 8,
+  "videos": [
+    {
+      "posicao": 1,
+      "titulo": "Teaching the vowels - A E I O U For children",
+      "link": "https://www.youtube.com/watch?v=ClCt-DNCdCY",
+      "id": "ClCt-DNCdCY",
+      "duracao_segundos": 95
+    },
+    {
+      "posicao": 2,
+      "titulo": "Aprender a ler formando frases com vogais e figuras - Vídeo educativo infantil",
+      "link": "https://www.youtube.com/watch?v=HFtRyrrdxp0",
+      "id": "HFtRyrrdxp0",
+      "duracao_segundos": 136
+    },
+    {
+      "posicao": 3,
+      "titulo": "Aprendendo a formar palavras com as vogais a e i o u do alfabeto. Educativo infantil",
+      "link": "https://www.youtube.com/watch?v=As2UPCuVTbA",
+      "id": "As2UPCuVTbA",
+      "duracao_segundos": 98
+    },
+    {
+      "posicao": 4,
+      "titulo": "A E I O U - Ensinando meu filho",
+      "link": "https://www.youtube.com/watch?v=KCU4vrvq9uI",
+      "id": "KCU4vrvq9uI",
+      "duracao_segundos": 136
+    },
+    {
+      "posicao": 5,
+      "titulo": "Aprendendo a ler as vogais a e i o u minusculas e maiusculas",
+      "link": "https://www.youtube.com/watch?v=NtNLFrF2M2w",
+      "id": "NtNLFrF2M2w",
+      "duracao_segundos": 124
+    },
+    {
+      "posicao": 6,
+      "titulo": "THE VOWELS A E I O U: Learning to Read and Write 🍎🐘",
+      "link": "https://www.youtube.com/watch?v=Q5upgK_Qyco",
+      "id": "Q5upgK_Qyco",
+      "duracao_segundos": 200
+    },
+    {
+      "posicao": 7,
+      "titulo": "A E I O U - aprender as vogais a e i o u",
+      "link": "https://www.youtube.com/watch?v=M-GKHXcSam4",
+      "id": "M-GKHXcSam4",
+      "duracao_segundos": 48
+    },
+    {
+      "posicao": 8,
+      "titulo": "Aprendendo a letra A",
+      "link": "https://www.youtube.com/watch?v=nZ6dh1k_5IM",
+      "id": "nZ6dh1k_5IM",
+      "duracao_segundos": 29
+    }
+  ]
+}

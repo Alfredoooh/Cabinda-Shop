@@ -1,0 +1,35 @@
+{
+  "playlist": "Ensinando história para crianças",
+  "playlist_link": "https://www.youtube.com/playlist?list=PLbJFFlKBGuS6-KYSLrT6BfMtf9jjY_M-W",
+  "total_videos": 4,
+  "videos": [
+    {
+      "posicao": 1,
+      "titulo": "Independência do Brasil - 7 de setembro - Animação infantil - Educação infantil",
+      "link": "https://www.youtube.com/watch?v=kGrj_y8SpSw",
+      "id": "kGrj_y8SpSw",
+      "duracao_segundos": 119
+    },
+    {
+      "posicao": 2,
+      "titulo": "Descobrimento do Brasil e os índios - Animação infantil - Educação infantil",
+      "link": "https://www.youtube.com/watch?v=hEd6rMcjNmg",
+      "id": "hEd6rMcjNmg",
+      "duracao_segundos": 72
+    },
+    {
+      "posicao": 3,
+      "titulo": "Dia do trabalho - Dia do trabalhador",
+      "link": "https://www.youtube.com/watch?v=o6Kp2nxnX1Q",
+      "id": "o6Kp2nxnX1Q",
+      "duracao_segundos": 72
+    },
+    {
+      "posicao": 4,
+      "titulo": "Meios de Comunicação para Educação Infantil - Aprenda de Forma Divertida!",
+      "link": "https://www.youtube.com/watch?v=lvsDQcznK-U",
+      "id": "lvsDQcznK-U",
+      "duracao_segundos": 182
+    }
+  ]
+}

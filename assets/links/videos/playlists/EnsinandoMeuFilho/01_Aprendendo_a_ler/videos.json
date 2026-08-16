@@ -1,0 +1,728 @@
+{
+  "playlist": "Aprendendo a ler",
+  "playlist_link": "https://www.youtube.com/playlist?list=PLbJFFlKBGuS5SPo-r65Ey1bwihEBIC5IU",
+  "total_videos": 103,
+  "videos": [
+    {
+      "posicao": 1,
+      "titulo": "Aprendendo a ler formando palavras iniciadas com as silabas da letra F",
+      "link": "https://www.youtube.com/watch?v=fLUQgB-vDNM",
+      "id": "fLUQgB-vDNM",
+      "duracao_segundos": 257
+    },
+    {
+      "posicao": 2,
+      "titulo": "Aprendendo a ler palavras iniciadas com as silabas da letra D do alfabeto",
+      "link": "https://www.youtube.com/watch?v=6cZuEOUcTGY",
+      "id": "6cZuEOUcTGY",
+      "duracao_segundos": 255
+    },
+    {
+      "posicao": 3,
+      "titulo": "Aprender formar palavras iniciadas com as silabas da letra C do alfabeto",
+      "link": "https://www.youtube.com/watch?v=2E_VRj3g8VU",
+      "id": "2E_VRj3g8VU",
+      "duracao_segundos": 663
+    },
+    {
+      "posicao": 4,
+      "titulo": "Formando palavras iniciadas com as silabas da letra B do alfabeto",
+      "link": "https://www.youtube.com/watch?v=NYsHqDlO7IE",
+      "id": "NYsHqDlO7IE",
+      "duracao_segundos": 417
+    },
+    {
+      "posicao": 5,
+      "titulo": "Palavras com três silabas do alfabeto - Formando palavras - Educativo infantil",
+      "link": "https://www.youtube.com/watch?v=JP0D68dTays",
+      "id": "JP0D68dTays",
+      "duracao_segundos": 602
+    },
+    {
+      "posicao": 6,
+      "titulo": "Aprendendo a formar palavras usando as silabas do alfabeto.",
+      "link": "https://www.youtube.com/watch?v=x8m-3eoCNn0",
+      "id": "x8m-3eoCNn0",
+      "duracao_segundos": 615
+    },
+    {
+      "posicao": 7,
+      "titulo": "Formando palavras com duas silabas. Video educativo.",
+      "link": "https://www.youtube.com/watch?v=ce90u5I2zU0",
+      "id": "ce90u5I2zU0",
+      "duracao_segundos": 470
+    },
+    {
+      "posicao": 8,
+      "titulo": "Aprender a ler formando palavras iniciadas com as silabas da letra G",
+      "link": "https://www.youtube.com/watch?v=BahmsP1atTw",
+      "id": "BahmsP1atTw",
+      "duracao_segundos": 292
+    },
+    {
+      "posicao": 9,
+      "titulo": "A E I O U - Ensinando meu filho",
+      "link": "https://www.youtube.com/watch?v=KCU4vrvq9uI",
+      "id": "KCU4vrvq9uI",
+      "duracao_segundos": 136
+    },
+    {
+      "posicao": 10,
+      "titulo": "Aprendendo a ler e escrever. Familia infantil. Educativo infantil",
+      "link": "https://www.youtube.com/watch?v=7Xcxlx0zvc8",
+      "id": "7Xcxlx0zvc8",
+      "duracao_segundos": 95
+    },
+    {
+      "posicao": 11,
+      "titulo": "Vamos aprender a ler e escrever vovó?",
+      "link": "https://www.youtube.com/watch?v=R5XNZ8AiKK0",
+      "id": "R5XNZ8AiKK0",
+      "duracao_segundos": 85
+    },
+    {
+      "posicao": 12,
+      "titulo": "Aprendendo a ler e escrever vovô -  Educativo infantil",
+      "link": "https://www.youtube.com/watch?v=bAOynG3KWtU",
+      "id": "bAOynG3KWtU",
+      "duracao_segundos": 82
+    },
+    {
+      "posicao": 13,
+      "titulo": "Aprender a ler e escrever mamãe. Falando mamãe. Video educativo",
+      "link": "https://www.youtube.com/watch?v=k5j6u4sJKYU",
+      "id": "k5j6u4sJKYU",
+      "duracao_segundos": 75
+    },
+    {
+      "posicao": 14,
+      "titulo": "Aprender a ler e escrever papai - Falando papai - Vídeo educativo infantil",
+      "link": "https://www.youtube.com/watch?v=PHF49EXxrnQ",
+      "id": "PHF49EXxrnQ",
+      "duracao_segundos": 85
+    },
+    {
+      "posicao": 15,
+      "titulo": "Aprendendo a formar palavras com a letra C do alfabeto. Educativo infantil",
+      "link": "https://www.youtube.com/watch?v=IjFs1VExeno",
+      "id": "IjFs1VExeno",
+      "duracao_segundos": 113
+    },
+    {
+      "posicao": 16,
+      "titulo": "Aprendendo a ler formando palavras com as silabas da letra J",
+      "link": "https://www.youtube.com/watch?v=Kk7LJvKyZfs",
+      "id": "Kk7LJvKyZfs",
+      "duracao_segundos": 216
+    },
+    {
+      "posicao": 17,
+      "titulo": "Aprender a ler e formar palavras iniciadas com as silabas da letra l do alfabeto",
+      "link": "https://www.youtube.com/watch?v=U_2A9pymaEE",
+      "id": "U_2A9pymaEE",
+      "duracao_segundos": 189
+    },
+    {
+      "posicao": 18,
+      "titulo": "Aprendendo a ler formando palavras iniciadas com as silabas da letra m do alfabeto",
+      "link": "https://www.youtube.com/watch?v=8Cs1hmizwto",
+      "id": "8Cs1hmizwto",
+      "duracao_segundos": 611
+    },
+    {
+      "posicao": 19,
+      "titulo": "Aprendendo a ler formando palavras iniciadas com as silabas da letra N do alfabeto",
+      "link": "https://www.youtube.com/watch?v=7icE84RnqrQ",
+      "id": "7icE84RnqrQ",
+      "duracao_segundos": 623
+    },
+    {
+      "posicao": 20,
+      "titulo": "Aprender ler formando palavra iniciadas com as silabas pa, pe, pi, po, pu. Alfabetização infantil",
+      "link": "https://www.youtube.com/watch?v=VnKjhFZb78Q",
+      "id": "VnKjhFZb78Q",
+      "duracao_segundos": 490
+    },
+    {
+      "posicao": 21,
+      "titulo": "Formando palavras iniciadas com as silabas ra, re, ri, ro, ru",
+      "link": "https://www.youtube.com/watch?v=GErc7QnrVSg",
+      "id": "GErc7QnrVSg",
+      "duracao_segundos": 483
+    },
+    {
+      "posicao": 22,
+      "titulo": "Aprender a ler e formar palavras iniciadas com as silabas sa, se, si, so, su",
+      "link": "https://www.youtube.com/watch?v=9qhk8Kl_YOc",
+      "id": "9qhk8Kl_YOc",
+      "duracao_segundos": 492
+    },
+    {
+      "posicao": 23,
+      "titulo": "Aprendendo a ler e escrever formando palavras iniciadas com a silabas da letra t",
+      "link": "https://www.youtube.com/watch?v=Ny_Kfp-GIS4",
+      "id": "Ny_Kfp-GIS4",
+      "duracao_segundos": 747
+    },
+    {
+      "posicao": 24,
+      "titulo": "Aprendendo a ler formando palavras iniciadas com as silabas da letra v",
+      "link": "https://www.youtube.com/watch?v=HSrT71u6jK4",
+      "id": "HSrT71u6jK4",
+      "duracao_segundos": 577
+    },
+    {
+      "posicao": 25,
+      "titulo": "Aprendendo a ler e escrever palavras iniciadas com as silabas da letra x do alfabeto",
+      "link": "https://www.youtube.com/watch?v=0Yo1YzF5nn8",
+      "id": "0Yo1YzF5nn8",
+      "duracao_segundos": 202
+    },
+    {
+      "posicao": 26,
+      "titulo": "Silabas nha nhe nhi nho nhu. Palavras com nh.",
+      "link": "https://www.youtube.com/watch?v=O7aoPcNo0jQ",
+      "id": "O7aoPcNo0jQ",
+      "duracao_segundos": 136
+    },
+    {
+      "posicao": 27,
+      "titulo": "Silabas bra bre bri bro bru. Aprendendo a ler",
+      "link": "https://www.youtube.com/watch?v=b6b7YZvIX7U",
+      "id": "b6b7YZvIX7U",
+      "duracao_segundos": 101
+    },
+    {
+      "posicao": 28,
+      "titulo": "Tra tre tri tro tru - Sílabas - Educativo infantil",
+      "link": "https://www.youtube.com/watch?v=r9u7ZHWJiLc",
+      "id": "r9u7ZHWJiLc",
+      "duracao_segundos": 96
+    },
+    {
+      "posicao": 29,
+      "titulo": "Silabas lha lhe lhi lho lhu - Palavras com lh",
+      "link": "https://www.youtube.com/watch?v=qHHooRHhdJs",
+      "id": "qHHooRHhdJs",
+      "duracao_segundos": 104
+    },
+    {
+      "posicao": 30,
+      "titulo": "Silabas cha che chi cho chu - Palavras com ch",
+      "link": "https://www.youtube.com/watch?v=0vtX9iC9RU4",
+      "id": "0vtX9iC9RU4",
+      "duracao_segundos": 122
+    },
+    {
+      "posicao": 31,
+      "titulo": "Aprendendo a Ler Palavras com a Letra H - Sílabas Fáceis e Divertidas!",
+      "link": "https://www.youtube.com/watch?v=pSq6-wYtuUc",
+      "id": "pSq6-wYtuUc",
+      "duracao_segundos": 192
+    },
+    {
+      "posicao": 32,
+      "titulo": "Aprendendo a ler formando palavras iniciadas com as silabas da letra z",
+      "link": "https://www.youtube.com/watch?v=lXIesbqWuDc",
+      "id": "lXIesbqWuDc",
+      "duracao_segundos": 326
+    },
+    {
+      "posicao": 33,
+      "titulo": "Aprendendo a ler as vogais a e i o u minusculas e maiusculas",
+      "link": "https://www.youtube.com/watch?v=NtNLFrF2M2w",
+      "id": "NtNLFrF2M2w",
+      "duracao_segundos": 124
+    },
+    {
+      "posicao": 34,
+      "titulo": "Aprendendo a ler palavras com as silabas dra dre dri dro dru",
+      "link": "https://www.youtube.com/watch?v=3RklcCsMl60",
+      "id": "3RklcCsMl60",
+      "duracao_segundos": 119
+    },
+    {
+      "posicao": 35,
+      "titulo": "Learning Personal Pronouns in an Easy and Fun Way!",
+      "link": "https://www.youtube.com/watch?v=X3fMko846nw",
+      "id": "X3fMko846nw",
+      "duracao_segundos": 126
+    },
+    {
+      "posicao": 36,
+      "titulo": "Aprendendo a ler e formar palavras iniciadas com as silabas cr",
+      "link": "https://www.youtube.com/watch?v=HwvA0aqdBjE",
+      "id": "HwvA0aqdBjE",
+      "duracao_segundos": 186
+    },
+    {
+      "posicao": 37,
+      "titulo": "Aprendendo Sobre Opostos na Educação Infantil - Antônimos Divertidos!",
+      "link": "https://www.youtube.com/watch?v=bOlRlxqy20U",
+      "id": "bOlRlxqy20U",
+      "duracao_segundos": 149
+    },
+    {
+      "posicao": 38,
+      "titulo": "Aprendendo a ler os nomes das frutas juntando as silabas. Educação infantil",
+      "link": "https://www.youtube.com/watch?v=nSodqCN6iDY",
+      "id": "nSodqCN6iDY",
+      "duracao_segundos": 481
+    },
+    {
+      "posicao": 39,
+      "titulo": "Aprendendo a ler nomes de A a Z juntando as silabas - Alfabetização infantil",
+      "link": "https://www.youtube.com/watch?v=W2e7II-Is48",
+      "id": "W2e7II-Is48",
+      "duracao_segundos": 504
+    },
+    {
+      "posicao": 40,
+      "titulo": "Aprendendo a ler formando palavras com as silabas qua que qui quo",
+      "link": "https://www.youtube.com/watch?v=5GFy3I6OPRQ",
+      "id": "5GFy3I6OPRQ",
+      "duracao_segundos": 502
+    },
+    {
+      "posicao": 41,
+      "titulo": "Aprendendo a escrever letras cursivas de A a z",
+      "link": "https://www.youtube.com/watch?v=PhjHM6Zcdmg",
+      "id": "PhjHM6Zcdmg",
+      "duracao_segundos": 932
+    },
+    {
+      "posicao": 42,
+      "titulo": "Aprendendo a ler formando palavras com as silabas fra fre fri fro fru",
+      "link": "https://www.youtube.com/watch?v=uGR7W_TMvgY",
+      "id": "uGR7W_TMvgY",
+      "duracao_segundos": 917
+    },
+    {
+      "posicao": 43,
+      "titulo": "Aprendendo a ler palavras iniciadas com as silabas gra gre gri gro gru",
+      "link": "https://www.youtube.com/watch?v=rJop8ipiLfI",
+      "id": "rJop8ipiLfI",
+      "duracao_segundos": 575
+    },
+    {
+      "posicao": 44,
+      "titulo": "Aprendendo a ler frases. Lição da letra B",
+      "link": "https://www.youtube.com/watch?v=dNioc2dPSJk",
+      "id": "dNioc2dPSJk",
+      "duracao_segundos": 254
+    },
+    {
+      "posicao": 45,
+      "titulo": "Aprendendo a ler o alfabeto dos animais de A a Z",
+      "link": "https://www.youtube.com/watch?v=GO-vLSV8SzY",
+      "id": "GO-vLSV8SzY",
+      "duracao_segundos": 304
+    },
+    {
+      "posicao": 46,
+      "titulo": "Aprendendo a ler formando palavras iniciadas com PR",
+      "link": "https://www.youtube.com/watch?v=1NxnTv4sWE8",
+      "id": "1NxnTv4sWE8",
+      "duracao_segundos": 252
+    },
+    {
+      "posicao": 47,
+      "titulo": "Aprender a ler formando palavras iniciadas com CL",
+      "link": "https://www.youtube.com/watch?v=lqYSEvQMoMQ",
+      "id": "lqYSEvQMoMQ",
+      "duracao_segundos": 266
+    },
+    {
+      "posicao": 48,
+      "titulo": "Aprendendo a Ler os Nomes dos Meses do Ano - Fácil e Divertido!",
+      "link": "https://www.youtube.com/watch?v=iC84DmEcasE",
+      "id": "iC84DmEcasE",
+      "duracao_segundos": 179
+    },
+    {
+      "posicao": 49,
+      "titulo": "Palavras cruzadas infantil - Frutas",
+      "link": "https://www.youtube.com/watch?v=rCxW1Gx3das",
+      "id": "rCxW1Gx3das",
+      "duracao_segundos": 341
+    },
+    {
+      "posicao": 50,
+      "titulo": "Aprendendo a ler palavras iniciadas com as silabas fl",
+      "link": "https://www.youtube.com/watch?v=Q-olPTUXP3w",
+      "id": "Q-olPTUXP3w",
+      "duracao_segundos": 212
+    },
+    {
+      "posicao": 51,
+      "titulo": "Aprendendo a ler formando palavras com as silabas pl",
+      "link": "https://www.youtube.com/watch?v=dZaMB4BDZJw",
+      "id": "dZaMB4BDZJw",
+      "duracao_segundos": 233
+    },
+    {
+      "posicao": 52,
+      "titulo": "Singular e Plural - Aprendendo a Ler de Forma Simples e Divertida!",
+      "link": "https://www.youtube.com/watch?v=etDbQZ59qiw",
+      "id": "etDbQZ59qiw",
+      "duracao_segundos": 154
+    },
+    {
+      "posicao": 53,
+      "titulo": "Aprendendo a ler frases. Lição da letra C",
+      "link": "https://www.youtube.com/watch?v=gNUxY1VpL0o",
+      "id": "gNUxY1VpL0o",
+      "duracao_segundos": 212
+    },
+    {
+      "posicao": 54,
+      "titulo": "Aprendendo a ler formando palavras iniciadas com as silbas das letras GL",
+      "link": "https://www.youtube.com/watch?v=YlirlxWS4Ig",
+      "id": "YlirlxWS4Ig",
+      "duracao_segundos": 158
+    },
+    {
+      "posicao": 55,
+      "titulo": "Aprendendo a Ler com as Sílabas Bla Ble Bli Blo Blu - Super Fácil!",
+      "link": "https://www.youtube.com/watch?v=XsIfNLNKqMQ",
+      "id": "XsIfNLNKqMQ",
+      "duracao_segundos": 343
+    },
+    {
+      "posicao": 56,
+      "titulo": "Aprendendo a ler frases e textos. Lição da letra D",
+      "link": "https://www.youtube.com/watch?v=W0f9Qva2ARI",
+      "id": "W0f9Qva2ARI",
+      "duracao_segundos": 208
+    },
+    {
+      "posicao": 57,
+      "titulo": "Aprendendo a ler palavras com as silabas ar er ir or ur",
+      "link": "https://www.youtube.com/watch?v=ag4Emko0Srk",
+      "id": "ag4Emko0Srk",
+      "duracao_segundos": 518
+    },
+    {
+      "posicao": 58,
+      "titulo": "Aprendendo a ler formando palavras com as silabas as es is os us",
+      "link": "https://www.youtube.com/watch?v=ec73sGJTab0",
+      "id": "ec73sGJTab0",
+      "duracao_segundos": 502
+    },
+    {
+      "posicao": 59,
+      "titulo": "Aprendendo a ler formando palavras com as silabas an en in on un",
+      "link": "https://www.youtube.com/watch?v=1Wvxb9asu7Q",
+      "id": "1Wvxb9asu7Q",
+      "duracao_segundos": 511
+    },
+    {
+      "posicao": 60,
+      "titulo": "Aprendendo a ler formando palavras com as silabas al el il ol ul",
+      "link": "https://www.youtube.com/watch?v=7Y6jIUgCg2s",
+      "id": "7Y6jIUgCg2s",
+      "duracao_segundos": 534
+    },
+    {
+      "posicao": 61,
+      "titulo": "Aprendendo a ler e escrever palavras com a silabas am em im om um",
+      "link": "https://www.youtube.com/watch?v=ff_NclKoEqw",
+      "id": "ff_NclKoEqw",
+      "duracao_segundos": 510
+    },
+    {
+      "posicao": 62,
+      "titulo": "Aprendendo a ler frases. Lição da letra F",
+      "link": "https://www.youtube.com/watch?v=tgO1pUXwS-A",
+      "id": "tgO1pUXwS-A",
+      "duracao_segundos": 198
+    },
+    {
+      "posicao": 63,
+      "titulo": "Aprendendo a ler formando palavras com as silabas ans ens ins ons uns",
+      "link": "https://www.youtube.com/watch?v=Sk4OBytiR88",
+      "id": "Sk4OBytiR88",
+      "duracao_segundos": 487
+    },
+    {
+      "posicao": 64,
+      "titulo": "Aprendendo a ler e escrever palavras com as silabas gua gue gui guo",
+      "link": "https://www.youtube.com/watch?v=5L_VJhnpNW0",
+      "id": "5L_VJhnpNW0",
+      "duracao_segundos": 481
+    },
+    {
+      "posicao": 65,
+      "titulo": "Palavras cruzadas - Caça palavras animais",
+      "link": "https://www.youtube.com/watch?v=Oajukstkfdw",
+      "id": "Oajukstkfdw",
+      "duracao_segundos": 495
+    },
+    {
+      "posicao": 66,
+      "titulo": "Aprendendo a ler e escrever palavras com as silabas vra vre vri vro vru",
+      "link": "https://www.youtube.com/watch?v=DoQ4fZDD-lk",
+      "id": "DoQ4fZDD-lk",
+      "duracao_segundos": 136
+    },
+    {
+      "posicao": 67,
+      "titulo": "Aprendendo a ler palavras com s com som de z",
+      "link": "https://www.youtube.com/watch?v=E1H37Y71vS0",
+      "id": "E1H37Y71vS0",
+      "duracao_segundos": 484
+    },
+    {
+      "posicao": 68,
+      "titulo": "Aprendendo a ler e escrever palavras com ão - Leitura de palavras",
+      "link": "https://www.youtube.com/watch?v=dFpHnVZdjB8",
+      "id": "dFpHnVZdjB8",
+      "duracao_segundos": 495
+    },
+    {
+      "posicao": 69,
+      "titulo": "Aprendendo a ler frases e textos - lição da letra G",
+      "link": "https://www.youtube.com/watch?v=ZEX2JwWScNo",
+      "id": "ZEX2JwWScNo",
+      "duracao_segundos": 153
+    },
+    {
+      "posicao": 70,
+      "titulo": "Palavras cruzadas - Cruzadinha - Caça palavras planetas",
+      "link": "https://www.youtube.com/watch?v=RNsZdyRIBtM",
+      "id": "RNsZdyRIBtM",
+      "duracao_segundos": 237
+    },
+    {
+      "posicao": 71,
+      "titulo": "Aprendendo a ler frases - Lição da letra h",
+      "link": "https://www.youtube.com/watch?v=FKbFJVtmYrg",
+      "id": "FKbFJVtmYrg",
+      "duracao_segundos": 188
+    },
+    {
+      "posicao": 72,
+      "titulo": "Aprendendo a ler palavras com a letra a - Como aprender a ler",
+      "link": "https://www.youtube.com/watch?v=QomQ3_2TrsI",
+      "id": "QomQ3_2TrsI",
+      "duracao_segundos": 336
+    },
+    {
+      "posicao": 73,
+      "titulo": "Palavras com a letra E - Aprendendo a ler - Leitura",
+      "link": "https://www.youtube.com/watch?v=1EIlZ8sMSh8",
+      "id": "1EIlZ8sMSh8",
+      "duracao_segundos": 356
+    },
+    {
+      "posicao": 74,
+      "titulo": "Aprendendo a ler palavras com a letra i   Leitura",
+      "link": "https://www.youtube.com/watch?v=h_30rfrjMqQ",
+      "id": "h_30rfrjMqQ",
+      "duracao_segundos": 482
+    },
+    {
+      "posicao": 75,
+      "titulo": "Aprendendo a Ler Palavras com a Letra O - Separando Sílabas de Forma Fácil!",
+      "link": "https://www.youtube.com/watch?v=_Lo1Iowkqgk",
+      "id": "_Lo1Iowkqgk",
+      "duracao_segundos": 284
+    },
+    {
+      "posicao": 76,
+      "titulo": "Aprendendo a ler frases - lição da letra J",
+      "link": "https://www.youtube.com/watch?v=rN0unMuLKk4",
+      "id": "rN0unMuLKk4",
+      "duracao_segundos": 96
+    },
+    {
+      "posicao": 77,
+      "titulo": "Aprendendo a Ler e Escrever Palavras com a Letra U - Super Fácil!",
+      "link": "https://www.youtube.com/watch?v=XeAs4P4IA2c",
+      "id": "XeAs4P4IA2c",
+      "duracao_segundos": 252
+    },
+    {
+      "posicao": 78,
+      "titulo": "Aprendendo a ler frases - Lição da letra L",
+      "link": "https://www.youtube.com/watch?v=UiAoKYq9F3s",
+      "id": "UiAoKYq9F3s",
+      "duracao_segundos": 76
+    },
+    {
+      "posicao": 79,
+      "titulo": "Aprendendo a ler os nomes dos meios de transporte",
+      "link": "https://www.youtube.com/watch?v=TRs4hf5T_vY",
+      "id": "TRs4hf5T_vY",
+      "duracao_segundos": 149
+    },
+    {
+      "posicao": 80,
+      "titulo": "Aprendendo a ler - lição da letra m",
+      "link": "https://www.youtube.com/watch?v=2d_TQJB5Jxg",
+      "id": "2d_TQJB5Jxg",
+      "duracao_segundos": 153
+    },
+    {
+      "posicao": 81,
+      "titulo": "Silabas ca ce ci co cu com libras",
+      "link": "https://www.youtube.com/watch?v=6-sUeI-Kj9g",
+      "id": "6-sUeI-Kj9g",
+      "duracao_segundos": 70
+    },
+    {
+      "posicao": 82,
+      "titulo": "Silabas ba be bi bo bu #education #educativo",
+      "link": "https://www.youtube.com/watch?v=0HAfQ8i4GvE",
+      "id": "0HAfQ8i4GvE",
+      "duracao_segundos": 43
+    },
+    {
+      "posicao": 83,
+      "titulo": "Parts of the Human Body: Learn in a Fun Way!",
+      "link": "https://www.youtube.com/watch?v=ZGOfkVgJpJ4",
+      "id": "ZGOfkVgJpJ4",
+      "duracao_segundos": 210
+    },
+    {
+      "posicao": 84,
+      "titulo": "Alfabeto dos nomes de A a Z",
+      "link": "https://www.youtube.com/watch?v=dq0P5o0Ho9M",
+      "id": "dq0P5o0Ho9M",
+      "duracao_segundos": 572
+    },
+    {
+      "posicao": 85,
+      "titulo": "Aprendendo a ler as silabas da de di do du",
+      "link": "https://www.youtube.com/watch?v=5WaBCS1350w",
+      "id": "5WaBCS1350w",
+      "duracao_segundos": 45
+    },
+    {
+      "posicao": 86,
+      "titulo": "Sílabas Ca Ce Ci Co aprendendo a ler",
+      "link": "https://www.youtube.com/watch?v=ky30h37jJG8",
+      "id": "ky30h37jJG8",
+      "duracao_segundos": 42
+    },
+    {
+      "posicao": 87,
+      "titulo": "Palavras cruzadas - caça palavras Países da América do Sul",
+      "link": "https://www.youtube.com/watch?v=WwIVqa8JNrk",
+      "id": "WwIVqa8JNrk",
+      "duracao_segundos": 501
+    },
+    {
+      "posicao": 88,
+      "titulo": "Sílabas ga ge gi go gu para aprende a ler",
+      "link": "https://www.youtube.com/watch?v=7CLtwPjqaWg",
+      "id": "7CLtwPjqaWg",
+      "duracao_segundos": 45
+    },
+    {
+      "posicao": 89,
+      "titulo": "Alfabeto dos animais de A a Z - Aprenda e Divirta-se com os Bichinhos!\"",
+      "link": "https://www.youtube.com/watch?v=fn4jsKnGqPk",
+      "id": "fn4jsKnGqPk",
+      "duracao_segundos": 217
+    },
+    {
+      "posicao": 90,
+      "titulo": "Aprenda as Sílabas HA HE HI HO HU de Forma Divertida!",
+      "link": "https://www.youtube.com/watch?v=HA76PmHhlz4",
+      "id": "HA76PmHhlz4",
+      "duracao_segundos": 45
+    },
+    {
+      "posicao": 91,
+      "titulo": "COMPLETE LITERACY: Syllable Families from BA BE BI BO BU to ZA ZE ZI ZO ZU! 📚",
+      "link": "https://www.youtube.com/watch?v=LG5BepxR4p0",
+      "id": "LG5BepxR4p0",
+      "duracao_segundos": 792
+    },
+    {
+      "posicao": 92,
+      "titulo": "Learning to read the syllables ha ha hee ho hu",
+      "link": "https://www.youtube.com/watch?v=g3l35JW-qKs",
+      "id": "g3l35JW-qKs",
+      "duracao_segundos": 53
+    },
+    {
+      "posicao": 93,
+      "titulo": "Aprendendo a ler as silabas ka ke ki ko ku",
+      "link": "https://www.youtube.com/watch?v=W7oaSe_Zo78",
+      "id": "W7oaSe_Zo78",
+      "duracao_segundos": 53
+    },
+    {
+      "posicao": 94,
+      "titulo": "Learning to Read with the Letter M: Ma, Me, Mi, Mo, Mu in a Fun Way!",
+      "link": "https://www.youtube.com/watch?v=8A_TXnz0yJ8",
+      "id": "8A_TXnz0yJ8",
+      "duracao_segundos": 155
+    },
+    {
+      "posicao": 95,
+      "titulo": "Letter N Lesson - Learning to Read and Write",
+      "link": "https://www.youtube.com/watch?v=nRMOQI-p7Js",
+      "id": "nRMOQI-p7Js",
+      "duracao_segundos": 230
+    },
+    {
+      "posicao": 96,
+      "titulo": "Sílabas Ma Me Mi Mo Mu aprender ler",
+      "link": "https://www.youtube.com/watch?v=AITvslnH8m4",
+      "id": "AITvslnH8m4",
+      "duracao_segundos": 54
+    },
+    {
+      "posicao": 97,
+      "titulo": "NA NE AND NOT NU: Learning to read! 📚",
+      "link": "https://www.youtube.com/watch?v=IOmgLbDGojo",
+      "id": "IOmgLbDGojo",
+      "duracao_segundos": 55
+    },
+    {
+      "posicao": 98,
+      "titulo": "Sílabas PA PE PI PO PU: Aprendendo a ler! 📚✨",
+      "link": "https://www.youtube.com/watch?v=xDd_gyoxMtI",
+      "id": "xDd_gyoxMtI",
+      "duracao_segundos": 54
+    },
+    {
+      "posicao": 99,
+      "titulo": "Sílabas RA RE RI RO RU: Aprendendo a ler!",
+      "link": "https://www.youtube.com/watch?v=EtsVPkwJnUQ",
+      "id": "EtsVPkwJnUQ",
+      "duracao_segundos": 54
+    },
+    {
+      "posicao": 100,
+      "titulo": "Sílabas SA SE SI SO SU: Aprendendo a ler!",
+      "link": "https://www.youtube.com/watch?v=oM1QRTcDIYg",
+      "id": "oM1QRTcDIYg",
+      "duracao_segundos": 52
+    },
+    {
+      "posicao": 101,
+      "titulo": "THE VOWELS A E I O U: Learning to Read and Write 🍎🐘",
+      "link": "https://www.youtube.com/watch?v=Q5upgK_Qyco",
+      "id": "Q5upgK_Qyco",
+      "duracao_segundos": 200
+    },
+    {
+      "posicao": 102,
+      "titulo": null,
+      "link": "https://www.youtube.com/watch?v=7I3Bba7Fm80",
+      "id": "7I3Bba7Fm80",
+      "duracao_segundos": null
+    },
+    {
+      "posicao": 103,
+      "titulo": "Silabas Ta Te Ti To Tu - Tigre",
+      "link": "https://www.youtube.com/watch?v=JcmZ_QugB5w",
+      "id": "JcmZ_QugB5w",
+      "duracao_segundos": 52
+    }
+  ]
+}

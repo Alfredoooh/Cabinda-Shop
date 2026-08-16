@@ -1,0 +1,63 @@
+{
+  "playlist": "Educação artistica",
+  "playlist_link": "https://www.youtube.com/playlist?list=PLbJFFlKBGuS6NlbBSNSn943SZwN4UyDUH",
+  "total_videos": 8,
+  "videos": [
+    {
+      "posicao": 1,
+      "titulo": "Como desenhar uma abelha passo a passo - Educação artistica",
+      "link": "https://www.youtube.com/watch?v=-OAKzQJvY-w",
+      "id": "-OAKzQJvY-w",
+      "duracao_segundos": 89
+    },
+    {
+      "posicao": 2,
+      "titulo": "Ideia de desenho para crianças. Desenho do caracol. Educação artística",
+      "link": "https://www.youtube.com/watch?v=StYW8pf3pfQ",
+      "id": "StYW8pf3pfQ",
+      "duracao_segundos": 98
+    },
+    {
+      "posicao": 3,
+      "titulo": "Com desenhar um barco simples. Desenho facil para crianças. Educação artística",
+      "link": "https://www.youtube.com/watch?v=2gtVScdGars",
+      "id": "2gtVScdGars",
+      "duracao_segundos": 131
+    },
+    {
+      "posicao": 4,
+      "titulo": "How to draw an Indian step by step",
+      "link": "https://www.youtube.com/watch?v=_12FO-THmYo",
+      "id": "_12FO-THmYo",
+      "duracao_segundos": 110
+    },
+    {
+      "posicao": 5,
+      "titulo": "How to draw an Easter Bunny step by step",
+      "link": "https://www.youtube.com/watch?v=VYklavM-Gyo",
+      "id": "VYklavM-Gyo",
+      "duracao_segundos": 131
+    },
+    {
+      "posicao": 6,
+      "titulo": "Como Desenhar um Cachorro Passo a Passo - Educação Artística Fácil!",
+      "link": "https://www.youtube.com/watch?v=Amui_mJEh-U",
+      "id": "Amui_mJEh-U",
+      "duracao_segundos": 75
+    },
+    {
+      "posicao": 7,
+      "titulo": "Passatempo - encontre a silhueta correta - educativo",
+      "link": "https://www.youtube.com/watch?v=rM-sH4IbyE8",
+      "id": "rM-sH4IbyE8",
+      "duracao_segundos": 199
+    },
+    {
+      "posicao": 8,
+      "titulo": "Como desenhar um sapo #desenhar #comodesenhar",
+      "link": "https://www.youtube.com/watch?v=mVSuyLX_mrQ",
+      "id": "mVSuyLX_mrQ",
+      "duracao_segundos": 53
+    }
+  ]
+}

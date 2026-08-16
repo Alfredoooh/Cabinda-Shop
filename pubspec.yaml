@@ -14,6 +14,8 @@ dependencies:
     sdk: flutter
   audioplayers: ^6.0.0
   flutter_svg: ^2.0.10
+  youtube_explode_dart: ^2.2.1
+  video_player: ^2.9.1
 
 dev_dependencies:
   flutter_test:
@@ -169,3 +171,33 @@ flutter:
     #- assets/images/syllables/z/i/
     #- assets/images/syllables/z/o/
     #- assets/images/syllables/z/u/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/01_Aprendendo_a_ler/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/02_As_Vogais_A_E_I_O_U/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/03_Alfabeto/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/04_Ensinando_o_alfabeto_para_crianças/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/05_Ensinando_as_Sílabas_para_crianças/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/06_Silabas_complexas/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/07_Formando_palavras/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/08_Aprendendo_a_ler_frases_e_textos/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/09_Formando_frases_em_inglês/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/10_Palavras_cruzadas_-_caça_palavras/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/11_Numeros_de_1_a_10/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/12_Números/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/13_Ensinando_os_números_para_crianças/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/14_Tabuada/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/15_Divisão_como_aprender_conta_de_dividir/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/16_Ensinando_matemática_para_crianças/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/17_Educação_financeira/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/18_Educação_financeira_para_crianças_e_adolescentes/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/19_Inglês_para_crianças/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/20_Educação_artistica/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/21_Como_a_desenhar_-_Desenhando_passo_a_passo/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/22_Dicas_fáceis_de_desenho_para_crianças/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/23_Musica_infantil/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/24_Ensinando_ciências_para_crianças/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/25_De_onde_vem/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/26_Ensinando_história_para_crianças/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/27_História_do_Brasil/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/28_Videos_de_Geografia/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/29_Datas_comemorativas_-_Videos_educativos/
+    - assets/links/videos/playlists/EnsinandoMeuFilho/30_Libras/

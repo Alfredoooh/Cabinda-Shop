@@ -1,0 +1,98 @@
+{
+  "playlist": "Datas comemorativas - Videos educativos",
+  "playlist_link": "https://www.youtube.com/playlist?list=PLbJFFlKBGuS5o4FP0SKa_80wmiNqUdsu1",
+  "total_videos": 13,
+  "videos": [
+    {
+      "posicao": 1,
+      "titulo": "Primavera - Estações do ano educação infantil",
+      "link": "https://www.youtube.com/watch?v=aqmzWHOhUQo",
+      "id": "aqmzWHOhUQo",
+      "duracao_segundos": 102
+    },
+    {
+      "posicao": 2,
+      "titulo": "Descobrimento do Brasil e os índios - Animação infantil - Educação infantil",
+      "link": "https://www.youtube.com/watch?v=hEd6rMcjNmg",
+      "id": "hEd6rMcjNmg",
+      "duracao_segundos": 72
+    },
+    {
+      "posicao": 3,
+      "titulo": "Dia do trabalho - Dia do trabalhador",
+      "link": "https://www.youtube.com/watch?v=o6Kp2nxnX1Q",
+      "id": "o6Kp2nxnX1Q",
+      "duracao_segundos": 72
+    },
+    {
+      "posicao": 4,
+      "titulo": "Independência do Brasil - 7 de setembro - Animação infantil - Educação infantil",
+      "link": "https://www.youtube.com/watch?v=kGrj_y8SpSw",
+      "id": "kGrj_y8SpSw",
+      "duracao_segundos": 119
+    },
+    {
+      "posicao": 5,
+      "titulo": "How to draw an Indian step by step",
+      "link": "https://www.youtube.com/watch?v=_12FO-THmYo",
+      "id": "_12FO-THmYo",
+      "duracao_segundos": 110
+    },
+    {
+      "posicao": 6,
+      "titulo": "How to draw an Easter Bunny step by step",
+      "link": "https://www.youtube.com/watch?v=VYklavM-Gyo",
+      "id": "VYklavM-Gyo",
+      "duracao_segundos": 131
+    },
+    {
+      "posicao": 7,
+      "titulo": "Dia das mães. Mensagem do dia das mães com música.",
+      "link": "https://www.youtube.com/watch?v=uSkfl0gS7mg",
+      "id": "uSkfl0gS7mg",
+      "duracao_segundos": 90
+    },
+    {
+      "posicao": 8,
+      "titulo": "As cores das lixeiras da coleta seletiva para reciclagem na educação ambiental",
+      "link": "https://www.youtube.com/watch?v=IfJ1z6ahgzk",
+      "id": "IfJ1z6ahgzk",
+      "duracao_segundos": 163
+    },
+    {
+      "posicao": 9,
+      "titulo": "A importância da árvore - Video Educativo",
+      "link": "https://www.youtube.com/watch?v=IC0wpVGBhrg",
+      "id": "IC0wpVGBhrg",
+      "duracao_segundos": 113
+    },
+    {
+      "posicao": 10,
+      "titulo": "The Life of a Veterinarian - A Special Tribute!",
+      "link": "https://www.youtube.com/watch?v=AvnjaG5fVUc",
+      "id": "AvnjaG5fVUc",
+      "duracao_segundos": 86
+    },
+    {
+      "posicao": 11,
+      "titulo": "O inverno educação infantil - Estações do ano",
+      "link": "https://www.youtube.com/watch?v=8U0y38u3y1k",
+      "id": "8U0y38u3y1k",
+      "duracao_segundos": 106
+    },
+    {
+      "posicao": 12,
+      "titulo": "Meios de Comunicação para Educação Infantil - Aprenda de Forma Divertida!",
+      "link": "https://www.youtube.com/watch?v=lvsDQcznK-U",
+      "id": "lvsDQcznK-U",
+      "duracao_segundos": 182
+    },
+    {
+      "posicao": 13,
+      "titulo": "HUG DAY: The Power of a Tight Hug! 🤗❤️",
+      "link": "https://www.youtube.com/watch?v=iDZd9pSLLBc",
+      "id": "iDZd9pSLLBc",
+      "duracao_segundos": 44
+    }
+  ]
+}

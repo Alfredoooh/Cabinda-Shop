@@ -1,0 +1,476 @@
+{
+  "playlist": "Ensinando matemática para crianças",
+  "playlist_link": "https://www.youtube.com/playlist?list=PLbJFFlKBGuS4KhM0BG49t_9Mwluibqnuc",
+  "total_videos": 67,
+  "videos": [
+    {
+      "posicao": 1,
+      "titulo": "Como somar os números - vídeo educativo infantil",
+      "link": "https://www.youtube.com/watch?v=kq0kh0XvT9c",
+      "id": "kq0kh0XvT9c",
+      "duracao_segundos": 238
+    },
+    {
+      "posicao": 2,
+      "titulo": "The numbers 1 to 10 and the colors - Children's video - Children's education",
+      "link": "https://www.youtube.com/watch?v=8Up3HTFDnes",
+      "id": "8Up3HTFDnes",
+      "duracao_segundos": 175
+    },
+    {
+      "posicao": 3,
+      "titulo": "Teaching Numbers to Children - Number Four",
+      "link": "https://www.youtube.com/watch?v=wHybIAcb5ko",
+      "id": "wHybIAcb5ko",
+      "duracao_segundos": 61
+    },
+    {
+      "posicao": 4,
+      "titulo": "O número três. Vídeo educativo",
+      "link": "https://www.youtube.com/watch?v=drz86j8ukTY",
+      "id": "drz86j8ukTY",
+      "duracao_segundos": 68
+    },
+    {
+      "posicao": 5,
+      "titulo": "O número dois - Vídeo educativo",
+      "link": "https://www.youtube.com/watch?v=Xqq2GYZGWeI",
+      "id": "Xqq2GYZGWeI",
+      "duracao_segundos": 62
+    },
+    {
+      "posicao": 6,
+      "titulo": "O número um - Vídeo educativo.",
+      "link": "https://www.youtube.com/watch?v=WgM7HV8nj1Q",
+      "id": "WgM7HV8nj1Q",
+      "duracao_segundos": 64
+    },
+    {
+      "posicao": 7,
+      "titulo": "Aprendendo as formas geométricas com o Trem das formas?",
+      "link": "https://www.youtube.com/watch?v=dWEu01OrU9Y",
+      "id": "dWEu01OrU9Y",
+      "duracao_segundos": 100
+    },
+    {
+      "posicao": 8,
+      "titulo": "Vamos aprender a contar e identificar quantidades?",
+      "link": "https://www.youtube.com/watch?v=LPHHe31GwIs",
+      "id": "LPHHe31GwIs",
+      "duracao_segundos": 122
+    },
+    {
+      "posicao": 9,
+      "titulo": "Como subtrair os números - Subtração - Conta de menos - Vídeo educativo",
+      "link": "https://www.youtube.com/watch?v=qrIOc7w8X0o",
+      "id": "qrIOc7w8X0o",
+      "duracao_segundos": 238
+    },
+    {
+      "posicao": 10,
+      "titulo": "Matematica para crianças. Aprender  multiplicar.  Multiplicação. Video educativo infantil",
+      "link": "https://www.youtube.com/watch?v=Eh7XY7VlfAM",
+      "id": "Eh7XY7VlfAM",
+      "duracao_segundos": 299
+    },
+    {
+      "posicao": 11,
+      "titulo": "O número Cinco - Aprendendo os números - Video educativo",
+      "link": "https://www.youtube.com/watch?v=rdW6bc4XllM",
+      "id": "rdW6bc4XllM",
+      "duracao_segundos": 84
+    },
+    {
+      "posicao": 12,
+      "titulo": "O Número Seis - Vídeo Educativo",
+      "link": "https://www.youtube.com/watch?v=AWRxK466Hyg",
+      "id": "AWRxK466Hyg",
+      "duracao_segundos": 84
+    },
+    {
+      "posicao": 13,
+      "titulo": "Aprendendo os numeros - O número sete -  Educativo infantil",
+      "link": "https://www.youtube.com/watch?v=m-B5nXwzaEM",
+      "id": "m-B5nXwzaEM",
+      "duracao_segundos": 84
+    },
+    {
+      "posicao": 14,
+      "titulo": "Aprendendo os numeros - O número oito -  Educativo infantil",
+      "link": "https://www.youtube.com/watch?v=x3CXefuyl8Y",
+      "id": "x3CXefuyl8Y",
+      "duracao_segundos": 82
+    },
+    {
+      "posicao": 15,
+      "titulo": "Aprendendo os numeros - O número nove -  Educativo infantil",
+      "link": "https://www.youtube.com/watch?v=IH55Hh7qcMk",
+      "id": "IH55Hh7qcMk",
+      "duracao_segundos": 99
+    },
+    {
+      "posicao": 16,
+      "titulo": "O número dez. Video Educativo",
+      "link": "https://www.youtube.com/watch?v=E6Ypz-zM4mA",
+      "id": "E6Ypz-zM4mA",
+      "duracao_segundos": 117
+    },
+    {
+      "posicao": 17,
+      "titulo": "Aprendendo os numeros - O número onze -  Educativo infantil",
+      "link": "https://www.youtube.com/watch?v=n7Q0sH_9CPA",
+      "id": "n7Q0sH_9CPA",
+      "duracao_segundos": 101
+    },
+    {
+      "posicao": 18,
+      "titulo": "Aprendendo os numeros - O número doze -  Educativo infantil",
+      "link": "https://www.youtube.com/watch?v=gELnP_a1L-M",
+      "id": "gELnP_a1L-M",
+      "duracao_segundos": 115
+    },
+    {
+      "posicao": 19,
+      "titulo": "Como fazer conta de dividir passo a passo. Aprender divisão. Video educativo",
+      "link": "https://www.youtube.com/watch?v=mWLp20ptbSI",
+      "id": "mWLp20ptbSI",
+      "duracao_segundos": 95
+    },
+    {
+      "posicao": 20,
+      "titulo": "Tabuada do Dois - Aprendendo tabuada de forma rápida e divertida",
+      "link": "https://www.youtube.com/watch?v=H-0AlAN1VRY",
+      "id": "H-0AlAN1VRY",
+      "duracao_segundos": 100
+    },
+    {
+      "posicao": 21,
+      "titulo": "Ensinando os números e a contar de 1 ate 10 em português  - para crianças 1",
+      "link": "https://www.youtube.com/watch?v=NIRDkStAAwg",
+      "id": "NIRDkStAAwg",
+      "duracao_segundos": 184
+    },
+    {
+      "posicao": 22,
+      "titulo": "Tabuada do 3. Ensinando matemática para crianças",
+      "link": "https://www.youtube.com/watch?v=NJkH8ND3Pu4",
+      "id": "NJkH8ND3Pu4",
+      "duracao_segundos": 94
+    },
+    {
+      "posicao": 23,
+      "titulo": "Aprendendo os números e a contar ate 10",
+      "link": "https://www.youtube.com/watch?v=9gxndvXzC6U",
+      "id": "9gxndvXzC6U",
+      "duracao_segundos": 188
+    },
+    {
+      "posicao": 24,
+      "titulo": "Ensinando os números e a contar de 1 até 10 em português para crianças",
+      "link": "https://www.youtube.com/watch?v=8GVYDPdntUY",
+      "id": "8GVYDPdntUY",
+      "duracao_segundos": 221
+    },
+    {
+      "posicao": 25,
+      "titulo": "Aprendendo a contar e identificar quantidade. Matemática para crianças -  Vídeo educativo",
+      "link": "https://www.youtube.com/watch?v=qNBWqy5bCzk",
+      "id": "qNBWqy5bCzk",
+      "duracao_segundos": 181
+    },
+    {
+      "posicao": 26,
+      "titulo": "Aprendendo os numeros e a contar de 1 a 20 em portugues",
+      "link": "https://www.youtube.com/watch?v=c2vA5vmK-sg",
+      "id": "c2vA5vmK-sg",
+      "duracao_segundos": 158
+    },
+    {
+      "posicao": 27,
+      "titulo": "Aprendendo os numeros de 1 a 30 - Video infantil educativo",
+      "link": "https://www.youtube.com/watch?v=xHy4M4a8mc0",
+      "id": "xHy4M4a8mc0",
+      "duracao_segundos": 356
+    },
+    {
+      "posicao": 28,
+      "titulo": "Tabuada do 4 - Matemática infantil",
+      "link": "https://www.youtube.com/watch?v=WWXBKCzQgbI",
+      "id": "WWXBKCzQgbI",
+      "duracao_segundos": 115
+    },
+    {
+      "posicao": 29,
+      "titulo": "Aprendendo os números de 1 até 50. Vídeo educativo infantil",
+      "link": "https://www.youtube.com/watch?v=u82pFYPVZb4",
+      "id": "u82pFYPVZb4",
+      "duracao_segundos": 265
+    },
+    {
+      "posicao": 30,
+      "titulo": "Tabuada do 5. Matemática",
+      "link": "https://www.youtube.com/watch?v=tX-jJm0Pl0Q",
+      "id": "tX-jJm0Pl0Q",
+      "duracao_segundos": 161
+    },
+    {
+      "posicao": 31,
+      "titulo": "Contando os números de 1 a 10 - Aprendendo os números.",
+      "link": "https://www.youtube.com/watch?v=P6qbILsRtYg",
+      "id": "P6qbILsRtYg",
+      "duracao_segundos": 83
+    },
+    {
+      "posicao": 32,
+      "titulo": "Educação financeira para crianças. Poupando para conquistar um objetivo.",
+      "link": "https://www.youtube.com/watch?v=SxL7J0EH-UM",
+      "id": "SxL7J0EH-UM",
+      "duracao_segundos": 164
+    },
+    {
+      "posicao": 33,
+      "titulo": "Tabuada do 6 - Matemática infantil",
+      "link": "https://www.youtube.com/watch?v=Ikl1WuJ5Wt8",
+      "id": "Ikl1WuJ5Wt8",
+      "duracao_segundos": 162
+    },
+    {
+      "posicao": 34,
+      "titulo": "Vamos contar de 1 ate 10? Numeros infantil",
+      "link": "https://www.youtube.com/watch?v=q5sepFLcw8c",
+      "id": "q5sepFLcw8c",
+      "duracao_segundos": 106
+    },
+    {
+      "posicao": 35,
+      "titulo": "Aprender a identificar relações espaciais dentro e fora,  em cima embaixo, do lado",
+      "link": "https://www.youtube.com/watch?v=zkYTyOuR8hI",
+      "id": "zkYTyOuR8hI",
+      "duracao_segundos": 100
+    },
+    {
+      "posicao": 36,
+      "titulo": "Pequeno, médio e grande. Noções de grandeza na educação infantil",
+      "link": "https://www.youtube.com/watch?v=97oEQUYWk3o",
+      "id": "97oEQUYWk3o",
+      "duracao_segundos": 139
+    },
+    {
+      "posicao": 37,
+      "titulo": "Aprender a tabuada do 7. Multiplicação",
+      "link": "https://www.youtube.com/watch?v=XeCqWiz44-M",
+      "id": "XeCqWiz44-M",
+      "duracao_segundos": 187
+    },
+    {
+      "posicao": 38,
+      "titulo": "Unidade, dezenas e centenas com material dourado. Decomposição de números",
+      "link": "https://www.youtube.com/watch?v=3SjQQJ-wlRM",
+      "id": "3SjQQJ-wlRM",
+      "duracao_segundos": 290
+    },
+    {
+      "posicao": 39,
+      "titulo": "Como fazer conta de dividir. Aprender divisão. Educativo infantil",
+      "link": "https://www.youtube.com/watch?v=7jxMdjQ0hzg",
+      "id": "7jxMdjQ0hzg",
+      "duracao_segundos": 122
+    },
+    {
+      "posicao": 40,
+      "titulo": "Aprendendo os números de 1 a 100 - Educação infantil",
+      "link": "https://www.youtube.com/watch?v=0VLSweWZxkM",
+      "id": "0VLSweWZxkM",
+      "duracao_segundos": 267
+    },
+    {
+      "posicao": 41,
+      "titulo": "Tabuada do 8. Aprendendo matemática.",
+      "link": "https://www.youtube.com/watch?v=og7UHoQgOwM",
+      "id": "og7UHoQgOwM",
+      "duracao_segundos": 208
+    },
+    {
+      "posicao": 42,
+      "titulo": "Educação financeira para crianças. O dinheiro.",
+      "link": "https://www.youtube.com/watch?v=OGbWdvEpw7o",
+      "id": "OGbWdvEpw7o",
+      "duracao_segundos": 487
+    },
+    {
+      "posicao": 43,
+      "titulo": "Numeros de 1 a 10, contando os números de um a dez",
+      "link": "https://www.youtube.com/watch?v=fJVUoBNfMsQ",
+      "id": "fJVUoBNfMsQ",
+      "duracao_segundos": 168
+    },
+    {
+      "posicao": 44,
+      "titulo": "Aprendendo os numeros e a contar de 0 até 100 em portugues para crianças",
+      "link": "https://www.youtube.com/watch?v=I6gXlBQ2-70",
+      "id": "I6gXlBQ2-70",
+      "duracao_segundos": 586
+    },
+    {
+      "posicao": 45,
+      "titulo": "Aprendendo matematica. Os símbolos e sinais básico da matematica",
+      "link": "https://www.youtube.com/watch?v=VeeeGedMGRs",
+      "id": "VeeeGedMGRs",
+      "duracao_segundos": 256
+    },
+    {
+      "posicao": 46,
+      "titulo": "Como fazer conta de mais. Aprendendo a somar os números",
+      "link": "https://www.youtube.com/watch?v=PpPbKt_TOHg",
+      "id": "PpPbKt_TOHg",
+      "duracao_segundos": 221
+    },
+    {
+      "posicao": 47,
+      "titulo": "Como fazer conta de dividir - divisão",
+      "link": "https://www.youtube.com/watch?v=dqlw5MPqfQA",
+      "id": "dqlw5MPqfQA",
+      "duracao_segundos": 115
+    },
+    {
+      "posicao": 48,
+      "titulo": "Tabuada do 9 Tabuada de multiplicação  Aprender tabuada",
+      "link": "https://www.youtube.com/watch?v=o7ZIUKRxsmw",
+      "id": "o7ZIUKRxsmw",
+      "duracao_segundos": 211
+    },
+    {
+      "posicao": 49,
+      "titulo": "Como fazer conta de divisão - Aprender conta de divisão",
+      "link": "https://www.youtube.com/watch?v=DbaWsURFvAc",
+      "id": "DbaWsURFvAc",
+      "duracao_segundos": 130
+    },
+    {
+      "posicao": 50,
+      "titulo": "Como fazer conta de dividir  - Divisão de 12 por 2",
+      "link": "https://www.youtube.com/watch?v=wqUTiere3bs",
+      "id": "wqUTiere3bs",
+      "duracao_segundos": 133
+    },
+    {
+      "posicao": 51,
+      "titulo": "Como fazer conta de dividir - Conta de dividir 14 por 2",
+      "link": "https://www.youtube.com/watch?v=P0h0uJe1d6Q",
+      "id": "P0h0uJe1d6Q",
+      "duracao_segundos": 140
+    },
+    {
+      "posicao": 52,
+      "titulo": "Whole and Half: Easy and Fun Math for Kids!",
+      "link": "https://www.youtube.com/watch?v=kmiSB3hx4L8",
+      "id": "kmiSB3hx4L8",
+      "duracao_segundos": 192
+    },
+    {
+      "posicao": 53,
+      "titulo": "Numbers from 0 to 10 - Children's numbers",
+      "link": "https://www.youtube.com/watch?v=YLmpsMRabM0",
+      "id": "YLmpsMRabM0",
+      "duracao_segundos": 281
+    },
+    {
+      "posicao": 54,
+      "titulo": "Learn Numbers 1 to 10 in English - Fun and Easy for Kids!",
+      "link": "https://www.youtube.com/watch?v=vdhVT-Op8W8",
+      "id": "vdhVT-Op8W8",
+      "duracao_segundos": 189
+    },
+    {
+      "posicao": 55,
+      "titulo": "Learning numbers from 0 to 200 - Early childhood education",
+      "link": "https://www.youtube.com/watch?v=0UaScHj5XJA",
+      "id": "0UaScHj5XJA",
+      "duracao_segundos": 882
+    },
+    {
+      "posicao": 56,
+      "titulo": "Ensinando os números e a contar de 0 ate 20 com libras",
+      "link": "https://www.youtube.com/watch?v=DMDAUWpx6Xw",
+      "id": "DMDAUWpx6Xw",
+      "duracao_segundos": 225
+    },
+    {
+      "posicao": 57,
+      "titulo": "2 Times Table - Two Times Table",
+      "link": "https://www.youtube.com/watch?v=YF6ClHbKv7Y",
+      "id": "YF6ClHbKv7Y",
+      "duracao_segundos": 57
+    },
+    {
+      "posicao": 58,
+      "titulo": "Numbers 1 to 10 - Numbers 1 to 10 for kids",
+      "link": "https://www.youtube.com/watch?v=CLSbt9V3NyU",
+      "id": "CLSbt9V3NyU",
+      "duracao_segundos": 45
+    },
+    {
+      "posicao": 59,
+      "titulo": "How to do division - Division of 16 by 2",
+      "link": "https://www.youtube.com/watch?v=0XcDTvHTHNI",
+      "id": "0XcDTvHTHNI",
+      "duracao_segundos": 117
+    },
+    {
+      "posicao": 60,
+      "titulo": "3 times table",
+      "link": "https://www.youtube.com/watch?v=C6QbpMbRZGM",
+      "id": "C6QbpMbRZGM",
+      "duracao_segundos": 59
+    },
+    {
+      "posicao": 61,
+      "titulo": "8, 7, 6 or 5? How many dinos did you see? 🦖❓",
+      "link": "https://www.youtube.com/watch?v=-u_FK-ODiis",
+      "id": "-u_FK-ODiis",
+      "duracao_segundos": 27
+    },
+    {
+      "posicao": 62,
+      "titulo": "Multiplication Table of 4 - 4 Times Table ✖️🔢",
+      "link": "https://www.youtube.com/watch?v=bqy-jEeVbj0",
+      "id": "bqy-jEeVbj0",
+      "duracao_segundos": 60
+    },
+    {
+      "posicao": 63,
+      "titulo": "APRENDENDO A SOMAR: Continhas de Adição Simples para Crianças! ➕🍎",
+      "link": "https://www.youtube.com/watch?v=s6rc8eWeuyg",
+      "id": "s6rc8eWeuyg",
+      "duracao_segundos": 361
+    },
+    {
+      "posicao": 64,
+      "titulo": "Aprendendo os números e a contar de 1 até 10 em portugues -  para criancas",
+      "link": "https://www.youtube.com/watch?v=uh6mvXs-59w",
+      "id": "uh6mvXs-59w",
+      "duracao_segundos": 230
+    },
+    {
+      "posicao": 65,
+      "titulo": "Let's learn to count.",
+      "link": "https://www.youtube.com/watch?v=QP9RmVnLm68",
+      "id": "QP9RmVnLm68",
+      "duracao_segundos": 49
+    },
+    {
+      "posicao": 66,
+      "titulo": "How to do division problems - dividing 18 by 2",
+      "link": "https://www.youtube.com/watch?v=P49j6PuZKp4",
+      "id": "P49j6PuZKp4",
+      "duracao_segundos": 121
+    },
+    {
+      "posicao": 67,
+      "titulo": "Teaching numbers and how to count from 0 to 120 in Portuguese - for kids 2",
+      "link": "https://www.youtube.com/watch?v=Et3mWR_-DBU",
+      "id": "Et3mWR_-DBU",
+      "duracao_segundos": 526
+    }
+  ]
+}

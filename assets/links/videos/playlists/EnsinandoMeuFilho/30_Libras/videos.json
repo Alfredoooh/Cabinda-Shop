@@ -1,0 +1,56 @@
+{
+  "playlist": "Libras",
+  "playlist_link": "https://www.youtube.com/playlist?list=PLbJFFlKBGuS4e-I0HC5GTCghZL9t39iq7",
+  "total_videos": 7,
+  "videos": [
+    {
+      "posicao": 1,
+      "titulo": "Alfabeto em libras letra por letra com áudio - Vídeo Educativo",
+      "link": "https://www.youtube.com/watch?v=ns-MylNcEic",
+      "id": "ns-MylNcEic",
+      "duracao_segundos": 144
+    },
+    {
+      "posicao": 2,
+      "titulo": "Numeros em libras de 0 a 9 com áudio - Videos Educativo",
+      "link": "https://www.youtube.com/watch?v=jOYR6aRyt7I",
+      "id": "jOYR6aRyt7I",
+      "duracao_segundos": 115
+    },
+    {
+      "posicao": 3,
+      "titulo": "Números em libras #numeros #libras #education",
+      "link": "https://www.youtube.com/watch?v=jvKRI7nxopM",
+      "id": "jvKRI7nxopM",
+      "duracao_segundos": 57
+    },
+    {
+      "posicao": 4,
+      "titulo": "Silabas ba be bi bo bu com libras",
+      "link": "https://www.youtube.com/watch?v=kfbvdx4e9fY",
+      "id": "kfbvdx4e9fY",
+      "duracao_segundos": 82
+    },
+    {
+      "posicao": 5,
+      "titulo": "Silabas ca ce ci co cu com libras",
+      "link": "https://www.youtube.com/watch?v=6-sUeI-Kj9g",
+      "id": "6-sUeI-Kj9g",
+      "duracao_segundos": 70
+    },
+    {
+      "posicao": 6,
+      "titulo": "Alfabeto em libras",
+      "link": "https://www.youtube.com/watch?v=tL75HIRK4Ik",
+      "id": "tL75HIRK4Ik",
+      "duracao_segundos": 185
+    },
+    {
+      "posicao": 7,
+      "titulo": "Ensinando os números e a contar de 0 ate 20 com libras",
+      "link": "https://www.youtube.com/watch?v=DMDAUWpx6Xw",
+      "id": "DMDAUWpx6Xw",
+      "duracao_segundos": 225
+    }
+  ]
+}

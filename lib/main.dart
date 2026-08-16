@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'screens/playlist_covers_screen.dart';
 
 void main() {
   runApp(const AlfabetoApp());
@@ -43,19 +44,15 @@ class AppColors {
   Color get overlay =>
       isDark ? const Color(0x99000000) : const Color(0x66000000);
 
-  // Sombra neutra usada em botões pequenos e speaker/close (dependente do tema)
   Color get neutralShadow =>
       isDark ? const Color(0x40000000) : const Color(0x1A000000);
-  // Sombra do drawer (dependente do tema, evita "preto puro" no dark)
   Color get drawerShadow =>
       isDark ? const Color(0x66000000) : const Color(0x33000000);
-  // Fundo do polegar do theme switch (branco no claro, tom mais suave no escuro)
   Color get switchThumb =>
       isDark ? const Color(0xFFF5EEDD) : const Color(0xFFFFFFFF);
   Color get switchThumbShadow =>
       isDark ? const Color(0x40000000) : const Color(0x33000000);
 
-  // Cores dos cards do grid (c0-c5), claro e escuro
   Color get c0Bg => isDark ? const Color(0xFF17394A) : const Color(0xFFDDF4FF);
   Color get c0Fg => isDark ? const Color(0xFF6FCBFA) : const Color(0xFF1CB0F6);
   Color get c0Shadow =>
@@ -110,7 +107,6 @@ const List<String> kAllLetters = [
 final List<String> kConsonants =
     kAllLetters.where((l) => !kVowels.contains(l)).toList();
 
-// equivalente à função buildSyllable(consonant, vowel, consonantUpper)
 String buildSyllable(String consonant, String vowel, bool consonantUpper) {
   final cRaw =
       consonantUpper ? consonant.toUpperCase() : consonant.toLowerCase();
@@ -131,11 +127,22 @@ enum GridMode { all, vowels, consonants }
 enum DrawerSection { alphabet, games, videos }
 
 // =====================================================================
-// SOUND MANAGER - organiza sozinho os sons a partir das pastas
-// assets/audio/vowels/<letra>.wav
-// assets/audio/consonants/<letra>.wav
-// assets/audio/syllables/<consoante>/<silaba>.wav
-// assets/audio/syllables/<consoante>/<silaba>_ex.wav (exemplos)
+// UTILITÁRIO - listagem dinâmica de assets em uma pasta
+// =====================================================================
+
+class AssetUtils {
+  static Future<List<String>> getAssetsInFolder(String folder) async {
+    final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+    final keys = manifest.listAssets().where((key) =>
+        key.startsWith(folder) &&
+        (key.endsWith('.png') || key.endsWith('.jpg') || key.endsWith('.jpeg')));
+    final list = keys.toList()..sort();
+    return list;
+  }
+}
+
+// =====================================================================
+// SOUND MANAGER
 // =====================================================================
 
 class SoundManager {
@@ -145,7 +152,6 @@ class SoundManager {
   final AudioPlayer _player = AudioPlayer();
   bool muted = false;
 
-  // Toca o som de uma única letra (vogal ou consoante), minúscula ou não.
   Future<void> playLetter(String letter) async {
     final l = letter.toLowerCase();
     if (l.isEmpty || l.length != 1) return;
@@ -157,16 +163,12 @@ class SoundManager {
     await _play(path);
   }
 
-  // Toca o som de uma sílaba (ex: "ba", "que", "gui"), a partir da
-  // pasta da sua consoante inicial: assets/audio/syllables/<consoante>/<silaba>.wav
   Future<void> playSyllable(String syllable) async {
     final s = syllable.toLowerCase();
     if (s.isEmpty) return;
 
     final firstConsonant = s[0];
     if (!kConsonants.contains(firstConsonant)) {
-      // fallback de segurança: se por algum motivo não começar por
-      // consoante conhecida, tenta tocar como letra simples.
       await playLetter(firstConsonant);
       return;
     }
@@ -175,7 +177,6 @@ class SoundManager {
     await _play(path);
   }
 
-  // Toca o som de exemplo de uma sílaba (ex: "ba_ex.wav")
   Future<void> playExample(String syllable) async {
     final s = syllable.toLowerCase();
     if (s.isEmpty) return;
@@ -187,7 +188,6 @@ class SoundManager {
     await _play(path);
   }
 
-  // Decide automaticamente se o texto é uma letra única ou uma sílaba.
   Future<void> play(String text) async {
     final t = text.toLowerCase();
     if (t.length == 1) {
@@ -209,7 +209,7 @@ class SoundManager {
 }
 
 // =====================================================================
-// HOME SCREEN - equivalente a #app com top-bar, toggles, sections e drawer
+// HOME SCREEN
 // =====================================================================
 
 class HomeScreen extends StatefulWidget {
@@ -228,18 +228,15 @@ class _HomeScreenState extends State<HomeScreen>
 
   late AnimationController _drawerController;
   late Animation<Offset> _drawerSlide;
-  // Deslocamento "push" do conteúdo principal, estilo iOS: só um pouquinho,
-  // não empurra a tela toda.
   late Animation<double> _contentPush;
   bool _drawerOpen = false;
 
   static const double _drawerWidthFactor = 0.78;
-  static const double _pushFactor = 0.24; // quanto do drawer "empurra" o corpo
+  static const double _pushFactor = 0.24;
 
   @override
   void initState() {
     super.initState();
-    // equivalente ao transition: transform 0.32s cubic-bezier(0.22,1,0.36,1) do CSS
     _drawerController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 320),
@@ -308,7 +305,6 @@ class _HomeScreenState extends State<HomeScreen>
       backgroundColor: colors.bg,
       body: Stack(
         children: [
-          // CONTEÚDO PRINCIPAL - recebe o efeito "push" quando o drawer abre
           AnimatedBuilder(
             animation: _contentPush,
             builder: (context, child) {
@@ -322,8 +318,6 @@ class _HomeScreenState extends State<HomeScreen>
               bottom: false,
               child: Column(
                 children: [
-                  // APP BAR - contém o hambúrguer E o toggle ABC/AEI/BCD,
-                  // bordas curvadas em baixo, cor do container de toggles.
                   _AppBarWidget(
                     colors: colors,
                     onMenuTap: openDrawer,
@@ -333,8 +327,6 @@ class _HomeScreenState extends State<HomeScreen>
                     soundEnabled: soundEnabled,
                     onSoundToggle: toggleSound,
                   ),
-
-                  // SECTIONS - com slide suave entre tabs
                   Expanded(
                     child: SafeArea(
                       top: false,
@@ -350,8 +342,6 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ),
           ),
-
-          // DRAWER OVERLAY + DRAWER
           if (_drawerOpen)
             GestureDetector(
               onTap: closeDrawer,
@@ -390,10 +380,7 @@ class _HomeScreenState extends State<HomeScreen>
 }
 
 // =====================================================================
-// APP BAR - cor do container de toggles, bordas curvadas só em baixo.
-// Contém o hambúrguer (circular) NA MESMA linha, e por baixo, dentro do
-// próprio appbar, o toggle ABC/AEI/BCD (com a cor do corpo/bg).
-// Agora também inclui o botão de som no topo direito.
+// APP BAR
 // =====================================================================
 
 class _AppBarWidget extends StatelessWidget {
@@ -425,8 +412,6 @@ class _AppBarWidget extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
         decoration: BoxDecoration(
-          // Para Alfabeto: cor neutra e sem curvas (bordas retas)
-          // Para Jogos/Vídeos: mesma cor do fundo do app, com curvas
           color: isAlphabet ? colors.bgCardNeutral : colors.bg,
           borderRadius: isAlphabet
               ? BorderRadius.zero
@@ -449,8 +434,6 @@ class _AppBarWidget extends StatelessWidget {
                 ),
               ],
             ),
-            // O toggle só faz sentido na secção do alfabeto. Nas outras
-            // secções o appbar mostra só o hambúrguer, mais compacto.
             if (isAlphabet) ...[
               const SizedBox(height: 14),
               ConstrainedBox(
@@ -496,10 +479,6 @@ class _AppBarWidget extends StatelessWidget {
   }
 }
 
-// =====================================================================
-// HAMBURGER BUTTON - circular, ícone SVG real (não Material, não painter)
-// =====================================================================
-
 class _HamburgerButton extends StatelessWidget {
   final AppColors colors;
   final VoidCallback onTap;
@@ -529,10 +508,6 @@ class _HamburgerButton extends StatelessWidget {
     );
   }
 }
-
-// =====================================================================
-// SPEAKER TOGGLE BUTTON - no app bar, alterna ícone speaker/off
-// =====================================================================
 
 class _SpeakerToggleButton extends StatelessWidget {
   final AppColors colors;
@@ -571,7 +546,6 @@ class _SpeakerToggleButton extends StatelessWidget {
   }
 }
 
-// helper genérico de "pressionar" -> scale, usado em vários botões pequenos
 class _PressableScale extends StatefulWidget {
   final Widget child;
   final VoidCallback onTap;
@@ -607,8 +581,7 @@ class _PressableScaleState extends State<_PressableScale> {
 }
 
 // =====================================================================
-// ANIMATED SECTION - equivalente ao IndexedStack, mas com slide suave
-// entre tabs (alfabeto / jogos / vídeos)
+// ANIMATED SECTION
 // =====================================================================
 
 class _AnimatedSection extends StatelessWidget {
@@ -641,11 +614,9 @@ class _AnimatedSection extends StatelessWidget {
           assetPath: 'assets/icons/games-icon.png',
         );
       case DrawerSection.videos:
-        return _PlaceholderSection(
+        return PlaylistCoversScreen(
           key: const ValueKey(DrawerSection.videos),
           colors: colors,
-          iconBg: colors.c4Bg,
-          assetPath: 'assets/icons/videos-icon.png',
         );
     }
   }
@@ -687,8 +658,7 @@ class _AnimatedSection extends StatelessWidget {
 }
 
 // =====================================================================
-// ALPHABET SECTION - equivalente a #section-alphabet (agora só o grid;
-// o toggle ABC/AEI/BCD subiu para dentro do appbar)
+// ALPHABET SECTION
 // =====================================================================
 
 class _AlphabetSection extends StatelessWidget {
@@ -740,7 +710,6 @@ class _AlphabetSection extends StatelessWidget {
                 colors: colors,
                 letter: letter,
                 onTapDown: () {
-                  // Som disparado imediatamente no toque (resposta rápida)
                   SoundManager.instance.playLetter(letter);
                 },
                 onTap: () {
@@ -758,8 +727,6 @@ class _AlphabetSection extends StatelessWidget {
   }
 }
 
-// TOGGLE BUTTON - equivalente a .toggle-btn / .toggle-btn.active
-// Sem fonte personalizada - usa a fonte padrão do tema.
 class _ToggleButton extends StatelessWidget {
   final AppColors colors;
   final String label;
@@ -813,8 +780,6 @@ class _ToggleButton extends StatelessWidget {
   }
 }
 
-// LETTER CARD - agora com cores únicas por letra (matiz HSL) e resposta
-// imediata no toque (som no onTapDown)
 class _LetterCard extends StatefulWidget {
   final AppColors colors;
   final String letter;
@@ -835,7 +800,6 @@ class _LetterCard extends StatefulWidget {
 class _LetterCardState extends State<_LetterCard> {
   bool _pressed = false;
 
-  // Gera uma cor única baseada na letra (posição no alfabeto)
   Color _generateLetterColor({
     required bool isDark,
     required int letterIndex,
@@ -844,7 +808,6 @@ class _LetterCardState extends State<_LetterCard> {
     final hue = (letterIndex * 360.0 / 26.0) % 360.0;
 
     if (foreground) {
-      // Cor do texto: saturada e legível
       return HSLColor.fromAHSL(
         1,
         hue,
@@ -852,7 +815,6 @@ class _LetterCardState extends State<_LetterCard> {
         isDark ? 0.75 : 0.42,
       ).toColor();
     } else {
-      // Cor de fundo: clara no modo claro, escura no modo escuro
       return HSLColor.fromAHSL(
         1,
         hue,
@@ -888,7 +850,6 @@ class _LetterCardState extends State<_LetterCard> {
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedContainer(
-        // Duração reduzida para resposta mais rápida
         duration: const Duration(milliseconds: 60),
         transform: Matrix4.identity()..translate(0.0, _pressed ? 4.0 : 0.0),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 6),
@@ -937,7 +898,7 @@ class _LetterCardState extends State<_LetterCard> {
 }
 
 // =====================================================================
-// PLACEHOLDER SECTION - equivalente a #section-games / #section-videos
+// PLACEHOLDER SECTION (mantido só para "Jogos")
 // =====================================================================
 
 class _PlaceholderSection extends StatelessWidget {
@@ -1004,7 +965,7 @@ class _PlaceholderSection extends StatelessWidget {
 }
 
 // =====================================================================
-// APP DRAWER - equivalente a .drawer / .drawer-item / .theme-switch
+// APP DRAWER
 // =====================================================================
 
 class _AppDrawer extends StatelessWidget {
@@ -1108,7 +1069,6 @@ class _AppDrawer extends StatelessWidget {
   }
 }
 
-// DRAWER ITEM - botão real com box-shadow, igual ao toggle/card
 class _DrawerItem extends StatefulWidget {
   final AppColors colors;
   final String label;
@@ -1185,7 +1145,6 @@ class _DrawerItemState extends State<_DrawerItem> {
   }
 }
 
-// THEME SWITCH - equivalente a .theme-switch, troca ícone sol/lua (SVG)
 class _ThemeSwitch extends StatelessWidget {
   final AppColors colors;
   final bool isDark;
@@ -1245,7 +1204,7 @@ class _ThemeSwitch extends StatelessWidget {
 }
 
 // =====================================================================
-// DETAIL SCREEN - equivalente a #detailScreen (progress, tabs, sílabas)
+// DETAIL SCREEN
 // =====================================================================
 
 class DetailScreen extends StatefulWidget {
@@ -1274,7 +1233,6 @@ class _DetailScreenState extends State<DetailScreen>
   void initState() {
     super.initState();
     currentConsonantIndex = widget.initialConsonantIndex;
-    // equivalente ao .slide-track { transition: transform 0.32s cubic-bezier(...) }
     _slideController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 320),
@@ -1339,7 +1297,6 @@ class _DetailScreenState extends State<DetailScreen>
       body: SafeArea(
         child: Column(
           children: [
-            // PROGRESS ROW
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 10, 14, 0),
               child: Row(
@@ -1360,8 +1317,6 @@ class _DetailScreenState extends State<DetailScreen>
                 }),
               ),
             ),
-
-            // NAV ROW
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
               child: Row(
@@ -1412,8 +1367,6 @@ class _DetailScreenState extends State<DetailScreen>
                 ],
               ),
             ),
-
-            // BODY - slide track entre maiúscula/minúscula
             Expanded(
               child: ClipRect(
                 child: AnimatedBuilder(
@@ -1454,8 +1407,6 @@ class _DetailScreenState extends State<DetailScreen>
                 ),
               ),
             ),
-
-            // BOTTOM BAR - fechar
             Container(
               padding: EdgeInsets.fromLTRB(
                 16,
@@ -1486,7 +1437,6 @@ class _DetailScreenState extends State<DetailScreen>
 
 enum _NavIconType { back, forward }
 
-// NAV BUTTON - equivalente a .nav-btn (prev/next), ícone SVG real
 class _NavButton extends StatelessWidget {
   final AppColors colors;
   final _NavIconType icon;
@@ -1530,7 +1480,6 @@ class _NavButton extends StatelessWidget {
   }
 }
 
-// CASE TAB - equivalente a .case-tab / .case-tab.active
 class _CaseTab extends StatelessWidget {
   final AppColors colors;
   final String label;
@@ -1579,7 +1528,6 @@ class _CaseTab extends StatelessWidget {
   }
 }
 
-// SYLLABLE PANE - equivalente a .slide-pane > .detail-inner (uma face maiúscula/minúscula)
 class _SyllablePane extends StatelessWidget {
   final AppColors colors;
   final String consonant;
@@ -1598,8 +1546,6 @@ class _SyllablePane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayLetter = isUpper ? consonant.toUpperCase() : consonant;
-    // A letra grande do topo usa sempre a consoante em minúscula para
-    // referência sonora (o texto exibido mantém maiúscula/minúscula).
     final soundLetter = consonant.toLowerCase();
 
     return SingleChildScrollView(
@@ -1648,8 +1594,6 @@ class _SyllablePane extends StatelessWidget {
   }
 }
 
-// SYLLABLE ROW - equivalente a .syllable-row (consoante + vogal = sílaba + speaker)
-// Agora inclui imagem de exemplo e o speaker toca o som de exemplo.
 class _SyllableRow extends StatelessWidget {
   final AppColors colors;
   final String consonantDisplay;
@@ -1673,9 +1617,7 @@ class _SyllableRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Caminho da imagem de exemplo: assets/images/syllables/<consoante>/<vogal>/<sílaba>.png
-    final imagePath =
-        'assets/images/syllables/$consonantSound/$vowel/${syllable.toLowerCase()}.png';
+    final folderPath = 'assets/images/syllables/$consonantSound/$vowel/';
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 2),
@@ -1704,14 +1646,10 @@ class _SyllableRow extends StatelessWidget {
             onTap: () => onPlaySound(syllable),
           ),
           const SizedBox(width: 8),
-          // Imagem de exemplo (tamanho reduzido)
-          Image.asset(
-            imagePath,
-            width: 24,
-            height: 24,
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) =>
-                const SizedBox(width: 24, height: 24),
+          _SyllableImageThumbnail(
+            colors: colors,
+            folderPath: folderPath,
+            syllable: syllable,
           ),
           const Spacer(),
           _SpeakerButton(
@@ -1724,7 +1662,120 @@ class _SyllableRow extends StatelessWidget {
   }
 }
 
-// LETTER BUTTON pequeno - equivalente a .letter-btn (toca o som da letra)
+class _SyllableImageThumbnail extends StatelessWidget {
+  final AppColors colors;
+  final String folderPath;
+  final String syllable;
+
+  const _SyllableImageThumbnail({
+    required this.colors,
+    required this.folderPath,
+    required this.syllable,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<String>>(
+      future: AssetUtils.getAssetsInFolder(folderPath),
+      builder: (context, snapshot) {
+        final images = snapshot.data ?? [];
+        final hasImages = images.isNotEmpty;
+        return GestureDetector(
+          onTap: hasImages
+              ? () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (_) => SyllableImagesScreen(
+                        colors: colors,
+                        title: syllable,
+                        images: images,
+                      ),
+                    ),
+                  );
+                }
+              : null,
+          child: Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: colors.bgCardNeutral,
+              shape: BoxShape.circle,
+              border: Border.all(color: colors.divider),
+            ),
+            child: ClipOval(
+              child: hasImages
+                  ? Image.asset(
+                      images.first,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.image, size: 14, color: Colors.grey),
+                    )
+                  : const Icon(Icons.image, size: 14, color: Colors.grey),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class SyllableImagesScreen extends StatelessWidget {
+  final AppColors colors;
+  final String title;
+  final List<String> images;
+
+  const SyllableImagesScreen({
+    super.key,
+    required this.colors,
+    required this.title,
+    required this.images,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: colors.bg,
+      appBar: AppBar(
+        backgroundColor: colors.bg,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: colors.textMain),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: colors.textMain,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+      body: GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1,
+        ),
+        itemCount: images.length,
+        itemBuilder: (context, index) {
+          return Container(
+            decoration: BoxDecoration(
+              color: colors.bgCardNeutral,
+              borderRadius: BorderRadius.circular(16),
+              image: DecorationImage(
+                image: AssetImage(images[index]),
+                fit: BoxFit.contain,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
 class _SmallLetterButton extends StatefulWidget {
   final AppColors colors;
   final String label;
@@ -1778,8 +1829,6 @@ class _SmallLetterButtonState extends State<_SmallLetterButton> {
   }
 }
 
-// OPERADOR - equivalente a .syl-op ( + e = ) - sem fonte personalizada,
-// não toca som (não é letra nem sílaba).
 class _Operator extends StatelessWidget {
   final AppColors colors;
   final String symbol;
@@ -1805,8 +1854,6 @@ class _Operator extends StatelessWidget {
   }
 }
 
-// SYLLABLE BUTTON - equivalente a .syllable-btn (verde, resultado da soma,
-// toca o som da sílaba completa)
 class _SyllableButton extends StatefulWidget {
   final AppColors colors;
   final String label;
@@ -1860,8 +1907,6 @@ class _SyllableButtonState extends State<_SyllableButton> {
   }
 }
 
-// SPEAKER BUTTON - equivalente a .speaker-btn, ícone SVG real
-// Agora toca o som de exemplo da sílaba.
 class _SpeakerButton extends StatelessWidget {
   final AppColors colors;
   final VoidCallback onTap;
@@ -1891,8 +1936,6 @@ class _SpeakerButton extends StatelessWidget {
   }
 }
 
-// CLOSE BUTTON - equivalente a .close-btn (vermelho, fecha o detail)
-// Sem fonte personalizada.
 class _CloseButton extends StatefulWidget {
   final AppColors colors;
   final VoidCallback onTap;

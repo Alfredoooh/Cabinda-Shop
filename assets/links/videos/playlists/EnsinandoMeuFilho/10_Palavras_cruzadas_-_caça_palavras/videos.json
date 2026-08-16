@@ -1,0 +1,42 @@
+{
+  "playlist": "Palavras cruzadas - caça palavras",
+  "playlist_link": "https://www.youtube.com/playlist?list=PLbJFFlKBGuS7WskToAtnEp2hMxueez3uE",
+  "total_videos": 5,
+  "videos": [
+    {
+      "posicao": 1,
+      "titulo": "Crossword - Word search numbers in English",
+      "link": "https://www.youtube.com/watch?v=jozRWybV2xA",
+      "id": "jozRWybV2xA",
+      "duracao_segundos": 640
+    },
+    {
+      "posicao": 2,
+      "titulo": "Palavras cruzadas - caça palavras Países da América do Sul",
+      "link": "https://www.youtube.com/watch?v=WwIVqa8JNrk",
+      "id": "WwIVqa8JNrk",
+      "duracao_segundos": 501
+    },
+    {
+      "posicao": 3,
+      "titulo": "Palavras cruzadas - Cruzadinha - Caça palavras planetas",
+      "link": "https://www.youtube.com/watch?v=RNsZdyRIBtM",
+      "id": "RNsZdyRIBtM",
+      "duracao_segundos": 237
+    },
+    {
+      "posicao": 4,
+      "titulo": "Palavras cruzadas - Caça palavras animais",
+      "link": "https://www.youtube.com/watch?v=Oajukstkfdw",
+      "id": "Oajukstkfdw",
+      "duracao_segundos": 495
+    },
+    {
+      "posicao": 5,
+      "titulo": "Palavras cruzadas infantil - Frutas",
+      "link": "https://www.youtube.com/watch?v=rCxW1Gx3das",
+      "id": "rCxW1Gx3das",
+      "duracao_segundos": 341
+    }
+  ]
+}

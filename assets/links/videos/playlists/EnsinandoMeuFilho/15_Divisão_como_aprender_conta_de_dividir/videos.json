@@ -1,0 +1,63 @@
+{
+  "playlist": "Divisão como aprender conta de dividir",
+  "playlist_link": "https://www.youtube.com/playlist?list=PLbJFFlKBGuS45oYdyzsp0v_Nm5i-gVDlZ",
+  "total_videos": 8,
+  "videos": [
+    {
+      "posicao": 1,
+      "titulo": "Como fazer conta de dividir passo a passo. Aprender divisão. Video educativo",
+      "link": "https://www.youtube.com/watch?v=mWLp20ptbSI",
+      "id": "mWLp20ptbSI",
+      "duracao_segundos": 95
+    },
+    {
+      "posicao": 2,
+      "titulo": "Como fazer conta de dividir. Aprender divisão. Educativo infantil",
+      "link": "https://www.youtube.com/watch?v=7jxMdjQ0hzg",
+      "id": "7jxMdjQ0hzg",
+      "duracao_segundos": 122
+    },
+    {
+      "posicao": 3,
+      "titulo": "Como fazer conta de dividir - divisão",
+      "link": "https://www.youtube.com/watch?v=dqlw5MPqfQA",
+      "id": "dqlw5MPqfQA",
+      "duracao_segundos": 115
+    },
+    {
+      "posicao": 4,
+      "titulo": "Como fazer conta de divisão - Aprender conta de divisão",
+      "link": "https://www.youtube.com/watch?v=DbaWsURFvAc",
+      "id": "DbaWsURFvAc",
+      "duracao_segundos": 130
+    },
+    {
+      "posicao": 5,
+      "titulo": "Como fazer conta de dividir  - Divisão de 12 por 2",
+      "link": "https://www.youtube.com/watch?v=wqUTiere3bs",
+      "id": "wqUTiere3bs",
+      "duracao_segundos": 133
+    },
+    {
+      "posicao": 6,
+      "titulo": "Como fazer conta de dividir - Conta de dividir 14 por 2",
+      "link": "https://www.youtube.com/watch?v=P0h0uJe1d6Q",
+      "id": "P0h0uJe1d6Q",
+      "duracao_segundos": 140
+    },
+    {
+      "posicao": 7,
+      "titulo": "How to do division - Division of 16 by 2",
+      "link": "https://www.youtube.com/watch?v=0XcDTvHTHNI",
+      "id": "0XcDTvHTHNI",
+      "duracao_segundos": 117
+    },
+    {
+      "posicao": 8,
+      "titulo": "How to do division problems - dividing 18 by 2",
+      "link": "https://www.youtube.com/watch?v=P49j6PuZKp4",
+      "id": "P49j6PuZKp4",
+      "duracao_segundos": 121
+    }
+  ]
+}
