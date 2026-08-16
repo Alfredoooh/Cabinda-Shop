@@ -47,6 +47,8 @@ flutter:
     - assets/icons/play.svg
     - assets/icons/pause.svg
     - assets/icons/clock.svg
+    - assets/icons/forward.svg 
+    - assets/icons/rewind.svg
     - assets/audio/vowels/
     - assets/audio/consonants/
     - assets/audio/syllables/b/
