@@ -52,7 +52,7 @@ flutter:
     - assets/audio/vowels/
     - assets/audio/consonants/
     - assets/audio/syllables/b/
-    #- assets/audio/syllables/c/
+    - assets/audio/syllables/c/
     #- assets/audio/syllables/d/
     #- assets/audio/syllables/f/
     #- assets/audio/syllables/g/
