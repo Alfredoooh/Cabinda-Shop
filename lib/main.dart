@@ -135,6 +135,7 @@ enum DrawerSection { alphabet, games, videos }
 // assets/audio/vowels/<letra>.wav
 // assets/audio/consonants/<letra>.wav
 // assets/audio/syllables/<consoante>/<silaba>.wav
+// assets/audio/syllables/<consoante>/<silaba>_ex.wav (exemplos)
 // =====================================================================
 
 class SoundManager {
@@ -142,6 +143,7 @@ class SoundManager {
   static final SoundManager instance = SoundManager._();
 
   final AudioPlayer _player = AudioPlayer();
+  bool muted = false;
 
   // Toca o som de uma única letra (vogal ou consoante), minúscula ou não.
   Future<void> playLetter(String letter) async {
@@ -173,6 +175,18 @@ class SoundManager {
     await _play(path);
   }
 
+  // Toca o som de exemplo de uma sílaba (ex: "ba_ex.wav")
+  Future<void> playExample(String syllable) async {
+    final s = syllable.toLowerCase();
+    if (s.isEmpty) return;
+
+    final firstConsonant = s[0];
+    if (!kConsonants.contains(firstConsonant)) return;
+
+    final path = 'audio/syllables/$firstConsonant/${s}_ex.wav';
+    await _play(path);
+  }
+
   // Decide automaticamente se o texto é uma letra única ou uma sílaba.
   Future<void> play(String text) async {
     final t = text.toLowerCase();
@@ -184,6 +198,7 @@ class SoundManager {
   }
 
   Future<void> _play(String assetPath) async {
+    if (muted) return;
     try {
       await _player.stop();
       await _player.play(AssetSource(assetPath));
@@ -209,6 +224,7 @@ class _HomeScreenState extends State<HomeScreen>
   bool isDark = false;
   GridMode currentMode = GridMode.all;
   DrawerSection currentSection = DrawerSection.alphabet;
+  bool soundEnabled = true;
 
   late AnimationController _drawerController;
   late Animation<Offset> _drawerSlide;
@@ -264,6 +280,13 @@ class _HomeScreenState extends State<HomeScreen>
     setState(() => isDark = !isDark);
   }
 
+  void toggleSound() {
+    setState(() {
+      soundEnabled = !soundEnabled;
+      SoundManager.instance.muted = !soundEnabled;
+    });
+  }
+
   void openDetail(int consonantIndex) {
     Navigator.of(context).push(
       CupertinoPageRoute(
@@ -307,6 +330,8 @@ class _HomeScreenState extends State<HomeScreen>
                     currentSection: currentSection,
                     currentMode: currentMode,
                     onModeChange: (m) => setState(() => currentMode = m),
+                    soundEnabled: soundEnabled,
+                    onSoundToggle: toggleSound,
                   ),
 
                   // SECTIONS - com slide suave entre tabs
@@ -368,6 +393,7 @@ class _HomeScreenState extends State<HomeScreen>
 // APP BAR - cor do container de toggles, bordas curvadas só em baixo.
 // Contém o hambúrguer (circular) NA MESMA linha, e por baixo, dentro do
 // próprio appbar, o toggle ABC/AEI/BCD (com a cor do corpo/bg).
+// Agora também inclui o botão de som no topo direito.
 // =====================================================================
 
 class _AppBarWidget extends StatelessWidget {
@@ -376,6 +402,8 @@ class _AppBarWidget extends StatelessWidget {
   final DrawerSection currentSection;
   final GridMode currentMode;
   final ValueChanged<GridMode> onModeChange;
+  final bool soundEnabled;
+  final VoidCallback onSoundToggle;
 
   const _AppBarWidget({
     required this.colors,
@@ -383,6 +411,8 @@ class _AppBarWidget extends StatelessWidget {
     required this.currentSection,
     required this.currentMode,
     required this.onModeChange,
+    required this.soundEnabled,
+    required this.onSoundToggle,
   });
 
   @override
@@ -411,6 +441,12 @@ class _AppBarWidget extends StatelessWidget {
             Row(
               children: [
                 _HamburgerButton(colors: colors, onTap: onMenuTap),
+                const Spacer(),
+                _SpeakerToggleButton(
+                  colors: colors,
+                  soundEnabled: soundEnabled,
+                  onTap: onSoundToggle,
+                ),
               ],
             ),
             // O toggle só faz sentido na secção do alfabeto. Nas outras
@@ -484,6 +520,47 @@ class _HamburgerButton extends StatelessWidget {
         child: Center(
           child: SvgPicture.asset(
             'assets/icons/menu-icon.svg',
+            width: 18,
+            height: 18,
+            colorFilter: ColorFilter.mode(colors.textMuted, BlendMode.srcIn),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// =====================================================================
+// SPEAKER TOGGLE BUTTON - no app bar, alterna ícone speaker/off
+// =====================================================================
+
+class _SpeakerToggleButton extends StatelessWidget {
+  final AppColors colors;
+  final bool soundEnabled;
+  final VoidCallback onTap;
+
+  const _SpeakerToggleButton({
+    required this.colors,
+    required this.soundEnabled,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _PressableScale(
+      onTap: onTap,
+      child: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: colors.bg,
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: SvgPicture.asset(
+            soundEnabled
+                ? 'assets/icons/speaker-icon.svg'
+                : 'assets/icons/speaker-off-icon.svg',
             width: 18,
             height: 18,
             colorFilter: ColorFilter.mode(colors.textMuted, BlendMode.srcIn),
@@ -1248,6 +1325,10 @@ class _DetailScreenState extends State<DetailScreen>
     SoundManager.instance.play(letterOrSyllable);
   }
 
+  void playExampleSound(String syllable) {
+    SoundManager.instance.playExample(syllable);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = widget.colors;
@@ -1352,6 +1433,7 @@ class _DetailScreenState extends State<DetailScreen>
                                 consonant: consonant,
                                 isUpper: true,
                                 onPlaySound: playSound,
+                                onPlayExampleSound: playExampleSound,
                               ),
                             ),
                             SizedBox(
@@ -1361,6 +1443,7 @@ class _DetailScreenState extends State<DetailScreen>
                                 consonant: consonant,
                                 isUpper: false,
                                 onPlaySound: playSound,
+                                onPlayExampleSound: playExampleSound,
                               ),
                             ),
                           ],
@@ -1502,12 +1585,14 @@ class _SyllablePane extends StatelessWidget {
   final String consonant;
   final bool isUpper;
   final ValueChanged<String> onPlaySound;
+  final ValueChanged<String> onPlayExampleSound;
 
   const _SyllablePane({
     required this.colors,
     required this.consonant,
     required this.isUpper,
     required this.onPlaySound,
+    required this.onPlayExampleSound,
   });
 
   @override
@@ -1552,6 +1637,7 @@ class _SyllablePane extends StatelessWidget {
                     syllable: buildSyllable(consonant, vowel, isUpper),
                     isLast: vowel == kVowels.last,
                     onPlaySound: onPlaySound,
+                    onPlayExampleSound: onPlayExampleSound,
                   ),
               ],
             ),
@@ -1563,6 +1649,7 @@ class _SyllablePane extends StatelessWidget {
 }
 
 // SYLLABLE ROW - equivalente a .syllable-row (consoante + vogal = sílaba + speaker)
+// Agora inclui imagem de exemplo e o speaker toca o som de exemplo.
 class _SyllableRow extends StatelessWidget {
   final AppColors colors;
   final String consonantDisplay;
@@ -1571,6 +1658,7 @@ class _SyllableRow extends StatelessWidget {
   final String syllable;
   final bool isLast;
   final ValueChanged<String> onPlaySound;
+  final ValueChanged<String> onPlayExampleSound;
 
   const _SyllableRow({
     required this.colors,
@@ -1580,10 +1668,15 @@ class _SyllableRow extends StatelessWidget {
     required this.syllable,
     required this.isLast,
     required this.onPlaySound,
+    required this.onPlayExampleSound,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Caminho da imagem de exemplo: assets/images/syllables/<consoante>/<vogal>/<sílaba>.png
+    final imagePath =
+        'assets/images/syllables/$consonantSound/$vowel/${syllable.toLowerCase()}.png';
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 2),
       decoration: BoxDecoration(
@@ -1610,10 +1703,20 @@ class _SyllableRow extends StatelessWidget {
             label: syllable,
             onTap: () => onPlaySound(syllable),
           ),
+          const SizedBox(width: 8),
+          // Imagem de exemplo (tamanho reduzido)
+          Image.asset(
+            imagePath,
+            width: 24,
+            height: 24,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) =>
+                const SizedBox(width: 24, height: 24),
+          ),
           const Spacer(),
           _SpeakerButton(
             colors: colors,
-            onTap: () => onPlaySound(syllable),
+            onTap: () => onPlayExampleSound(syllable),
           ),
         ],
       ),
@@ -1758,6 +1861,7 @@ class _SyllableButtonState extends State<_SyllableButton> {
 }
 
 // SPEAKER BUTTON - equivalente a .speaker-btn, ícone SVG real
+// Agora toca o som de exemplo da sílaba.
 class _SpeakerButton extends StatelessWidget {
   final AppColors colors;
   final VoidCallback onTap;

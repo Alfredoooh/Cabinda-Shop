@@ -40,6 +40,7 @@ flutter:
     - assets/icons/chevron-left.svg
     - assets/icons/chevron-right.svg
     - assets/icons/speaker-icon.svg
+    - assets/icons/speaker-off-icon.svg
     - assets/audio/vowels/
     - assets/audio/consonants/
     - assets/audio/syllables/b/
@@ -63,3 +64,108 @@ flutter:
     #- assets/audio/syllables/x/
     #- assets/audio/syllables/y/
     #- assets/audio/syllables/z/
+    - assets/images/syllables/b/a/
+    - assets/images/syllables/b/e/
+    - assets/images/syllables/b/i/
+    - assets/images/syllables/b/o/
+    - assets/images/syllables/b/u/
+    #- assets/images/syllables/c/a/
+    #- assets/images/syllables/c/e/
+    #- assets/images/syllables/c/i/
+    #- assets/images/syllables/c/o/
+    #- assets/images/syllables/c/u/
+    #- assets/images/syllables/d/a/
+    #- assets/images/syllables/d/e/
+    #- assets/images/syllables/d/i/
+    #- assets/images/syllables/d/o/
+    #- assets/images/syllables/d/u/
+    #- assets/images/syllables/f/a/
+    #- assets/images/syllables/f/e/
+    #- assets/images/syllables/f/i/
+    #- assets/images/syllables/f/o/
+    #- assets/images/syllables/f/u/
+    #- assets/images/syllables/g/a/
+    #- assets/images/syllables/g/e/
+    #- assets/images/syllables/g/i/
+    #- assets/images/syllables/g/o/
+    #- assets/images/syllables/g/u/
+    #- assets/images/syllables/h/a/
+    #- assets/images/syllables/h/e/
+    #- assets/images/syllables/h/i/
+    #- assets/images/syllables/h/o/
+    #- assets/images/syllables/h/u/
+    #- assets/images/syllables/j/a/
+    #- assets/images/syllables/j/e/
+    #- assets/images/syllables/j/i/
+    #- assets/images/syllables/j/o/
+    #- assets/images/syllables/j/u/
+    #- assets/images/syllables/k/a/
+    #- assets/images/syllables/k/e/
+    #- assets/images/syllables/k/i/
+    #- assets/images/syllables/k/o/
+    #- assets/images/syllables/k/u/
+    #- assets/images/syllables/l/a/
+    #- assets/images/syllables/l/e/
+    #- assets/images/syllables/l/i/
+    #- assets/images/syllables/l/o/
+    #- assets/images/syllables/l/u/
+    #- assets/images/syllables/m/a/
+    #- assets/images/syllables/m/e/
+    #- assets/images/syllables/m/i/
+    #- assets/images/syllables/m/o/
+    #- assets/images/syllables/m/u/
+    #- assets/images/syllables/n/a/
+    #- assets/images/syllables/n/e/
+    #- assets/images/syllables/n/i/
+    #- assets/images/syllables/n/o/
+    #- assets/images/syllables/n/u/
+    #- assets/images/syllables/p/a/
+    #- assets/images/syllables/p/e/
+    #- assets/images/syllables/p/i/
+    #- assets/images/syllables/p/o/
+    #- assets/images/syllables/p/u/
+    #- assets/images/syllables/q/a/
+    #- assets/images/syllables/q/e/
+    #- assets/images/syllables/q/i/
+    #- assets/images/syllables/q/o/
+    #- assets/images/syllables/q/u/
+    #- assets/images/syllables/r/a/
+    #- assets/images/syllables/r/e/
+    #- assets/images/syllables/r/i/
+    #- assets/images/syllables/r/o/
+    #- assets/images/syllables/r/u/
+    #- assets/images/syllables/s/a/
+    #- assets/images/syllables/s/e/
+    #- assets/images/syllables/s/i/
+    #- assets/images/syllables/s/o/
+    #- assets/images/syllables/s/u/
+    #- assets/images/syllables/t/a/
+    #- assets/images/syllables/t/e/
+    #- assets/images/syllables/t/i/
+    #- assets/images/syllables/t/o/
+    #- assets/images/syllables/t/u/
+    #- assets/images/syllables/v/a/
+    #- assets/images/syllables/v/e/
+    #- assets/images/syllables/v/i/
+    #- assets/images/syllables/v/o/
+    #- assets/images/syllables/v/u/
+    #- assets/images/syllables/w/a/
+    #- assets/images/syllables/w/e/
+    #- assets/images/syllables/w/i/
+    #- assets/images/syllables/w/o/
+    #- assets/images/syllables/w/u/
+    #- assets/images/syllables/x/a/
+    #- assets/images/syllables/x/e/
+    #- assets/images/syllables/x/i/
+    #- assets/images/syllables/x/o/
+    #- assets/images/syllables/x/u/
+    #- assets/images/syllables/y/a/
+    #- assets/images/syllables/y/e/
+    #- assets/images/syllables/y/i/
+    #- assets/images/syllables/y/o/
+    #- assets/images/syllables/y/u/
+    #- assets/images/syllables/z/a/
+    #- assets/images/syllables/z/e/
+    #- assets/images/syllables/z/i/
+    #- assets/images/syllables/z/o/
+    #- assets/images/syllables/z/u/
