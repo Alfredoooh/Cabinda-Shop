@@ -28,7 +28,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   static const double _drawerWidthFactor = 0.78;
   static const double _pushFactor = 0.24;
 
-  // Curva linear para que drawer e push se movam exatamente ao mesmo ritmo
   static const Curve _drawerCurve = Curves.easeInOutCubic;
 
   @override
@@ -48,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _contentPush = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _drawerController,
-        curve: _drawerCurve, // mesma curva → sincronizados
+        curve: _drawerCurve,
       ),
     );
   }
@@ -122,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       backgroundColor: colors.bg,
       body: Stack(
         children: [
-          // ── Conteúdo principal com push suave ──
+          // Conteúdo principal
           AnimatedBuilder(
             animation: _contentPush,
             builder: (context, child) {
@@ -185,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
 
-          // ── Overlay escuro ──
+          // Overlay escuro
           if (_drawerOpen)
             AnimatedBuilder(
               animation: _drawerController,
@@ -201,7 +200,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
 
-          // ── Drawer ──
+          // Drawer
           if (_drawerOpen)
             SlideTransition(
               position: _drawerSlide,
@@ -283,12 +282,10 @@ class _AppBarWidget extends StatelessWidget {
               children: [
                 _HamburgerButton(colors: colors, onTap: onMenuTap),
                 const SizedBox(width: 10),
-                // Ícone à esquerda, junto ao botão de menu
                 Image.asset(
                   _iconeAtivo,
                   width: 22,
                   height: 22,
-                  // SEM color — PNG original
                   errorBuilder: (_, __, ___) =>
                       const SizedBox(width: 22, height: 22),
                 ),
@@ -459,7 +456,7 @@ class _ToggleButton extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────
-// Alphabet section
+// Alphabet section (com performance corrigida)
 // ─────────────────────────────────────────────
 class _AlphabetSection extends StatelessWidget {
   final AppColors colors;
@@ -492,37 +489,29 @@ class _AlphabetSection extends StatelessWidget {
     final isConsonantMode = currentMode == GridMode.consonants;
     final letters = _letters;
 
-    return SingleChildScrollView(
+    // GridView.builder direto (sem shrinkWrap) → performance excelente
+    return GridView.builder(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480),
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: letters.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 1.05,
-            ),
-            itemBuilder: (context, index) {
-              final letter = letters[index];
-              return _LetterCard(
-                colors: colors,
-                letter: letter,
-                onTapDown: () => SoundManager.instance.playLetter(letter),
-                onTap: () {
-                  if (isConsonantMode) {
-                    onConsonantTap(kConsonants.indexOf(letter));
-                  }
-                },
-              );
-            },
-          ),
-        ),
+      itemCount: letters.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 1.05,
       ),
+      itemBuilder: (context, index) {
+        final letter = letters[index];
+        return _LetterCard(
+          colors: colors,
+          letter: letter,
+          onTapDown: () => SoundManager.instance.playLetter(letter),
+          onTap: () {
+            if (isConsonantMode) {
+              onConsonantTap(kConsonants.indexOf(letter));
+            }
+          },
+        );
+      },
     );
   }
 }
@@ -796,7 +785,6 @@ class _DrawerItemState extends State<_DrawerItem> {
               width: 24,
               height: 24,
               fit: BoxFit.contain,
-              // SEM color — PNG original
               errorBuilder: (_, __, ___) =>
                   const SizedBox(width: 24, height: 24),
             ),

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:audioplayers/audioplayers.dart'; // novo import
 import '../main.dart' show AppColors;
 import 'game_memory_screen.dart';
 import 'game_quiz_screen.dart';
+
+// Player global para o som de clique
+final AudioPlayer _soundPlayer = AudioPlayer();
 
 class GamesScreen extends StatelessWidget {
   final AppColors colors;
@@ -68,6 +72,15 @@ class _GameCard extends StatefulWidget {
 class _GameCardState extends State<_GameCard> {
   bool _pressed = false;
 
+  // Função para tocar o som
+  Future<void> _playPressSound() async {
+    try {
+      await _soundPlayer.play(AssetSource('audio/pressing.wav'));
+    } catch (e) {
+      // Ignora erros, por exemplo se o arquivo não existir
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bgList = widget.colors.cardBgList as List<Color>;
@@ -77,7 +90,10 @@ class _GameCardState extends State<_GameCard> {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: widget.onTap,
+      onTap: () {
+        _playPressSound(); // toca o som
+        widget.onTap();    // executa a ação original
+      },
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
@@ -90,29 +106,31 @@ class _GameCardState extends State<_GameCard> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-                color: shadow, offset: Offset(0, _pressed ? 1 : 4)),
+              color: shadow,
+              offset: Offset(0, _pressed ? 1 : 4),
+            ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Cover
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-              child: Image.asset(
-                widget.coverPath,
-                height: 160,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+            // Cover com espaçamento e bordas curvas
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.asset(
+                  widget.coverPath,
                   height: 160,
-                  color: widget.colors.bgCardNeutral,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    height: 160,
+                    color: widget.colors.bgCardNeutral,
+                  ),
                 ),
               ),
             ),
-            // Info
+            // Informações
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
               child: Column(
@@ -136,7 +154,7 @@ class _GameCardState extends State<_GameCard> {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  // Botão jogar
+                  // Botão JOGAR (visual, o clique é capturado pelo card)
                   Container(
                     padding: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 20),
