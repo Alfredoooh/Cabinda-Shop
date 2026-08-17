@@ -33,9 +33,9 @@ flutter:
         - asset: assets/fonts/SegoeUI.ttf
 
   assets:
-    - assests/audio/
-    - assests/covers/
-    - assests/icons/
+    - assets/audio/
+    - assets/covers/
+    - assets/icons/
     - assets/icons/alphabet-icon.png
     - assets/covers/game_memory_cover.png
     - assets/covers/game_quiz_cover.png
@@ -54,6 +54,14 @@ flutter:
     - assets/icons/clock.svg
     - assets/icons/forward.svg 
     - assets/icons/rewind.svg
+    - assets/icons/easy.png
+    - assets/icons/normal.png
+    - assets/icons/hard.png
+    - assets/icons/extreme.png
+    - assets/audio/pressing.wav
+    - assets/audio/correct.wav
+    - assets/audio/wrong.wav
+    - assets/audio/win.wav
     - assets/audio/vowels/
     - assets/audio/consonants/
     - assets/audio/syllables/b/
