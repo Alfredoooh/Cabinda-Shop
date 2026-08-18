@@ -10,7 +10,11 @@ final AudioPlayer _musicPlayer = AudioPlayer();
 
 class GameMemoryScreen extends StatefulWidget {
   final AppColors colors;
-  const GameMemoryScreen({super.key, required this.colors});
+
+  const GameMemoryScreen({
+    super.key,
+    required this.colors,
+  });
 
   @override
   State<GameMemoryScreen> createState() => _GameMemoryScreenState();
@@ -18,11 +22,18 @@ class GameMemoryScreen extends StatefulWidget {
 
 class _GameMemoryScreenState extends State<GameMemoryScreen>
     with TickerProviderStateMixin {
+  // ────────────────────────────────────────────────────────────
+  // ESTADO
+  // ────────────────────────────────────────────────────────────
+
   bool _showLevelSelect = true;
+
   int _levelPairs = 6;
+
   bool _timerEnabled = false;
   int _timerDuration = 60;
   int _remainingSeconds = 60;
+
   Timer? _timer;
 
   bool _soundOn = true;
@@ -30,13 +41,28 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   bool _musicStarted = false;
 
   static const List<String> _allLetters = [
-    'A','B','C','D','E','F','G','H','I','J','K','L','M'
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'F',
+    'G',
+    'H',
+    'I',
+    'J',
+    'K',
+    'L',
+    'M',
   ];
+
   late List<String> _cartas;
   late List<bool> _virada;
   late List<bool> _encontrada;
+
   int? _primeira;
   bool _bloqueado = false;
+
   int _tentativas = 0;
   int _streak = 0;
 
@@ -47,221 +73,474 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   Timer? _mensagemTimer;
 
   final List<_ConfettiParticle> _confetti = [];
+
   late AnimationController _confettiController;
-  final _random = Random();
+
+  final Random _random = Random();
 
   static const List<String> _mensagensAcerto = [
-    'Boa! 🌟', 'Excelente! ✨', 'Continua! 🚀', 'Muito bem! 🎯', 'Incrível! 💫',
+    'Boa! 🌟',
+    'Excelente! ✨',
+    'Continua! 🚀',
+    'Muito bem! 🎯',
+    'Incrível! 💫',
   ];
+
   static const List<String> _mensagensStreak = [
-    'Sequência! 🔥', 'Em fogo! 🔥🔥', 'Imparável! 🔥🔥🔥',
+    'Sequência! 🔥',
+    'Em fogo! 🔥🔥',
+    'Imparável! 🔥🔥🔥',
   ];
+
+  // ────────────────────────────────────────────────────────────
+  // CICLO DE VIDA
+  // ────────────────────────────────────────────────────────────
 
   @override
   void initState() {
     super.initState();
+
     _confettiController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
-    )..addListener(() { if (mounted) setState(() {}); });
+    )..addListener(() {
+        if (mounted) {
+          setState(() {});
+        }
+      });
   }
 
   @override
   void dispose() {
     _timer?.cancel();
     _mensagemTimer?.cancel();
+
     _confettiController.dispose();
+
+    _soundPlayer.stop();
     _musicPlayer.stop();
+
     super.dispose();
   }
 
-  // ─── Áudio ────────────────────────────────────────────────
+  // ────────────────────────────────────────────────────────────
+  // ÁUDIO
+  // ────────────────────────────────────────────────────────────
 
   Future<void> _playSound(String asset) async {
     if (!_soundOn) return;
+
     try {
       await _soundPlayer.stop();
-      await _soundPlayer.play(AssetSource(asset));
+      await _soundPlayer.play(
+        AssetSource(asset),
+      );
     } catch (_) {}
   }
 
   Future<void> _startMusic() async {
-    if (_musicStarted) return;
+    if (_musicStarted) {
+      if (_musicOn) {
+        try {
+          await _musicPlayer.resume();
+        } catch (_) {}
+      }
+      return;
+    }
+
     _musicStarted = true;
+
     try {
-      await _musicPlayer.setReleaseMode(ReleaseMode.loop);
+      await _musicPlayer.setReleaseMode(
+        ReleaseMode.loop,
+      );
+
       await _musicPlayer.setVolume(0.35);
-      if (_musicOn) await _musicPlayer.play(AssetSource('songs/playing_song.mp3'));
+
+      if (_musicOn) {
+        await _musicPlayer.play(
+          AssetSource('songs/playing_song.mp3'),
+        );
+      }
     } catch (_) {}
   }
 
   Future<void> _toggleSound() async {
-    setState(() => _soundOn = !_soundOn);
-    if (_soundOn) _playSound('audio/pressing.wav');
+    setState(() {
+      _soundOn = !_soundOn;
+    });
+
+    if (_soundOn) {
+      await _playSound('audio/pressing.wav');
+    }
   }
 
   Future<void> _toggleMusic() async {
-    setState(() => _musicOn = !_musicOn);
+    setState(() {
+      _musicOn = !_musicOn;
+    });
+
     try {
       if (_musicOn) {
-        if (!_musicStarted) { await _startMusic(); }
-        else { await _musicPlayer.resume(); }
+        if (!_musicStarted) {
+          await _startMusic();
+        } else {
+          await _musicPlayer.resume();
+        }
       } else {
         await _musicPlayer.pause();
       }
     } catch (_) {}
-    if (_soundOn) _playSound('audio/pressing.wav');
+
+    if (_soundOn) {
+      await _playSound('audio/pressing.wav');
+    }
   }
 
-  // ─── Fluxo do jogo ────────────────────────────────────────
+  // ────────────────────────────────────────────────────────────
+  // INICIAR JOGO
+  // ────────────────────────────────────────────────────────────
 
-  void _iniciarJogo(int pares, bool timerOn, int duracao) {
-    final letras = _allLetters.sublist(0, pares);
-    final cartas = [...letras, ...letras]..shuffle();
+  void _iniciarJogo(
+    int pares,
+    bool timerOn,
+    int duracao,
+  ) {
+    _timer?.cancel();
+    _mensagemTimer?.cancel();
+
+    final letras = _allLetters.take(pares).toList();
+
+    final cartas = [
+      ...letras,
+      ...letras,
+    ]..shuffle(_random);
+
     setState(() {
-      _levelPairs      = pares;
-      _timerEnabled    = timerOn;
-      _timerDuration   = duracao;
+      _levelPairs = pares;
+
+      _timerEnabled = timerOn;
+      _timerDuration = duracao;
       _remainingSeconds = duracao;
-      _cartas          = cartas;
-      _virada          = List.filled(cartas.length, false);
-      _encontrada      = List.filled(cartas.length, false);
-      _primeira        = null;
-      _bloqueado       = false;
-      _tentativas      = 0;
-      _streak          = 0;
-      _erroA           = null;
-      _erroB           = null;
-      _mensagem        = null;
+
+      _cartas = cartas;
+
+      _virada = List<bool>.filled(
+        cartas.length,
+        false,
+      );
+
+      _encontrada = List<bool>.filled(
+        cartas.length,
+        false,
+      );
+
+      _primeira = null;
+      _bloqueado = false;
+
+      _tentativas = 0;
+      _streak = 0;
+
+      _erroA = null;
+      _erroB = null;
+
+      _mensagem = null;
+
       _showLevelSelect = false;
     });
+
     _startMusic();
-    _timerEnabled ? _startTimer() : _timer?.cancel();
+
+    if (timerOn) {
+      _startTimer();
+    }
   }
+
+  // ────────────────────────────────────────────────────────────
+  // TIMER
+  // ────────────────────────────────────────────────────────────
 
   void _startTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (!mounted) return;
-      setState(() => _remainingSeconds--);
-      if (_remainingSeconds <= 0) { _timer?.cancel(); _tempoEsgotado(); }
-    });
+
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (timer) {
+        if (!mounted) {
+          timer.cancel();
+          return;
+        }
+
+        if (_remainingSeconds <= 1) {
+          timer.cancel();
+
+          setState(() {
+            _remainingSeconds = 0;
+          });
+
+          _tempoEsgotado();
+          return;
+        }
+
+        setState(() {
+          _remainingSeconds--;
+        });
+      },
+    );
   }
 
   void _tempoEsgotado() {
     _playSound('audio/wrong.wav');
+
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: widget.colors.bgCardNeutral,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('⏰ Tempo esgotado!'),
-        content: const Text('Não conseguiste completar o jogo a tempo.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              setState(() => _showLevelSelect = true);
-              _timer?.cancel();
-            },
-            child: const Text('Voltar aos níveis'),
+      barrierDismissible: false,
+      builder: (ctx) {
+        final colors = widget.colors;
+
+        return AlertDialog(
+          backgroundColor: colors.bgCardNeutral,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-        ],
-      ),
+          title: Text(
+            '⏰ Tempo esgotado!',
+            style: TextStyle(
+              fontFamily: 'ComicSansMS',
+              fontWeight: FontWeight.w700,
+              color: colors.textMain,
+            ),
+          ),
+          content: Text(
+            'Não conseguiste completar o jogo a tempo.',
+            style: TextStyle(
+              color: colors.textMain,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+
+                setState(() {
+                  _showLevelSelect = true;
+                });
+
+                _timer?.cancel();
+              },
+              child: Text(
+                'Voltar aos níveis',
+                style: TextStyle(
+                  color: colors.textMain,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
   void _voltarParaNiveis() {
     _timer?.cancel();
     _mensagemTimer?.cancel();
-    setState(() => _showLevelSelect = true);
+
+    setState(() {
+      _showLevelSelect = true;
+
+      _primeira = null;
+      _bloqueado = false;
+
+      _erroA = null;
+      _erroB = null;
+
+      _mensagem = null;
+    });
   }
+
+  // ────────────────────────────────────────────────────────────
+  // CONFETE
+  // ────────────────────────────────────────────────────────────
 
   void _dispararConfete() {
     _confetti.clear();
-    for (int i = 0; i < 70; i++) _confetti.add(_ConfettiParticle(_random));
-    _confettiController.forward(from: 0);
+
+    for (int i = 0; i < 70; i++) {
+      _confetti.add(
+        _ConfettiParticle(_random),
+      );
+    }
+
+    _confettiController.forward(
+      from: 0,
+    );
   }
+
+  // ────────────────────────────────────────────────────────────
+  // MENSAGEM
+  // ────────────────────────────────────────────────────────────
 
   void _mostrarMensagem(String texto) {
     _mensagemTimer?.cancel();
-    setState(() => _mensagem = texto);
-    _mensagemTimer = Timer(const Duration(milliseconds: 1200), () {
-      if (!mounted) return;
-      setState(() => _mensagem = null);
+
+    setState(() {
+      _mensagem = texto;
     });
+
+    _mensagemTimer = Timer(
+      const Duration(milliseconds: 1200),
+      () {
+        if (!mounted) return;
+
+        setState(() {
+          _mensagem = null;
+        });
+      },
+    );
   }
 
+  // ────────────────────────────────────────────────────────────
+  // JOGAR CARTA
+  // ────────────────────────────────────────────────────────────
+
   void _tocar(int index) {
-    if (_bloqueado ||
-        index < 0 ||
-        index >= _cartas.length ||
-        _virada[index] ||
-        _encontrada[index]) return;
+    if (_bloqueado) return;
 
-    _playSound('audio/pressing.wav');
-
-    if (_primeira == null) {
-      setState(() { _virada[index] = true; _primeira = index; });
+    if (index < 0 || index >= _cartas.length) {
       return;
     }
 
-    final a = _primeira!;
-    if (a == index) return;
+    if (_virada[index] || _encontrada[index]) {
+      return;
+    }
+
+    _playSound('audio/pressing.wav');
+
+    // Primeira carta
+    if (_primeira == null) {
+      setState(() {
+        _virada[index] = true;
+        _primeira = index;
+      });
+
+      return;
+    }
+
+    final int a = _primeira!;
+
+    if (a == index) {
+      return;
+    }
 
     setState(() {
       _virada[index] = true;
-      _bloqueado     = true;
-      _primeira      = null;
+
+      _bloqueado = true;
+
+      _primeira = null;
+
       _tentativas++;
     });
 
+    // ───────────────── PAR ─────────────────
+
     if (_cartas[a] == _cartas[index]) {
       _playSound('audio/correct.wav');
+
       _streak++;
+
       setState(() {
-        _encontrada[a]     = true;
+        _encontrada[a] = true;
         _encontrada[index] = true;
-        _bloqueado         = false;
+
+        _bloqueado = false;
       });
-      _mostrarMensagem(_streak >= 3
-          ? _mensagensStreak[min(_streak - 3, _mensagensStreak.length - 1)]
-          : _mensagensAcerto[_random.nextInt(_mensagensAcerto.length)]);
+
+      _mostrarMensagem(
+        _streak >= 3
+            ? _mensagensStreak[
+                min(
+                  _streak - 3,
+                  _mensagensStreak.length - 1,
+                )
+              ]
+            : _mensagensAcerto[
+                _random.nextInt(
+                  _mensagensAcerto.length,
+                )
+              ],
+      );
+
       if (_ganhou) {
         _playSound('audio/win.wav');
+
         _timer?.cancel();
+
         _dispararConfete();
       }
-    } else {
-      _playSound('audio/wrong.wav');
-      _streak = 0;
-      setState(() { _erroA = a; _erroB = index; });
-      Future.delayed(const Duration(milliseconds: 900), () {
-        if (!mounted) return;
-        setState(() {
-          _virada[a]     = false;
-          _virada[index] = false;
-          _bloqueado     = false;
-          _erroA         = null;
-          _erroB         = null;
-        });
-      });
+
+      return;
     }
+
+    // ───────────────── ERRO ─────────────────
+
+    _playSound('audio/wrong.wav');
+
+    _streak = 0;
+
+    setState(() {
+      _erroA = a;
+      _erroB = index;
+    });
+
+    Future.delayed(
+      const Duration(milliseconds: 900),
+      () {
+        if (!mounted) return;
+
+        setState(() {
+          _virada[a] = false;
+          _virada[index] = false;
+
+          _bloqueado = false;
+
+          _erroA = null;
+          _erroB = null;
+        });
+      },
+    );
   }
 
-  bool get _ganhou => _encontrada.every((e) => e);
+  bool get _ganhou {
+    if (_encontrada.isEmpty) {
+      return false;
+    }
 
-  // ─── Build ────────────────────────────────────────────────
+    return _encontrada.every(
+      (e) => e,
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // BUILD PRINCIPAL
+  // ────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: widget.colors.bg,
-      body: _showLevelSelect ? _buildLevelSelect() : _buildGame(),
+      body: SafeArea(
+        child: _showLevelSelect
+            ? _buildLevelSelect()
+            : _buildGame(),
+      ),
     );
   }
 
-  // ─── Botão circular áudio ─────────────────────────────────
+  // ────────────────────────────────────────────────────────────
+  // BOTÃO DE ÁUDIO
+  // ────────────────────────────────────────────────────────────
 
   Widget _audioBtn({
     required bool ativo,
@@ -270,16 +549,24 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     required VoidCallback onTap,
   }) {
     final colors = widget.colors;
+
     return _Bounce(
       onTap: onTap,
       child: Container(
         width: 42,
         height: 42,
-        margin: const EdgeInsets.symmetric(horizontal: 3),
+        margin: const EdgeInsets.symmetric(
+          horizontal: 3,
+        ),
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
           color: colors.bgCardNeutral,
-          boxShadow: [BoxShadow(color: colors.divider, offset: const Offset(0, 3))],
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: colors.divider,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Center(
           child: SvgPicture.asset(
@@ -287,7 +574,9 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
             width: 20,
             height: 20,
             colorFilter: ColorFilter.mode(
-              ativo ? colors.textMain : colors.textMuted,
+              ativo
+                  ? colors.textMain
+                  : colors.textMuted,
               BlendMode.srcIn,
             ),
           ),
@@ -296,175 +585,261 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     );
   }
 
-  // ─── Tela de seleção de nível ─────────────────────────────
+  // ────────────────────────────────────────────────────────────
+  // SELEÇÃO DE NÍVEL
+  // ────────────────────────────────────────────────────────────
 
   Widget _buildLevelSelect() {
     final colors = widget.colors;
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _Bounce(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: Container(
-                    width: 42, height: 42,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: colors.bgCardNeutral,
-                      boxShadow: [BoxShadow(color: colors.divider, offset: const Offset(0, 3))],
-                    ),
-                    child: Center(
-                      child: SvgPicture.asset(
-                        'assets/icons/back.svg',
-                        width: 20, height: 20,
-                        colorFilter: ColorFilter.mode(colors.textMain, BlendMode.srcIn),
+
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // HEADER
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _Bounce(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: colors.bgCardNeutral,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: colors.divider,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: SvgPicture.asset(
+                      'assets/icons/back.svg',
+                      width: 20,
+                      height: 20,
+                      colorFilter: ColorFilter.mode(
+                        colors.textMain,
+                        BlendMode.srcIn,
                       ),
                     ),
                   ),
                 ),
-                Row(
-                  children: [
-                    _audioBtn(
-                      ativo: _soundOn,
-                      iconOn: 'assets/icons/speaker-icon.svg',
-                      iconOff: 'assets/icons/speaker-off-icon.svg',
-                      onTap: _toggleSound,
-                    ),
-                    _audioBtn(
-                      ativo: _musicOn,
-                      iconOn: 'assets/icons/music_on.svg',
-                      iconOff: 'assets/icons/music_off.svg',
-                      onTap: _toggleMusic,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-            Text(
-              'Escolhe o nível',
-              style: TextStyle(
-                fontFamily: 'ComicSansMS',
-                fontWeight: FontWeight.w700,
-                fontSize: 24,
-                color: colors.textMain,
               ),
-            ),
-            const SizedBox(height: 20),
 
-            // Grid de níveis
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                mainAxisSpacing: 14,
-                crossAxisSpacing: 14,
-                childAspectRatio: 1.1,
+              Row(
                 children: [
-                  _buildLevelButton(
-                    icon: 'assets/icons/easy.png',
-                    label: 'Fácil',
-                    pairs: 4,
-                    onTap: () => _iniciarJogo(4, _timerEnabled, _timerDuration),
+                  _audioBtn(
+                    ativo: _soundOn,
+                    iconOn:
+                        'assets/icons/speaker-icon.svg',
+                    iconOff:
+                        'assets/icons/speaker-off-icon.svg',
+                    onTap: _toggleSound,
                   ),
-                  _buildLevelButton(
-                    icon: 'assets/icons/normal.png',
-                    label: 'Normal',
-                    pairs: 6,
-                    onTap: () => _iniciarJogo(6, _timerEnabled, _timerDuration),
-                  ),
-                  _buildLevelButton(
-                    icon: 'assets/icons/hard.png',
-                    label: 'Difícil',
-                    pairs: 8,
-                    onTap: () => _iniciarJogo(8, _timerEnabled, _timerDuration),
-                  ),
-                  _buildLevelButton(
-                    icon: 'assets/icons/extreme.png',
-                    label: 'Extremo',
-                    pairs: 10,
-                    onTap: () => _iniciarJogo(10, _timerEnabled, _timerDuration),
+                  _audioBtn(
+                    ativo: _musicOn,
+                    iconOn:
+                        'assets/icons/music_on.svg',
+                    iconOff:
+                        'assets/icons/music_off.svg',
+                    onTap: _toggleMusic,
                   ),
                 ],
               ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          Text(
+            'Escolhe o nível',
+            style: TextStyle(
+              fontFamily: 'ComicSansMS',
+              fontWeight: FontWeight.w700,
+              fontSize: 24,
+              color: colors.textMain,
             ),
+          ),
 
-            const SizedBox(height: 20),
+          const SizedBox(height: 20),
 
-            // Temporizador
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: colors.bgCardNeutral,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/clock.svg',
-                        width: 24, height: 24,
-                        colorFilter: ColorFilter.mode(colors.textMain, BlendMode.srcIn),
+          // NÍVEIS
+          Expanded(
+            child: GridView.count(
+              crossAxisCount: 2,
+              mainAxisSpacing: 14,
+              crossAxisSpacing: 14,
+              childAspectRatio: 1.1,
+              children: [
+                _buildLevelButton(
+                  icon: 'assets/icons/easy.png',
+                  label: 'Fácil',
+                  pairs: 4,
+                  onTap: () => _iniciarJogo(
+                    4,
+                    _timerEnabled,
+                    _timerDuration,
+                  ),
+                ),
+                _buildLevelButton(
+                  icon: 'assets/icons/normal.png',
+                  label: 'Normal',
+                  pairs: 6,
+                  onTap: () => _iniciarJogo(
+                    6,
+                    _timerEnabled,
+                    _timerDuration,
+                  ),
+                ),
+                _buildLevelButton(
+                  icon: 'assets/icons/hard.png',
+                  label: 'Difícil',
+                  pairs: 8,
+                  onTap: () => _iniciarJogo(
+                    8,
+                    _timerEnabled,
+                    _timerDuration,
+                  ),
+                ),
+                _buildLevelButton(
+                  icon: 'assets/icons/extreme.png',
+                  label: 'Extremo',
+                  pairs: 10,
+                  onTap: () => _iniciarJogo(
+                    10,
+                    _timerEnabled,
+                    _timerDuration,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // TEMPORIZADOR
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colors.bgCardNeutral,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/clock.svg',
+                      width: 24,
+                      height: 24,
+                      colorFilter: ColorFilter.mode(
+                        colors.textMain,
+                        BlendMode.srcIn,
                       ),
-                      const SizedBox(width: 10),
-                      Text('Temporizador', style: TextStyle(
+                    ),
+
+                    const SizedBox(width: 10),
+
+                    Text(
+                      'Temporizador',
+                      style: TextStyle(
                         fontFamily: 'ComicSansMS',
                         fontWeight: FontWeight.w700,
                         fontSize: 16,
                         color: colors.textMain,
-                      )),
-                      const Spacer(),
-                      _DuoSwitch(
-                        colors: colors,
-                        value: _timerEnabled,
-                        onChanged: (val) {
-                          _playSound('audio/pressing.wav');
-                          setState(() => _timerEnabled = val);
-                        },
+                      ),
+                    ),
+
+                    const Spacer(),
+
+                    _DuoSwitch(
+                      colors: colors,
+                      value: _timerEnabled,
+                      onChanged: (value) {
+                        _playSound(
+                          'audio/pressing.wav',
+                        );
+
+                        setState(() {
+                          _timerEnabled = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+
+                if (_timerEnabled) ...[
+                  const SizedBox(height: 8),
+
+                  Row(
+                    children: [
+                      Text(
+                        'Tempo:',
+                        style: TextStyle(
+                          color: colors.textMain,
+                        ),
+                      ),
+
+                      Expanded(
+                        child: SliderTheme(
+                          data: SliderThemeData(
+                            activeTrackColor:
+                                AppColors.green,
+                            inactiveTrackColor:
+                                colors.divider,
+                            thumbColor:
+                                AppColors.green,
+                            overlayColor:
+                                AppColors.green.withOpacity(
+                              0.15,
+                            ),
+                            valueIndicatorColor:
+                                AppColors.green,
+                          ),
+                          child: Slider(
+                            value: _timerDuration
+                                .toDouble(),
+                            min: 15,
+                            max: 120,
+                            divisions: 7,
+                            label:
+                                '$_timerDuration s',
+                            onChanged: (value) {
+                              setState(() {
+                                _timerDuration =
+                                    value.round();
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+
+                      Text(
+                        '$_timerDuration s',
+                        style: TextStyle(
+                          color: colors.textMain,
+                        ),
                       ),
                     ],
                   ),
-                  if (_timerEnabled) ...[
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Text('Tempo:', style: TextStyle(color: colors.textMain)),
-                        Expanded(
-                          child: SliderTheme(
-                            data: SliderThemeData(
-                              activeTrackColor: AppColors.green,
-                              inactiveTrackColor: colors.divider,
-                              thumbColor: AppColors.green,
-                              overlayColor: AppColors.green.withOpacity(0.15),
-                              valueIndicatorColor: AppColors.green,
-                            ),
-                            child: Slider(
-                              value: _timerDuration.toDouble(),
-                              min: 15, max: 120, divisions: 7,
-                              label: '$_timerDuration s',
-                              onChanged: (val) => setState(() => _timerDuration = val.round()),
-                            ),
-                          ),
-                        ),
-                        Text('$_timerDuration s', style: TextStyle(color: colors.textMain)),
-                      ],
-                    ),
-                  ],
                 ],
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+
+  // ────────────────────────────────────────────────────────────
+  // BOTÃO DE NÍVEL
+  // ────────────────────────────────────────────────────────────
 
   Widget _buildLevelButton({
     required String icon,
@@ -473,236 +848,433 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     required VoidCallback onTap,
   }) {
     final colors = widget.colors;
+
     return _Bounce(
       onTap: () {
-        _playSound('audio/pressing.wav');
+        _playSound(
+          'audio/pressing.wav',
+        );
+
         onTap();
       },
       child: Container(
         decoration: BoxDecoration(
           color: colors.c2Bg,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [BoxShadow(color: colors.divider, offset: const Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+              color: colors.divider,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment:
+              MainAxisAlignment.center,
           children: [
             Image.asset(
               icon,
-              width: 50, height: 50,
-              errorBuilder: (_, __, ___) => Icon(Icons.star, size: 50, color: colors.textMain),
+              width: 50,
+              height: 50,
+              errorBuilder: (_, __, ___) {
+                return Icon(
+                  Icons.star,
+                  size: 50,
+                  color: colors.textMain,
+                );
+              },
             ),
+
             const SizedBox(height: 10),
-            Text(label, style: TextStyle(
-              fontFamily: 'ComicSansMS',
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
-              color: colors.textMain,
-            )),
+
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'ComicSansMS',
+                fontWeight: FontWeight.w700,
+                fontSize: 16,
+                color: colors.textMain,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  // ─── Tela do jogo ─────────────────────────────────────────
+  // ────────────────────────────────────────────────────────────
+  // TELA PRINCIPAL DO JOGO
+  // ────────────────────────────────────────────────────────────
 
   Widget _buildGame() {
     final colors = widget.colors;
 
-    return Scaffold(
-      backgroundColor: colors.bg,
-      appBar: AppBar(
-        backgroundColor: colors.bg,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leadingWidth: 60,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 12),
-          child: _Bounce(
-            onTap: _voltarParaNiveis,
-            child: Container(
-              width: 38, height: 38,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: colors.bgCardNeutral,
-                boxShadow: [BoxShadow(color: colors.divider, offset: const Offset(0, 3))],
-              ),
-              child: Center(
-                child: SvgPicture.asset(
-                  'assets/icons/back.svg', width: 18, height: 18,
-                  colorFilter: ColorFilter.mode(colors.textMain, BlendMode.srcIn),
+    return Column(
+      children: [
+        // ───────────────── HEADER ─────────────────
+
+        SizedBox(
+          height: 58,
+          child: Row(
+            children: [
+              const SizedBox(width: 10),
+
+              _Bounce(
+                onTap: _voltarParaNiveis,
+                child: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: colors.bgCardNeutral,
+                    borderRadius:
+                        BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: colors.divider,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: SvgPicture.asset(
+                      'assets/icons/back.svg',
+                      width: 20,
+                      height: 20,
+                      colorFilter: ColorFilter.mode(
+                        colors.textMain,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
+
+              const SizedBox(width: 10),
+
+              Expanded(
+                child: Text(
+                  'Jogo da Memória',
+                  style: TextStyle(
+                    fontFamily: 'ComicSansMS',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 18,
+                    color: colors.textMain,
+                  ),
+                ),
+              ),
+
+              _audioBtn(
+                ativo: _soundOn,
+                iconOn:
+                    'assets/icons/speaker-icon.svg',
+                iconOff:
+                    'assets/icons/speaker-off-icon.svg',
+                onTap: _toggleSound,
+              ),
+
+              _audioBtn(
+                ativo: _musicOn,
+                iconOn:
+                    'assets/icons/music_on.svg',
+                iconOff:
+                    'assets/icons/music_off.svg',
+                onTap: _toggleMusic,
+              ),
+
+              const SizedBox(width: 4),
+
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10,
+                ),
+                child: Column(
+                  mainAxisAlignment:
+                      MainAxisAlignment.center,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '$_tentativas tentativas',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: colors.textMuted,
+                      ),
+                    ),
+
+                    if (_timerEnabled)
+                      Text(
+                        '⏳ $_remainingSeconds s',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight:
+                              FontWeight.w700,
+                          color:
+                              _remainingSeconds <= 10
+                                  ? Colors.red
+                                  : colors.textMuted,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-        title: Text('Jogo da Memória', style: TextStyle(
-          fontFamily: 'ComicSansMS',
-          fontWeight: FontWeight.w700,
-          fontSize: 17,
-          color: colors.textMain,
-        )),
-        actions: [
-          _audioBtn(
-            ativo: _soundOn,
-            iconOn: 'assets/icons/speaker-icon.svg',
-            iconOff: 'assets/icons/speaker-off-icon.svg',
-            onTap: _toggleSound,
-          ),
-          _audioBtn(
-            ativo: _musicOn,
-            iconOn: 'assets/icons/music_on.svg',
-            iconOff: 'assets/icons/music_off.svg',
-            onTap: _toggleMusic,
-          ),
-          const SizedBox(width: 4),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 14),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
+
+        // ───────────────── CONTEÚDO ─────────────────
+
+        Expanded(
+          child: Stack(
+            children: [
+              Column(
                 children: [
-                  Text('$_tentativas tentativas',
-                      style: TextStyle(fontSize: 12, color: colors.textMuted)),
-                  if (_timerEnabled)
-                    Text('⏳ $_remainingSeconds s', style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: _remainingSeconds <= 10 ? Colors.red : colors.textMuted,
-                    )),
+                  // BANNER
+
+                  AnimatedSwitcher(
+                    duration:
+                        const Duration(milliseconds: 280),
+                    child: _ganhou
+                        ? _buildBannerVitoria()
+                        : _streak >= 2
+                            ? _buildBannerStreak()
+                            : const SizedBox(
+                                key: ValueKey(
+                                  'vazio',
+                                ),
+                                height: 0,
+                              ),
+                  ),
+
+                  // ───────────────── GRID ─────────────────
+
+                  Expanded(
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.fromLTRB(
+                        12,
+                        12,
+                        12,
+                        12,
+                      ),
+                      child: LayoutBuilder(
+                        builder:
+                            (context, constraints) {
+                          if (_cartas.isEmpty) {
+                            return const SizedBox.shrink();
+                          }
+
+                          return GridView.builder(
+                            itemCount:
+                                _cartas.length,
+                            physics:
+                                const BouncingScrollPhysics(),
+                            padding: EdgeInsets.zero,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 4,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              childAspectRatio: 0.95,
+                            ),
+                            itemBuilder:
+                                (context, index) {
+                              return _Carta(
+                                key: ValueKey(
+                                  index,
+                                ),
+                                colors: colors,
+                                letra:
+                                    _cartas[index],
+                                virada:
+                                    _virada[index],
+                                encontrada:
+                                    _encontrada[
+                                        index],
+                                errou: index ==
+                                        _erroA ||
+                                    index ==
+                                        _erroB,
+                                onTap: () =>
+                                    _tocar(index),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ),
                 ],
               ),
-            ),
+
+              // ───────────────── MENSAGEM ─────────────────
+
+              if (_mensagem != null)
+                IgnorePointer(
+                  child: Center(
+                    child:
+                        TweenAnimationBuilder<double>(
+                      key: ValueKey(_mensagem),
+                      tween: Tween<double>(
+                        begin: 0,
+                        end: 1,
+                      ),
+                      duration:
+                          const Duration(milliseconds: 260),
+                      curve: Curves.elasticOut,
+                      builder:
+                          (_, value, child) {
+                        return Transform.scale(
+                          scale: value,
+                          child: Opacity(
+                            opacity:
+                                value.clamp(0, 1),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding:
+                            const EdgeInsets.symmetric(
+                          horizontal: 28,
+                          vertical: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              colors.bgCardNeutral,
+                          borderRadius:
+                              BorderRadius.circular(
+                            20,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  colors.divider,
+                              blurRadius: 16,
+                              offset:
+                                  const Offset(
+                                0,
+                                6,
+                              ),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          _mensagem!,
+                          style: TextStyle(
+                            fontFamily:
+                                'ComicSansMS',
+                            fontWeight:
+                                FontWeight.w700,
+                            fontSize: 22,
+                            color:
+                                colors.textMain,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+              // ───────────────── CONFETE ─────────────────
+
+              if (_confettiController.isAnimating)
+                IgnorePointer(
+                  child: CustomPaint(
+                    size: Size.infinite,
+                    painter:
+                        _ConfettiPainter(
+                      particles: _confetti,
+                      progress:
+                          _confettiController.value,
+                    ),
+                  ),
+                ),
+            ],
           ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          // AQUI ESTÁ A CORREÇÃO: Positioned.fill garante que a Column
-          // ocupe todo o espaço do Stack, permitindo que o Expanded funcione.
-          Positioned.fill(
-            child: Column(
-              children: [
-                // Banner topo
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 280),
-                  child: _ganhou
-                      ? _buildBannerVitoria()
-                      : _streak >= 2
-                          ? _buildBannerStreak()
-                          : const SizedBox.shrink(key: ValueKey('vazio')),
-                ),
-
-                // GRID DAS CARTAS
-                Expanded(
-                  child: GridView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _cartas.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                    ),
-                    itemBuilder: (_, i) => _Carta(
-                      key: ValueKey('carta_$i'),
-                      colors: colors,
-                      letra: _cartas[i],
-                      virada: _virada[i],
-                      encontrada: _encontrada[i],
-                      errou: i == _erroA || i == _erroB,
-                      onTap: () => _tocar(i),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Mensagem flutuante
-          if (_mensagem != null)
-            IgnorePointer(
-              child: Center(
-                child: TweenAnimationBuilder<double>(
-                  key: ValueKey(_mensagem),
-                  tween: Tween(begin: 0.0, end: 1.0),
-                  duration: const Duration(milliseconds: 260),
-                  curve: Curves.elasticOut,
-                  builder: (_, t, child) => Transform.scale(
-                    scale: t,
-                    child: Opacity(opacity: t.clamp(0, 1), child: child),
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-                    decoration: BoxDecoration(
-                      color: colors.bgCardNeutral,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [BoxShadow(
-                        color: colors.divider,
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                      )],
-                    ),
-                    child: Text(_mensagem!, style: TextStyle(
-                      fontFamily: 'ComicSansMS',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 22,
-                      color: colors.textMain,
-                    )),
-                  ),
-                ),
-              ),
-            ),
-
-          // Confete
-          if (_confettiController.isAnimating)
-            IgnorePointer(
-              child: CustomPaint(
-                size: Size.infinite,
-                painter: _ConfettiPainter(
-                  particles: _confetti,
-                  progress: _confettiController.value,
-                ),
-              ),
-            ),
-        ],
-      ),
+        ),
+      ],
     );
   }
+
+  // ────────────────────────────────────────────────────────────
+  // BANNER VITÓRIA
+  // ────────────────────────────────────────────────────────────
 
   Widget _buildBannerVitoria() {
     return Container(
       key: const ValueKey('venceu'),
-      margin: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-      padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20),
+      margin: const EdgeInsets.fromLTRB(
+        16,
+        10,
+        16,
+        0,
+      ),
+      padding: const EdgeInsets.symmetric(
+        vertical: 13,
+        horizontal: 20,
+      ),
       decoration: BoxDecoration(
         color: AppColors.green,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: const [BoxShadow(color: AppColors.greenShadow, offset: Offset(0, 4))],
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.greenShadow,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment:
+            MainAxisAlignment.spaceBetween,
         children: [
-          Text('🎉 Parabéns! $_tentativas tent.', style: const TextStyle(
-            fontFamily: 'ComicSansMS', fontWeight: FontWeight.w700,
-            fontSize: 14, color: Colors.white,
-          )),
+          Expanded(
+            child: Text(
+              '🎉 Parabéns! $_tentativas tent.',
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontFamily: 'ComicSansMS',
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
           _Bounce(
             onTap: () {
-              _playSound('audio/pressing.wav');
-              _iniciarJogo(_levelPairs, _timerEnabled, _timerDuration);
+              _playSound(
+                'audio/pressing.wav',
+              );
+
+              _iniciarJogo(
+                _levelPairs,
+                _timerEnabled,
+                _timerDuration,
+              );
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.25),
-                borderRadius: BorderRadius.circular(12),
+              padding:
+                  const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 6,
               ),
-              child: const Text('Jogar de novo', style: TextStyle(
-                fontFamily: 'ComicSansMS', fontWeight: FontWeight.w700,
-                fontSize: 12, color: Colors.white,
-              )),
+              decoration: BoxDecoration(
+                color:
+                    Colors.white.withOpacity(0.25),
+                borderRadius:
+                    BorderRadius.circular(12),
+              ),
+              child: const Text(
+                'Jogar de novo',
+                style: TextStyle(
+                  fontFamily: 'ComicSansMS',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
         ],
@@ -710,31 +1282,56 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     );
   }
 
+  // ────────────────────────────────────────────────────────────
+  // BANNER STREAK
+  // ────────────────────────────────────────────────────────────
+
   Widget _buildBannerStreak() {
     return Container(
-      key: ValueKey('streak$_streak'),
-      margin: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-      padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 20),
+      key: ValueKey(
+        'streak$_streak',
+      ),
+      margin: const EdgeInsets.fromLTRB(
+        16,
+        10,
+        16,
+        0,
+      ),
+      padding: const EdgeInsets.symmetric(
+        vertical: 9,
+        horizontal: 20,
+      ),
       decoration: BoxDecoration(
         color: AppColors.orange,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Center(
-        child: Text('🔥 Sequência: $_streak em linha!', style: const TextStyle(
-          fontFamily: 'ComicSansMS', fontWeight: FontWeight.w700,
-          fontSize: 13, color: Colors.white,
-        )),
+        child: Text(
+          '🔥 Sequência: $_streak em linha!',
+          style: const TextStyle(
+            fontFamily: 'ComicSansMS',
+            fontWeight: FontWeight.w700,
+            fontSize: 13,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }
 }
 
-// ─── _Bounce ──────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────
+// BOUNCE
+// ──────────────────────────────────────────────────────────────
 
 class _Bounce extends StatefulWidget {
   final Widget child;
   final VoidCallback onTap;
-  const _Bounce({required this.child, required this.onTap});
+
+  const _Bounce({
+    required this.child,
+    required this.onTap,
+  });
 
   @override
   State<_Bounce> createState() => _BounceState();
@@ -747,12 +1344,25 @@ class _BounceState extends State<_Bounce> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap,
-      onTapDown: (_) => setState(() => _down = true),
-      onTapUp: (_) => setState(() => _down = false),
-      onTapCancel: () => setState(() => _down = false),
+      onTapDown: (_) {
+        setState(() {
+          _down = true;
+        });
+      },
+      onTapUp: (_) {
+        setState(() {
+          _down = false;
+        });
+      },
+      onTapCancel: () {
+        setState(() {
+          _down = false;
+        });
+      },
       child: AnimatedScale(
         scale: _down ? 0.88 : 1.0,
-        duration: const Duration(milliseconds: 100),
+        duration:
+            const Duration(milliseconds: 100),
         curve: Curves.easeOut,
         child: widget.child,
       ),
@@ -760,7 +1370,9 @@ class _BounceState extends State<_Bounce> {
   }
 }
 
-// ─── _Carta ───────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────
+// CARTA
+// ──────────────────────────────────────────────────────────────
 
 class _Carta extends StatefulWidget {
   final AppColors colors;
@@ -784,28 +1396,71 @@ class _Carta extends StatefulWidget {
   State<_Carta> createState() => _CartaState();
 }
 
-class _CartaState extends State<_Carta> with TickerProviderStateMixin {
+class _CartaState extends State<_Carta>
+    with TickerProviderStateMixin {
   late final AnimationController _flip;
   late final AnimationController _shake;
   late final AnimationController _pop;
 
-  bool get _revealed => widget.virada || widget.encontrada;
+  bool get _revealed =>
+      widget.virada || widget.encontrada;
 
   @override
   void initState() {
     super.initState();
-    _flip  = AnimationController(vsync: this, duration: const Duration(milliseconds: 320), value: _revealed ? 1.0 : 0.0);
-    _shake = AnimationController(vsync: this, duration: const Duration(milliseconds: 420));
-    _pop   = AnimationController(vsync: this, duration: const Duration(milliseconds: 300), value: widget.encontrada ? 1.0 : 0.0);
+
+    _flip = AnimationController(
+      vsync: this,
+      duration:
+          const Duration(milliseconds: 320),
+      value: _revealed ? 1.0 : 0.0,
+    );
+
+    _shake = AnimationController(
+      vsync: this,
+      duration:
+          const Duration(milliseconds: 420),
+    );
+
+    _pop = AnimationController(
+      vsync: this,
+      duration:
+          const Duration(milliseconds: 300),
+      value: widget.encontrada ? 1.0 : 0.0,
+    );
   }
 
   @override
-  void didUpdateWidget(covariant _Carta old) {
-    super.didUpdateWidget(old);
-    final wasRevealed = old.virada || old.encontrada;
-    if (_revealed != wasRevealed) _revealed ? _flip.forward() : _flip.reverse();
-    if (widget.errou && !old.errou) _shake.forward(from: 0);
-    if (widget.encontrada && !old.encontrada) _pop.forward(from: 0.8);
+  void didUpdateWidget(
+    covariant _Carta oldWidget,
+  ) {
+    super.didUpdateWidget(oldWidget);
+
+    final wasRevealed =
+        oldWidget.virada ||
+        oldWidget.encontrada;
+
+    if (_revealed != wasRevealed) {
+      if (_revealed) {
+        _flip.forward();
+      } else {
+        _flip.reverse();
+      }
+    }
+
+    if (widget.errou &&
+        !oldWidget.errou) {
+      _shake.forward(
+        from: 0,
+      );
+    }
+
+    if (widget.encontrada &&
+        !oldWidget.encontrada) {
+      _pop.forward(
+        from: 0.8,
+      );
+    }
   }
 
   @override
@@ -813,6 +1468,7 @@ class _CartaState extends State<_Carta> with TickerProviderStateMixin {
     _flip.dispose();
     _shake.dispose();
     _pop.dispose();
+
     super.dispose();
   }
 
@@ -826,116 +1482,195 @@ class _CartaState extends State<_Carta> with TickerProviderStateMixin {
             ? colors.bgCardNeutral
             : colors.c2Bg;
 
+    // VERSO
     final verso = Container(
       decoration: BoxDecoration(
         color: colors.c2Bg,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [BoxShadow(color: colors.divider, offset: const Offset(0, 3))],
+        borderRadius:
+            BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: colors.divider,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Center(
-        child: Text('?', style: TextStyle(
-          fontFamily: 'ComicSansMS',
-          fontWeight: FontWeight.w700,
-          fontSize: 24,
-          color: colors.textMuted.withOpacity(0.35),
-        )),
+        child: Text(
+          '?',
+          style: TextStyle(
+            fontFamily: 'ComicSansMS',
+            fontWeight: FontWeight.w700,
+            fontSize: 24,
+            color: colors.textMuted
+                .withOpacity(0.35),
+          ),
+        ),
       ),
     );
 
+    // FRENTE
     final face = AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
+      duration:
+          const Duration(milliseconds: 200),
       decoration: BoxDecoration(
         color: faceColor,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [BoxShadow(
-          color: widget.encontrada ? AppColors.greenShadow : colors.divider,
-          offset: const Offset(0, 3),
-        )],
+        borderRadius:
+            BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: widget.encontrada
+                ? AppColors.greenShadow
+                : colors.divider,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Center(
-        child: Text(widget.letra, style: TextStyle(
-          fontFamily: 'ComicSansMS',
-          fontWeight: FontWeight.w700,
-          fontSize: 28,
-          color: widget.encontrada ? Colors.white : colors.textMain,
-        )),
+        child: Text(
+          widget.letra,
+          style: TextStyle(
+            fontFamily: 'ComicSansMS',
+            fontWeight: FontWeight.w700,
+            fontSize: 28,
+            color: widget.encontrada
+                ? Colors.white
+                : colors.textMain,
+          ),
+        ),
       ),
     );
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: widget.onTap,
       child: AnimatedBuilder(
-        animation: Listenable.merge([_flip, _shake, _pop]),
+        animation: Listenable.merge([
+          _flip,
+          _shake,
+          _pop,
+        ]),
         builder: (_, __) {
-          final t        = _flip.value;
-          final angle    = (1 - t) * pi / 2;
-          final showFace = t > 0.5;
+          final t = _flip.value;
 
-          Widget w = Transform(
+          final angle =
+              (1 - t) * pi / 2;
+
+          final showFace =
+              t > 0.5;
+
+          Widget result = Transform(
             alignment: Alignment.center,
             transform: Matrix4.identity()
-              ..setEntry(3, 2, 0.0015)
+              ..setEntry(
+                3,
+                2,
+                0.0015,
+              )
               ..rotateY(angle),
             child: showFace
                 ? face
                 : Transform(
-                    alignment: Alignment.center,
-                    transform: Matrix4.identity()..rotateY(pi),
+                    alignment:
+                        Alignment.center,
+                    transform:
+                        Matrix4.identity()
+                          ..rotateY(pi),
                     child: verso,
                   ),
           );
 
-          if (_shake.value > 0 && _shake.value < 1) {
-            final s = sin(_shake.value * pi * 6) * (1 - _shake.value) * 7;
-            w = Transform.translate(offset: Offset(s, 0), child: w);
+          if (_shake.value > 0 &&
+              _shake.value < 1) {
+            final s = sin(
+                  _shake.value *
+                      pi *
+                      6,
+                ) *
+                (1 - _shake.value) *
+                7;
+
+            result = Transform.translate(
+              offset: Offset(s, 0),
+              child: result,
+            );
           }
 
           if (widget.encontrada) {
-            final scale = 0.8 + 0.2 * _pop.value;
-            w = Transform.scale(scale: scale, child: w);
+            final scale =
+                0.8 +
+                    (0.2 *
+                        _pop.value);
+
+            result = Transform.scale(
+              scale: scale,
+              child: result,
+            );
           }
 
-          return w;
+          return result;
         },
       ),
     );
   }
 }
 
-// ─── _DuoSwitch ───────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────
+// SWITCH
+// ──────────────────────────────────────────────────────────────
 
 class _DuoSwitch extends StatelessWidget {
   final AppColors colors;
   final bool value;
   final ValueChanged<bool> onChanged;
-  const _DuoSwitch({required this.colors, required this.value, required this.onChanged});
+
+  const _DuoSwitch({
+    required this.colors,
+    required this.value,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => onChanged(!value),
+      onTap: () {
+        onChanged(!value);
+      },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 52, height: 30,
+        duration:
+            const Duration(milliseconds: 200),
+        width: 52,
+        height: 30,
         padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
-          color: value ? AppColors.green : colors.bgCardNeutral,
-          borderRadius: BorderRadius.circular(20),
+          color: value
+              ? AppColors.green
+              : colors.bgCardNeutral,
+          borderRadius:
+              BorderRadius.circular(20),
         ),
         child: AnimatedAlign(
-          duration: const Duration(milliseconds: 220),
+          duration:
+              const Duration(milliseconds: 220),
           curve: Curves.easeOut,
-          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+          alignment: value
+              ? Alignment.centerRight
+              : Alignment.centerLeft,
           child: Container(
-            width: 24, height: 24,
+            width: 24,
+            height: 24,
             decoration: BoxDecoration(
               color: colors.switchThumb,
               shape: BoxShape.circle,
-              boxShadow: [BoxShadow(
-                color: colors.switchThumbShadow,
-                offset: const Offset(0, 2),
-                blurRadius: 4,
-              )],
+              boxShadow: [
+                BoxShadow(
+                  color:
+                      colors.switchThumbShadow,
+                  offset:
+                      const Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
             ),
           ),
         ),
@@ -944,7 +1679,9 @@ class _DuoSwitch extends StatelessWidget {
   }
 }
 
-// ─── Confete ──────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────
+// CONFETE
+// ──────────────────────────────────────────────────────────────
 
 class _ConfettiParticle {
   final double startX;
@@ -954,50 +1691,119 @@ class _ConfettiParticle {
   final double spin;
   final bool isCircle;
 
-  _ConfettiParticle(Random r)
-      : startX   = r.nextDouble(),
-        angle    = (r.nextDouble() - 0.5) * pi * 0.9,
-        size     = 5 + r.nextDouble() * 8,
-        spin     = (r.nextDouble() - 0.5) * 14,
-        isCircle = r.nextBool(),
-        color    = [
+  _ConfettiParticle(Random random)
+      : startX = random.nextDouble(),
+        angle =
+            (random.nextDouble() - 0.5) *
+                pi *
+                0.9,
+        size =
+            5 +
+                random.nextDouble() *
+                    8,
+        spin =
+            (random.nextDouble() - 0.5) *
+                14,
+        isCircle =
+            random.nextBool(),
+        color = [
           AppColors.green,
           AppColors.orange,
           const Color(0xFF1CB0F6),
           const Color(0xFFFF4B8C),
           const Color(0xFFCE82FF),
           const Color(0xFFFFC800),
-        ][r.nextInt(6)];
+        ][
+            random.nextInt(6)
+        ];
 }
 
-class _ConfettiPainter extends CustomPainter {
+// ──────────────────────────────────────────────────────────────
+// PAINTER DO CONFETE
+// ──────────────────────────────────────────────────────────────
+
+class _ConfettiPainter
+    extends CustomPainter {
   final List<_ConfettiParticle> particles;
   final double progress;
-  _ConfettiPainter({required this.particles, required this.progress});
+
+  _ConfettiPainter({
+    required this.particles,
+    required this.progress,
+  });
 
   @override
-  void paint(Canvas canvas, Size size) {
+  void paint(
+    Canvas canvas,
+    Size size,
+  ) {
     final paint = Paint();
-    for (final p in particles) {
-      final fade = (1 - progress).clamp(0.0, 1.0);
-      final dx   = size.width * p.startX + sin(p.angle) * 160 * progress;
-      final dy   = -30 + size.height * progress * progress * 0.95;
-      paint.color = p.color.withOpacity(fade);
+
+    for (final particle in particles) {
+      final fade =
+          (1 - progress)
+              .clamp(0.0, 1.0);
+
+      final dx =
+          size.width *
+              particle.startX +
+          sin(particle.angle) *
+              160 *
+              progress;
+
+      final dy =
+          -30 +
+          size.height *
+              progress *
+              progress *
+              0.95;
+
+      paint.color =
+          particle.color.withOpacity(
+        fade,
+      );
+
       canvas.save();
-      canvas.translate(dx, dy);
-      canvas.rotate(p.spin * progress);
-      if (p.isCircle) {
-        canvas.drawCircle(Offset.zero, p.size * 0.5, paint);
+
+      canvas.translate(
+        dx,
+        dy,
+      );
+
+      canvas.rotate(
+        particle.spin *
+            progress,
+      );
+
+      if (particle.isCircle) {
+        canvas.drawCircle(
+          Offset.zero,
+          particle.size * 0.5,
+          paint,
+        );
       } else {
         canvas.drawRect(
-          Rect.fromCenter(center: Offset.zero, width: p.size, height: p.size * 0.5),
+          Rect.fromCenter(
+            center:
+                Offset.zero,
+            width:
+                particle.size,
+            height:
+                particle.size *
+                    0.5,
+          ),
           paint,
         );
       }
+
       canvas.restore();
     }
   }
 
   @override
-  bool shouldRepaint(covariant _ConfettiPainter old) => true;
+  bool shouldRepaint(
+    covariant _ConfettiPainter oldDelegate,
+  ) {
+    return true;
+  }
 }
