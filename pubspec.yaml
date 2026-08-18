@@ -44,6 +44,8 @@ flutter:
     - assets/icons/menu-icon.svg
     - assets/icons/sun-icon.svg
     - assets/icons/moon-icon.svg
+    - assets/icons/music_on.svg
+    - assets/icons/music_off.svg
     - assets/icons/chevron-left.svg
     - assets/icons/chevron-right.svg
     - assets/icons/speaker-icon.svg
