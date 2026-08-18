@@ -359,7 +359,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
             ),
             const SizedBox(height: 20),
 
-            // Grid de níveis — EXATAMENTE como o original com PNG
+            // Grid de níveis
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
@@ -592,45 +592,25 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                         : const SizedBox.shrink(key: ValueKey('vazio')),
               ),
 
-              // ─── GRID DAS CARTAS ───────────────────────────
-              // LayoutBuilder resolve o colapso de altura no Flutter Web:
-              // calcula a altura real do grid e decide se precisa de scroll.
+              // ─── GRID DAS CARTAS (SIMPLES E SEMPRE VISÍVEL) ───
               Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    const cols     = 4;
-                    const spacing  = 10.0;
-                    const pad      = 16.0;
-                    final availW   = constraints.maxWidth - pad * 2;
-                    final cellW    = (availW - spacing * (cols - 1)) / cols;
-                    final rows     = (_cartas.length / cols).ceil();
-                    final gridH    = rows * cellW + (rows - 1) * spacing + pad * 2;
-                    final needsScroll = gridH > constraints.maxHeight;
-
-                    return GridView.builder(
-                      padding: const EdgeInsets.all(pad),
-                      physics: needsScroll
-                          ? const BouncingScrollPhysics()
-                          : const NeverScrollableScrollPhysics(),
-                      shrinkWrap: !needsScroll,
-                      itemCount: _cartas.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: cols,
-                        mainAxisSpacing: spacing,
-                        crossAxisSpacing: spacing,
-                      ),
-                      itemBuilder: (_, i) => _Carta(
-                        key: ValueKey('carta_$i'),
-                        colors: colors,
-                        letra: _cartas[i],
-                        virada: _virada[i],
-                        encontrada: _encontrada[i],
-                        errou: i == _erroA || i == _erroB,
-                        onTap: () => _tocar(i),
-                      ),
-                    );
-                  },
+                child: GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _cartas.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                  ),
+                  itemBuilder: (_, i) => _Carta(
+                    key: ValueKey('carta_$i'),
+                    colors: colors,
+                    letra: _cartas[i],
+                    virada: _virada[i],
+                    encontrada: _encontrada[i],
+                    errou: i == _erroA || i == _erroB,
+                    onTap: () => _tocar(i),
+                  ),
                 ),
               ),
             ],
