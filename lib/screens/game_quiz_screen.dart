@@ -234,7 +234,15 @@ class _GameQuizScreenState extends State<GameQuizScreen>
   // ════════════════════════════════════════════════════════════
 
   Future<void> _playPressSound() async {
-    await SoundManager.instance.playClick();
+    try {
+      await _feedbackPlayer.stop();
+
+      await _feedbackPlayer.play(
+        AssetSource(
+          'audio/pressing.wav',
+        ),
+      );
+    } catch (_) {}
   }
 
   Future<void> _playFeedback(
@@ -1181,12 +1189,6 @@ class _GameQuizScreenState extends State<GameQuizScreen>
                                             .value) *
                                     7;
 
-                            final speakerScale =
-                                1 +
-                                    _speakerController
-                                            .value *
-                                        1.2;
-
                             return Transform.translate(
                               offset:
                                   Offset(
@@ -1196,10 +1198,9 @@ class _GameQuizScreenState extends State<GameQuizScreen>
                               child:
                                   Transform.scale(
                                 scale:
-                                    (0.92 +
+                                    0.92 +
                                         (entry *
-                                            0.08)) *
-                                    speakerScale,
+                                            0.08),
                                 child:
                                     child,
                               ),
@@ -1283,7 +1284,11 @@ class _GameQuizScreenState extends State<GameQuizScreen>
                                   height: 18,
                                 ),
 
-                                Material(
+                                Transform.scale(
+                                  scale:
+                                      1.0 + (_speakerController.value * 1.2),
+                                  child:
+                                      Material(
                                     color:
                                         Colors.transparent,
                                     child:
@@ -1338,6 +1343,7 @@ class _GameQuizScreenState extends State<GameQuizScreen>
                                       ),
                                     ),
                                   ),
+                                ),
 
                                 const SizedBox(
                                   height: 10,

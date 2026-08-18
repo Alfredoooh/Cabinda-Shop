@@ -1,15 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../main.dart' show AppColors, AppStyle, SoundManager;
 
-import '../main.dart'
-    show AppColors, AppSettings, AppThemeMode, AppVisualStyle, SoundManager;
+class AppSettingsResult {
+  final bool isDark;
+  final AppStyle style;
+  final bool soundEnabled;
+  final bool musicEnabled;
+
+  const AppSettingsResult({
+    required this.isDark,
+    required this.style,
+    required this.soundEnabled,
+    required this.musicEnabled,
+  });
+}
 
 class SettingsScreen extends StatefulWidget {
   final AppColors colors;
+  final bool isDark;
+  final AppStyle style;
+  final bool soundEnabled;
+  final bool musicEnabled;
 
   const SettingsScreen({
     super.key,
     required this.colors,
+    required this.isDark,
+    required this.style,
+    required this.soundEnabled,
+    required this.musicEnabled,
   });
 
   @override
@@ -17,545 +37,167 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final AppSettings _settings = AppSettings.instance;
+  late bool _dark;
+  late AppStyle _style;
+  late bool _sound;
+  late bool _music;
 
   @override
   void initState() {
     super.initState();
-    _settings.addListener(_onSettingsChanged);
+    _dark = widget.isDark;
+    _style = widget.style;
+    _sound = widget.soundEnabled;
+    _music = widget.musicEnabled;
   }
 
-  @override
-  void dispose() {
-    _settings.removeListener(_onSettingsChanged);
-    super.dispose();
-  }
+  AppColors get colors => AppColors(_dark, _style);
 
-  void _onSettingsChanged() {
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  AppColors get colors => AppColors(
-        _settings.isDark,
-        _settings.visualStyle,
-      );
-
-  Future<void> _setClickSounds(bool value) async {
-    await _settings.setClickSounds(value);
-  }
-
-  Future<void> _setMusic(bool value) async {
-    await _settings.setMusic(value);
+  void _finish() {
+    SoundManager.instance.muted = !_sound;
+    SoundManager.instance.clickMuted = !_sound;
+    SoundManager.instance.musicMuted = !_music;
+    Navigator.of(context).pop(
+      AppSettingsResult(
+        isDark: _dark,
+        style: _style,
+        soundEnabled: _sound,
+        musicEnabled: _music,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final c = colors;
+
     return Scaffold(
-      backgroundColor: colors.bg,
-      appBar: AppBar(
-        backgroundColor: colors.bg,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: GestureDetector(
-          onTap: () => Navigator.of(context).pop(),
-          child: Center(
-            child: SvgPicture.asset(
-              'assets/icons/back.svg',
-              width: 22,
-              height: 22,
-              colorFilter: ColorFilter.mode(
-                colors.textMain,
-                BlendMode.srcIn,
-              ),
-            ),
-          ),
-        ),
-        title: Text(
-          'Definições',
-          style: TextStyle(
-            fontFamily: 'ComicSansMS',
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-            color: colors.textMain,
-          ),
-        ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(18, 8, 18, 30),
-        children: [
-          _SettingsSectionTitle(
-            colors: colors,
-            title: 'Som',
-          ),
-          const SizedBox(height: 8),
-          _SettingsCard(
-            colors: colors,
-            children: [
-              _SettingsTile(
-                colors: colors,
-                icon: Icons.music_note_rounded,
-                title: 'Música',
-                subtitle: 'Ativar ou desativar a música dos jogos',
-                trailing: _SettingsSwitch(
-                  value: _settings.musicEnabled,
-                  colors: colors,
-                  onChanged: _setMusic,
-                ),
-              ),
-              Divider(
-                height: 1,
-                color: colors.divider,
-              ),
-              _SettingsTile(
-                colors: colors,
-                icon: Icons.touch_app_rounded,
-                title: 'Sons de clique',
-                subtitle: 'Sons ao tocar em botões e cartas',
-                trailing: _SettingsSwitch(
-                  value: _settings.clickSoundsEnabled,
-                  colors: colors,
-                  onChanged: _setClickSounds,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          _SettingsSectionTitle(
-            colors: colors,
-            title: 'Tema',
-          ),
-          const SizedBox(height: 8),
-          _SettingsCard(
-            colors: colors,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(14),
-                child: Row(
-                  children: [
-                    _ThemeChoice(
-                      colors: colors,
-                      label: 'Claro',
-                      icon: Icons.light_mode_rounded,
-                      active:
-                          _settings.themeMode == AppThemeMode.light,
-                      onTap: () => _settings.setTheme(
-                        AppThemeMode.light,
+      backgroundColor: c.bg,
+      body: SafeArea(
+        child: Column(
+          children: [
+            SizedBox(
+              height: 58,
+              child: Row(
+                children: [
+                  const SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: _finish,
+                    child: Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: c.bgCardNeutral,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: SvgPicture.asset(
+                          'assets/icons/back.svg',
+                          width: 20,
+                          height: 20,
+                          colorFilter: ColorFilter.mode(c.textMain, BlendMode.srcIn),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    _ThemeChoice(
-                      colors: colors,
-                      label: 'Escuro',
-                      icon: Icons.dark_mode_rounded,
-                      active:
-                          _settings.themeMode == AppThemeMode.dark,
-                      onTap: () => _settings.setTheme(
-                        AppThemeMode.dark,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          _SettingsSectionTitle(
-            colors: colors,
-            title: 'Estilo do app',
-          ),
-          const SizedBox(height: 5),
-          Text(
-            'Escolhe como queres que o Leya apareça.',
-            style: TextStyle(
-              fontSize: 13,
-              color: colors.textMuted,
-            ),
-          ),
-          const SizedBox(height: 10),
-          _StyleCard(
-            colors: colors,
-            title: 'Divertido',
-            description: 'Cores vivas, cartões grandes e uma aparência de jogo.',
-            icon: Icons.celebration_rounded,
-            style: AppVisualStyle.playful,
-            selected: _settings.visualStyle == AppVisualStyle.playful,
-            onTap: () => _settings.setStyle(
-              AppVisualStyle.playful,
-            ),
-          ),
-          const SizedBox(height: 10),
-          _StyleCard(
-            colors: colors,
-            title: 'Limpo',
-            description: 'Visual simples, moderno e com menos elementos.',
-            icon: Icons.auto_awesome_rounded,
-            style: AppVisualStyle.clean,
-            selected: _settings.visualStyle == AppVisualStyle.clean,
-            onTap: () => _settings.setStyle(
-              AppVisualStyle.clean,
-            ),
-          ),
-          const SizedBox(height: 10),
-          _StyleCard(
-            colors: colors,
-            title: 'Calmo',
-            description: 'Tons suaves para uma experiência mais tranquila.',
-            icon: Icons.spa_rounded,
-            style: AppVisualStyle.calm,
-            selected: _settings.visualStyle == AppVisualStyle.calm,
-            onTap: () => _settings.setStyle(
-              AppVisualStyle.calm,
-            ),
-          ),
-          const SizedBox(height: 10),
-          _StyleCard(
-            colors: colors,
-            title: 'Alto contraste',
-            description: 'Mais contraste para facilitar a leitura.',
-            icon: Icons.contrast_rounded,
-            style: AppVisualStyle.contrast,
-            selected: _settings.visualStyle == AppVisualStyle.contrast,
-            onTap: () => _settings.setStyle(
-              AppVisualStyle.contrast,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SettingsSectionTitle extends StatelessWidget {
-  final AppColors colors;
-  final String title;
-
-  const _SettingsSectionTitle({
-    required this.colors,
-    required this.title,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontFamily: 'ComicSansMS',
-        fontWeight: FontWeight.w700,
-        fontSize: 16,
-        color: colors.textMain,
-      ),
-    );
-  }
-}
-
-class _SettingsCard extends StatelessWidget {
-  final AppColors colors;
-  final List<Widget> children;
-
-  const _SettingsCard({
-    required this.colors,
-    required this.children,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.bgCardNeutral,
-        borderRadius: BorderRadius.circular(colors.radiusLarge),
-        boxShadow: [
-          BoxShadow(
-            color: colors.neutralShadow,
-            offset: const Offset(0, 3),
-            blurRadius: 4,
-          ),
-        ],
-      ),
-      child: Column(
-        children: children,
-      ),
-    );
-  }
-}
-
-class _SettingsTile extends StatelessWidget {
-  final AppColors colors;
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Widget trailing;
-
-  const _SettingsTile({
-    required this.colors,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.trailing,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 13, 10, 13),
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: colors.bg,
-              borderRadius: BorderRadius.circular(colors.radiusSmall),
-            ),
-            child: Icon(
-              icon,
-              size: 21,
-              color: colors.textMain,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
+                  ),
+                  const SizedBox(width: 12),
+                  Text('Definições', style: TextStyle(
                     fontFamily: 'ComicSansMS',
                     fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                    color: colors.textMain,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    color: colors.textMuted,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          trailing,
-        ],
-      ),
-    );
-  }
-}
-
-class _SettingsSwitch extends StatelessWidget {
-  final bool value;
-  final AppColors colors;
-  final ValueChanged<bool> onChanged;
-
-  const _SettingsSwitch({
-    required this.value,
-    required this.colors,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onChanged(!value),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        width: 52,
-        height: 30,
-        padding: const EdgeInsets.all(3),
-        decoration: BoxDecoration(
-          color: value
-              ? AppColors.green
-              : colors.bg,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: AnimatedAlign(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOut,
-          alignment: value
-              ? Alignment.centerRight
-              : Alignment.centerLeft,
-          child: Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: colors.switchThumb,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: colors.switchThumbShadow,
-                  offset: const Offset(0, 2),
-                  blurRadius: 3,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ThemeChoice extends StatelessWidget {
-  final AppColors colors;
-  final String label;
-  final IconData icon;
-  final bool active;
-  final VoidCallback onTap;
-
-  const _ThemeChoice({
-    required this.colors,
-    required this.label,
-    required this.icon,
-    required this.active,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          padding: const EdgeInsets.symmetric(
-            vertical: 12,
-            horizontal: 12,
-          ),
-          decoration: BoxDecoration(
-            color: active
-                ? AppColors.green
-                : colors.bg,
-            borderRadius: BorderRadius.circular(colors.radiusSmall),
-            boxShadow: active
-                ? const [
-                    BoxShadow(
-                      color: AppColors.greenShadow,
-                      offset: Offset(0, 3),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 18,
-                color: active
-                    ? Colors.white
-                    : colors.textMuted,
+                    fontSize: 20,
+                    color: c.textMain,
+                  )),
+                ],
               ),
-              const SizedBox(width: 7),
-              Text(
-                label,
-                style: TextStyle(
-                  fontFamily: 'ComicSansMS',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13,
-                  color: active
-                      ? Colors.white
-                      : colors.textMain,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _StyleCard extends StatelessWidget {
-  final AppColors colors;
-  final String title;
-  final String description;
-  final IconData icon;
-  final AppVisualStyle style;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _StyleCard({
-    required this.colors,
-    required this.title,
-    required this.description,
-    required this.icon,
-    required this.style,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: colors.bgCardNeutral,
-          borderRadius: BorderRadius.circular(colors.radiusLarge),
-          border: Border.all(
-            color: selected
-                ? AppColors.green
-                : colors.divider,
-            width: selected ? 2 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: selected
-                  ? AppColors.greenShadow.withOpacity(0.25)
-                  : colors.neutralShadow,
-              offset: const Offset(0, 3),
-              blurRadius: 4,
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            _StylePreview(
-              appColors: AppColors(
-                colors.isDark,
-                style,
-              ),
-              icon: icon,
-            ),
-            const SizedBox(width: 12),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 30),
                 children: [
-                  Row(
+                  _SectionTitle(c, 'Som'),
+                  _SettingTile(
+                    c: c,
+                    icon: _icon('assets/icons/speaker-icon.svg', c.textMain),
+                    title: 'Sons de clique',
+                    subtitle: 'Sons ao tocar nos botões',
+                    value: _sound,
+                    onChanged: (v) => setState(() => _sound = v),
+                  ),
+                  const SizedBox(height: 10),
+                  _SettingTile(
+                    c: c,
+                    icon: _icon('assets/icons/music_on.svg', c.textMain),
+                    title: 'Música',
+                    subtitle: 'Música ambiente dos jogos',
+                    value: _music,
+                    onChanged: (v) => setState(() => _music = v),
+                  ),
+                  const SizedBox(height: 22),
+                  _SectionTitle(c, 'Aparência'),
+                  _SettingTile(
+                    c: c,
+                    icon: Icon(Icons.dark_mode_rounded, color: c.textMain),
+                    title: 'Tema escuro',
+                    subtitle: 'Alterna entre claro e escuro',
+                    value: _dark,
+                    onChanged: (v) => setState(() => _dark = v),
+                  ),
+                  const SizedBox(height: 16),
+                  _SectionTitle(c, 'Estilo do app'),
+                  Text(
+                    'Escolhe como o ABCtube deve parecer. O estilo altera cores principais, botões e destaques.',
+                    style: TextStyle(color: c.textMuted, fontSize: 13),
+                  ),
+                  const SizedBox(height: 12),
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    childAspectRatio: 1.35,
                     children: [
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: TextStyle(
-                            fontFamily: 'ComicSansMS',
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
-                            color: colors.textMain,
-                          ),
-                        ),
-                      ),
-                      if (selected)
-                        const Icon(
-                          Icons.check_circle_rounded,
-                          size: 20,
-                          color: AppColors.green,
-                        ),
+                      _StyleCard(c: c, style: AppStyle.classic, title: 'Clássico', emoji: '🟢'),
+                      _StyleCard(c: c, style: AppStyle.material, title: 'Material', emoji: '🔵'),
+                      _StyleCard(c: c, style: AppStyle.playful, title: 'Divertido', emoji: '🩷'),
+                      _StyleCard(c: c, style: AppStyle.ocean, title: 'Oceano', emoji: '🌊'),
+                      _StyleCard(c: c, style: AppStyle.sunset, title: 'Pôr do sol', emoji: '🟠'),
+                      _StyleCard(c: c, style: AppStyle.monochrome, title: 'Monocromático', emoji: '⚫'),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      fontSize: 12,
-                      height: 1.25,
-                      color: colors.textMuted,
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: c.bgCardNeutral,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.check_circle_rounded, color: c.primary),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'As alterações são aplicadas quando voltares ao app.',
+                            style: TextStyle(color: c.textMain, fontSize: 13),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  GestureDetector(
+                    onTap: _finish,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: c.primary,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [BoxShadow(color: c.primaryShadow, offset: const Offset(0, 4))],
+                      ),
+                      child: const Center(
+                        child: Text('APLICAR', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, letterSpacing: 1)),
+                      ),
                     ),
                   ),
                 ],
@@ -566,69 +208,60 @@ class _StyleCard extends StatelessWidget {
       ),
     );
   }
-}
 
-class _StylePreview extends StatelessWidget {
-  final AppColors appColors;
-  final IconData icon;
+  Widget _icon(String path, Color color) => SvgPicture.asset(path, width: 22, height: 22, colorFilter: ColorFilter.mode(color, BlendMode.srcIn));
 
-  const _StylePreview({
-    required this.appColors,
-    required this.icon,
-  });
+  Widget _SectionTitle(AppColors c, String text) => Padding(
+    padding: const EdgeInsets.only(bottom: 9),
+    child: Text(text, style: TextStyle(fontFamily: 'ComicSansMS', fontWeight: FontWeight.w700, fontSize: 16, color: c.textMain)),
+  );
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _SettingTile({
+    required AppColors c,
+    required Widget icon,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
     return Container(
-      width: 66,
-      height: 66,
-      padding: const EdgeInsets.all(7),
-      decoration: BoxDecoration(
-        color: appColors.bg,
-        borderRadius: BorderRadius.circular(appColors.radiusLarge),
-      ),
-      child: Column(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+      decoration: BoxDecoration(color: c.bgCardNeutral, borderRadius: BorderRadius.circular(16)),
+      child: Row(
         children: [
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: appColors.c0Bg,
-                      borderRadius:
-                          BorderRadius.circular(appColors.radiusSmall),
-                    ),
-                    child: Icon(
-                      icon,
-                      size: 14,
-                      color: appColors.c0Fg,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: appColors.c2Bg,
-                      borderRadius:
-                          BorderRadius.circular(appColors.radiusSmall),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            height: 6,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: appColors.c1Fg,
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
+          SizedBox(width: 28, height: 28, child: Center(child: icon)),
+          const SizedBox(width: 10),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(title, style: TextStyle(fontWeight: FontWeight.w700, color: c.textMain)),
+            const SizedBox(height: 3),
+            Text(subtitle, style: TextStyle(fontSize: 12, color: c.textMuted)),
+          ])),
+          Switch.adaptive(value: value, activeTrackColor: c.primary, onChanged: onChanged),
         ],
+      ),
+    );
+  }
+
+  Widget _StyleCard({required AppColors c, required AppStyle style, required String title, required String emoji}) {
+    final selected = _style == style;
+    final preview = AppColors(_dark, style).primary;
+    return GestureDetector(
+      onTap: () => setState(() => _style = style),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: selected ? preview.withOpacity(0.14) : c.bgCardNeutral,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: selected ? preview : Colors.transparent, width: 2),
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [Text(emoji, style: const TextStyle(fontSize: 23)), const Spacer(), if (selected) Icon(Icons.check_circle_rounded, color: preview, size: 20)]),
+          const Spacer(),
+          Text(title, style: TextStyle(fontFamily: 'ComicSansMS', fontWeight: FontWeight.w700, color: c.textMain)),
+          const SizedBox(height: 8),
+          Container(height: 8, decoration: BoxDecoration(color: preview, borderRadius: BorderRadius.circular(6))),
+        ]),
       ),
     );
   }

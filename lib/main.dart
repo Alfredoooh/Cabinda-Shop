@@ -4,6 +4,12 @@ import 'package:audioplayers/audioplayers.dart';
 import 'screens/home_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    systemNavigationBarColor: Colors.transparent,
+  ));
   runApp(const AlfabetoApp());
 }
 
@@ -12,248 +18,40 @@ class AlfabetoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Leya',
-      theme: ThemeData(
-        useMaterial3: true,
-        fontFamily: 'ComicSansMS',
-      ),
-      home: const HomeScreen(),
+      title: 'ABCtube',
+      home: HomeScreen(),
     );
-  }
-}
-
-enum AppThemeMode {
-  light,
-  dark,
-}
-
-enum AppVisualStyle {
-  playful,
-  clean,
-  calm,
-  contrast,
-}
-
-class AppSettings extends ChangeNotifier {
-  AppSettings._();
-
-  static final AppSettings instance = AppSettings._();
-
-  AppThemeMode themeMode = AppThemeMode.light;
-  AppVisualStyle visualStyle = AppVisualStyle.playful;
-  bool clickSoundsEnabled = true;
-  bool musicEnabled = true;
-
-  bool get isDark => themeMode == AppThemeMode.dark;
-
-  void setTheme(AppThemeMode value) {
-    if (themeMode == value) return;
-    themeMode = value;
-    notifyListeners();
-  }
-
-  void setStyle(AppVisualStyle value) {
-    if (visualStyle == value) return;
-    visualStyle = value;
-    notifyListeners();
-  }
-
-  Future<void> setClickSounds(bool value) async {
-    if (clickSoundsEnabled == value) return;
-    clickSoundsEnabled = value;
-    SoundManager.instance.muted = !value;
-    notifyListeners();
-  }
-
-  Future<void> setMusic(bool value) async {
-    if (musicEnabled == value) return;
-    musicEnabled = value;
-    await MusicManager.instance.setEnabled(value);
-    notifyListeners();
-  }
-}
-
-class MusicManager {
-  MusicManager._();
-
-  static final MusicManager instance = MusicManager._();
-
-  final AudioPlayer _player = AudioPlayer();
-  bool enabled = true;
-  bool _started = false;
-  String? _currentAsset;
-
-  Future<void> playLoop(String asset) async {
-    if (!enabled) return;
-
-    try {
-      if (_started && _currentAsset == asset) {
-        await _player.resume();
-        return;
-      }
-
-      _currentAsset = asset;
-      _started = true;
-      await _player.setReleaseMode(ReleaseMode.loop);
-      await _player.setVolume(0.35);
-      await _player.play(AssetSource(asset));
-    } catch (_) {}
-  }
-
-  Future<void> setEnabled(bool value) async {
-    enabled = value;
-
-    try {
-      if (value) {
-        if (_currentAsset != null) {
-          await _player.resume();
-        }
-      } else {
-        await _player.pause();
-      }
-    } catch (_) {}
-  }
-
-  Future<void> stop() async {
-    try {
-      await _player.stop();
-    } catch (_) {}
-  }
-
-  Future<void> dispose() async {
-    await _player.dispose();
   }
 }
 
 class AppColors {
   final bool isDark;
-  final AppVisualStyle style;
+  final AppStyle style;
+  AppColors(this.isDark, [this.style = AppStyle.classic]);
 
-  AppColors(
-    this.isDark, [
-    this.style = AppVisualStyle.playful,
-  ]);
-
-  Color get bg {
-    if (style == AppVisualStyle.clean) {
-      return isDark ? const Color(0xFF181A1F) : const Color(0xFFF7F9FC);
-    }
-    if (style == AppVisualStyle.calm) {
-      return isDark ? const Color(0xFF15211F) : const Color(0xFFF1FAF7);
-    }
-    if (style == AppVisualStyle.contrast) {
-      return isDark ? const Color(0xFF101010) : const Color(0xFFFFFFFF);
-    }
-    return isDark ? const Color(0xFF1E1B16) : const Color(0xFFFFF8EE);
-  }
-
-  Color get bgCardNeutral {
-    if (style == AppVisualStyle.clean) {
-      return isDark ? const Color(0xFF242830) : const Color(0xFFFFFFFF);
-    }
-    if (style == AppVisualStyle.calm) {
-      return isDark ? const Color(0xFF20302C) : const Color(0xFFFFFFFF);
-    }
-    if (style == AppVisualStyle.contrast) {
-      return isDark ? const Color(0xFF202020) : const Color(0xFFF2F2F2);
-    }
-    return isDark ? const Color(0xFF2E2A22) : const Color(0xFFF0E6D2);
-  }
-
-  Color get textMain {
-    if (style == AppVisualStyle.clean) {
-      return isDark ? const Color(0xFFF3F5F7) : const Color(0xFF17202A);
-    }
-    if (style == AppVisualStyle.calm) {
-      return isDark ? const Color(0xFFE8F4F1) : const Color(0xFF17312C);
-    }
-    if (style == AppVisualStyle.contrast) {
-      return isDark ? Colors.white : Colors.black;
-    }
-    return isDark ? const Color(0xFFF5EEDD) : const Color(0xFF3D2B1F);
-  }
-
-  Color get textMuted {
-    if (style == AppVisualStyle.clean) {
-      return isDark ? const Color(0xFFA6AFBB) : const Color(0xFF687385);
-    }
-    if (style == AppVisualStyle.calm) {
-      return isDark ? const Color(0xFF9CB6AE) : const Color(0xFF68827B);
-    }
-    if (style == AppVisualStyle.contrast) {
-      return isDark ? const Color(0xFFE0E0E0) : const Color(0xFF333333);
-    }
-    return isDark ? const Color(0xFF9C9082) : const Color(0xFFA08868);
-  }
-
-  Color get divider {
-    if (style == AppVisualStyle.clean) {
-      return isDark ? const Color(0xFF343943) : const Color(0xFFE1E6ED);
-    }
-    if (style == AppVisualStyle.calm) {
-      return isDark ? const Color(0xFF30423E) : const Color(0xFFD7EAE5);
-    }
-    if (style == AppVisualStyle.contrast) {
-      return isDark ? const Color(0xFF505050) : const Color(0xFFCCCCCC);
-    }
-    return isDark ? const Color(0xFF3A352A) : const Color(0xFFEDE1C8);
-  }
-
-  Color get drawerBg {
-    if (style == AppVisualStyle.clean) {
-      return isDark ? const Color(0xFF1E2228) : const Color(0xFFFFFFFF);
-    }
-    if (style == AppVisualStyle.calm) {
-      return isDark ? const Color(0xFF1A2925) : const Color(0xFFFFFFFF);
-    }
-    if (style == AppVisualStyle.contrast) {
-      return isDark ? const Color(0xFF151515) : const Color(0xFFFFFFFF);
-    }
-    return isDark ? const Color(0xFF26221B) : const Color(0xFFFFFFFF);
-  }
-
+  Color get bg => isDark ? const Color(0xFF1E1B16) : const Color(0xFFFFF8EE);
+  Color get bgCardNeutral =>
+      isDark ? const Color(0xFF2E2A22) : const Color(0xFFF0E6D2);
+  Color get textMain =>
+      isDark ? const Color(0xFFF5EEDD) : const Color(0xFF3D2B1F);
+  Color get textMuted =>
+      isDark ? const Color(0xFF9C9082) : const Color(0xFFA08868);
+  Color get divider =>
+      isDark ? const Color(0xFF3A352A) : const Color(0xFFEDE1C8);
+  Color get drawerBg =>
+      isDark ? const Color(0xFF26221B) : const Color(0xFFFFFFFF);
   Color get overlay =>
       isDark ? const Color(0x99000000) : const Color(0x66000000);
-
   Color get neutralShadow =>
       isDark ? const Color(0x40000000) : const Color(0x1A000000);
-
   Color get drawerShadow =>
       isDark ? const Color(0x66000000) : const Color(0x33000000);
-
   Color get switchThumb =>
       isDark ? const Color(0xFFF5EEDD) : const Color(0xFFFFFFFF);
-
   Color get switchThumbShadow =>
       isDark ? const Color(0x40000000) : const Color(0x33000000);
-
-  double get radiusSmall {
-    switch (style) {
-      case AppVisualStyle.clean:
-        return 10;
-      case AppVisualStyle.calm:
-        return 16;
-      case AppVisualStyle.contrast:
-        return 6;
-      case AppVisualStyle.playful:
-        return 14;
-    }
-  }
-
-  double get radiusLarge {
-    switch (style) {
-      case AppVisualStyle.clean:
-        return 14;
-      case AppVisualStyle.calm:
-        return 22;
-      case AppVisualStyle.contrast:
-        return 8;
-      case AppVisualStyle.playful:
-        return 20;
-    }
-  }
 
   Color get c0Bg => isDark ? const Color(0xFF17394A) : const Color(0xFFDDF4FF);
   Color get c0Fg => isDark ? const Color(0xFF6FCBFA) : const Color(0xFF1CB0F6);
@@ -284,6 +82,30 @@ class AppColors {
   Color get c5Fg => isDark ? const Color(0xFFFFDD6B) : const Color(0xFFFFC800);
   Color get c5Shadow =>
       isDark ? const Color(0xFF2B240E) : const Color(0x59FFC800);
+
+  Color get primary {
+    switch (style) {
+      case AppStyle.material:
+        return isDark ? const Color(0xFF90CAF9) : const Color(0xFF1976D2);
+      case AppStyle.playful:
+        return isDark ? const Color(0xFFFF6FB5) : const Color(0xFFFF4B8C);
+      case AppStyle.ocean:
+        return isDark ? const Color(0xFF64D8FF) : const Color(0xFF0288D1);
+      case AppStyle.sunset:
+        return isDark ? const Color(0xFFFFB74D) : const Color(0xFFF4511E);
+      case AppStyle.monochrome:
+        return isDark ? const Color(0xFFE0E0E0) : const Color(0xFF424242);
+      case AppStyle.classic:
+        return green;
+    }
+  }
+
+  Color get primaryShadow {
+    final c = primary;
+    return Color.alphaBlend(const Color(0x66000000), c);
+  }
+
+  Color get danger => isDark ? const Color(0xFFFF6B6B) : const Color(0xFFD32F2F);
 
   static const green = Color(0xFF58CC02);
   static const greenShadow = Color(0xFF46A302);
@@ -321,6 +143,8 @@ String buildSyllable(String consonant, String vowel, bool consonantUpper) {
 
 enum GridMode { all, vowels, consonants }
 enum DrawerSection { alphabet, games, videos }
+enum AppStyle { classic, material, playful, ocean, sunset, monochrome }
+
 
 class AssetUtils {
   static Future<List<String>> getAssetsInFolder(String folder) async {
@@ -338,8 +162,11 @@ class SoundManager {
   static final SoundManager instance = SoundManager._();
   final AudioPlayer _player = AudioPlayer();
   bool muted = false;
+  bool clickMuted = false;
+  bool musicMuted = false;
 
   Future<void> playClick() async {
+    if (clickMuted) return;
     await _play('audio/pressing.wav');
   }
 

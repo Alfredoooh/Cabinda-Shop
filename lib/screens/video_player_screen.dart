@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -31,6 +33,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   bool _carregando = true;
   String? _erro;
   bool _controlesVisiveis = true;
+  Timer? _hideTimer;
   late VideoItem _videoAtual;
 
   @override
@@ -38,6 +41,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     super.initState();
     _videoAtual = widget.video;
     _carregarVideo(_videoAtual);
+    _agendarOcultacao();
   }
 
   Future<void> _carregarVideo(VideoItem video) async {
@@ -60,6 +64,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         _videoAtual = video;
       });
       controller.play();
+      _agendarOcultacao();
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -71,12 +76,37 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   @override
   void dispose() {
+    _hideTimer?.cancel();
     _controller?.dispose();
     super.dispose();
   }
 
-  void _toggleControles() {
-    setState(() => _controlesVisiveis = !_controlesVisiveis);
+  void _agendarOcultacao() {
+    _hideTimer?.cancel();
+    _hideTimer = Timer(const Duration(seconds: 4), () {
+      if (!mounted) return;
+      setState(() => _controlesVisiveis = false);
+    });
+  }
+
+  void _mostrarControles() {
+    if (!mounted) return;
+    setState(() => _controlesVisiveis = true);
+    _agendarOcultacao();
+  }
+
+  void _ocultarControles() {
+    if (!mounted) return;
+    _hideTimer?.cancel();
+    setState(() => _controlesVisiveis = false);
+  }
+
+  void _togglePlayerControls() {
+    if (_controlesVisiveis) {
+      _ocultarControles();
+    } else {
+      _mostrarControles();
+    }
   }
 
   @override
@@ -104,9 +134,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               carregando: _carregando,
               erro: _erro,
               controlesVisiveis: _controlesVisiveis,
-              onToggleControles: _toggleControles,
+              onPlayerTap: _togglePlayerControls,
+              onInteraction: _mostrarControles,
               onBack: () => Navigator.of(context).pop(),
-              onRetry: () => _carregarVideo(_videoAtual),
+              onRetry: () { _mostrarControles(); _carregarVideo(_videoAtual); },
             ),
 
             // ── Título e info do vídeo ──
@@ -249,7 +280,8 @@ class _PlayerTopo extends StatelessWidget {
   final bool carregando;
   final String? erro;
   final bool controlesVisiveis;
-  final VoidCallback onToggleControles;
+  final VoidCallback onPlayerTap;
+  final VoidCallback onInteraction;
   final VoidCallback onBack;
   final VoidCallback onRetry;
 
@@ -260,7 +292,8 @@ class _PlayerTopo extends StatelessWidget {
     required this.carregando,
     required this.erro,
     required this.controlesVisiveis,
-    required this.onToggleControles,
+    required this.onPlayerTap,
+    required this.onInteraction,
     required this.onBack,
     required this.onRetry,
   });
@@ -285,9 +318,15 @@ class _PlayerTopo extends StatelessWidget {
 
           // Vídeo
           if (controller != null && !carregando && erro == null)
-            GestureDetector(
-              onTap: onToggleControles,
-              child: VideoPlayer(controller!),
+            VideoPlayer(controller!),
+
+          if (controller != null && !carregando && erro == null)
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onPlayerTap,
+                child: const SizedBox.expand(),
+              ),
             ),
 
           // Loader
@@ -348,6 +387,7 @@ class _PlayerTopo extends StatelessWidget {
                 child: _Controlos(
                   controller: controller!,
                   onBack: onBack,
+                  onInteraction: onInteraction,
                 ),
               ),
             ),
@@ -371,8 +411,9 @@ class _PlayerTopo extends StatelessWidget {
 class _Controlos extends StatefulWidget {
   final VideoPlayerController controller;
   final VoidCallback onBack;
+  final VoidCallback onInteraction;
 
-  const _Controlos({required this.controller, required this.onBack});
+  const _Controlos({required this.controller, required this.onBack, required this.onInteraction});
 
   @override
   State<_Controlos> createState() => _ControlosState();
@@ -400,6 +441,8 @@ class _ControlosState extends State<_Controlos> {
     final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
     return '$m:$s';
   }
+
+  void _interaction() => widget.onInteraction();
 
   @override
   Widget build(BuildContext context) {
@@ -439,6 +482,7 @@ class _ControlosState extends State<_Controlos> {
                 path: 'assets/icons/rewind.svg',
                 size: 32,
                 onTap: () {
+                  _interaction();
                   final pos = val.position - const Duration(seconds: 10);
                   widget.controller
                       .seekTo(pos < Duration.zero ? Duration.zero : pos);
@@ -461,6 +505,7 @@ class _ControlosState extends State<_Controlos> {
                 path: 'assets/icons/forward.svg',
                 size: 32,
                 onTap: () {
+                  _interaction();
                   final pos = val.position + const Duration(seconds: 10);
                   final dur = val.duration;
                   widget.controller
@@ -479,6 +524,7 @@ class _ControlosState extends State<_Controlos> {
               children: [
                 // Barra de progresso customizada
                 GestureDetector(
+                  onHorizontalDragStart: (_) => _interaction(),
                   onHorizontalDragUpdate: (details) {
                     final box = context.findRenderObject() as RenderBox;
                     final localDx =

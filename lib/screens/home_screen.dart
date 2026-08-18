@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/services.dart';
 import '../main.dart'
-    show AppColors, AppSettings, GridMode, DrawerSection, SoundManager,
-        kConsonants;
+    show AppColors, GridMode, DrawerSection, SoundManager, kConsonants, AppStyle;
 import 'detail_screen.dart';
 import 'games_screen.dart';
 import 'playlist_covers_screen.dart';
@@ -17,22 +17,25 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  final AppSettings _settings = AppSettings.instance;
-
+  bool isDark = false;
+  AppStyle appStyle = AppStyle.classic;
   GridMode currentMode = GridMode.all;
   DrawerSection currentSection = DrawerSection.alphabet;
+  bool soundEnabled = true;
+  bool musicEnabled = true;
 
   late AnimationController _drawerController;
   late Animation<Offset> _drawerSlide;
   bool _drawerOpen = false;
 
-  static const double _drawerWidthFactor = 0.82;
+  static const double _drawerWidthFactor = 0.78;
 
   static const Curve _drawerCurve = Curves.easeInOutCubic;
 
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _drawerController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 340),
@@ -40,23 +43,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _drawerSlide = Tween<Offset>(
       begin: const Offset(-1, 0),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _drawerController,
-        curve: _drawerCurve,
-      ),
-    );
-
-    _settings.addListener(_onSettingsChanged);
-  }
-
-  void _onSettingsChanged() {
-    if (mounted) setState(() {});
+    ).animate(CurvedAnimation(
+      parent: _drawerController,
+      curve: _drawerCurve,
+    ));
   }
 
   @override
   void dispose() {
-    _settings.removeListener(_onSettingsChanged);
     _drawerController.dispose();
     super.dispose();
   }
@@ -72,26 +66,41 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
 
-  void openSettings() {
-    closeDrawer();
+  void toggleTheme() => setState(() => isDark = !isDark);
 
-    Navigator.of(context).push(
+  Future<void> openSettings() async {
+    final result = await Navigator.of(context).push<AppSettingsResult>(
       CupertinoPageRoute(
         builder: (_) => SettingsScreen(
-          colors: AppColors(
-            _settings.isDark,
-            _settings.visualStyle,
-          ),
+          colors: AppColors(isDark, appStyle),
+          isDark: isDark,
+          style: appStyle,
+          soundEnabled: soundEnabled,
+          musicEnabled: musicEnabled,
         ),
       ),
     );
+    if (result == null || !mounted) return;
+    setState(() {
+      isDark = result.isDark;
+      appStyle = result.style;
+      soundEnabled = result.soundEnabled;
+      musicEnabled = result.musicEnabled;
+    });
+  }
+
+  void toggleSound() {
+    setState(() {
+      soundEnabled = !soundEnabled;
+      SoundManager.instance.muted = !soundEnabled;
+    });
   }
 
   void openDetail(int consonantIndex) {
     Navigator.of(context).push(
       CupertinoPageRoute(
         builder: (_) => DetailScreen(
-          colors: AppColors(_settings.isDark, _settings.visualStyle),
+          colors: AppColors(isDark, appStyle),
           initialConsonantIndex: consonantIndex,
         ),
       ),
@@ -122,9 +131,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors(_settings.isDark, _settings.visualStyle);
+    final colors = AppColors(isDark, appStyle);
 
-    return Scaffold(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+        systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+      ),
+      child: Scaffold(
       backgroundColor: colors.bg,
       body: Stack(
         children: [
@@ -139,10 +156,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     currentSection: currentSection,
                     currentMode: currentMode,
                     onModeChange: (m) => setState(() => currentMode = m),
-                    soundEnabled: _settings.clickSoundsEnabled,
-                    onSoundToggle: () => _settings.setClickSounds(
-                      !_settings.clickSoundsEnabled,
-                    ),
+                    soundEnabled: soundEnabled,
+                    onSoundToggle: toggleSound,
                   ),
                   Expanded(
                     child: SafeArea(
@@ -180,8 +195,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                 ],
+              ),
             ),
-          ),
 
           // Overlay escuro
           if (_drawerOpen)
@@ -207,17 +222,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 alignment: Alignment.centerLeft,
                 child: _AppDrawer(
                   colors: colors,
+                  isDark: isDark,
                   currentSection: currentSection,
                   onSectionSelected: (s) {
                     setState(() => currentSection = s);
                     closeDrawer();
                   },
+                  onThemeToggle: toggleTheme,
                   onSettingsTap: openSettings,
                 ),
               ),
             ),
         ],
       ),
+    ),
     );
   }
 }
@@ -426,12 +444,12 @@ class _ToggleButton extends StatelessWidget {
               : Matrix4.identity(),
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
           decoration: BoxDecoration(
-            color: active ? AppColors.green : Colors.transparent,
+            color: active ? colors.primary : Colors.transparent,
             borderRadius: BorderRadius.circular(16),
             boxShadow: active
                 ? [
                     const BoxShadow(
-                      color: AppColors.greenShadow,
+                      color: colors.primaryShadow,
                       offset: Offset(0, 4),
                     ),
                   ]
@@ -626,14 +644,18 @@ class _LetterCardState extends State<_LetterCard> {
 // ─────────────────────────────────────────────
 class _AppDrawer extends StatelessWidget {
   final AppColors colors;
+  final bool isDark;
   final DrawerSection currentSection;
   final ValueChanged<DrawerSection> onSectionSelected;
+  final VoidCallback onThemeToggle;
   final VoidCallback onSettingsTap;
 
   const _AppDrawer({
     required this.colors,
+    required this.isDark,
     required this.currentSection,
     required this.onSectionSelected,
+    required this.onThemeToggle,
     required this.onSettingsTap,
   });
 
@@ -642,7 +664,7 @@ class _AppDrawer extends StatelessWidget {
     return Container(
       width: 300,
       constraints: BoxConstraints(
-        maxWidth: MediaQuery.of(context).size.width * _HomeScreenState._drawerWidthFactor,
+        maxWidth: MediaQuery.of(context).size.width * 0.78,
       ),
       height: double.infinity,
       decoration: BoxDecoration(
@@ -660,7 +682,7 @@ class _AppDrawer extends StatelessWidget {
           children: [
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(10, 18, 10, 12),
+                padding: const EdgeInsets.fromLTRB(10, 20, 10, 12),
                 children: [
                   _DrawerItem(
                     colors: colors,
@@ -686,21 +708,42 @@ class _AppDrawer extends StatelessWidget {
                     onTap: () => onSectionSelected(DrawerSection.videos),
                   ),
                   const SizedBox(height: 10),
-                  _SettingsDrawerItem(
+                  _DrawerItem(
                     colors: colors,
+                    label: 'Definições',
+                    assetPath: null,
+                    iconData: Icons.settings_rounded,
+                    active: false,
                     onTap: onSettingsTap,
                   ),
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: Text(
-                'Leya · Aprende ao teu ritmo',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: colors.textMuted,
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: colors.divider)),
+              ),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Tema',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: colors.textMain,
+                      ),
+                    ),
+                    _ThemeSwitch(
+                      colors: colors,
+                      isDark: isDark,
+                      onTap: onThemeToggle,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -714,14 +757,16 @@ class _AppDrawer extends StatelessWidget {
 class _DrawerItem extends StatefulWidget {
   final AppColors colors;
   final String label;
-  final String assetPath;
+  final String? assetPath;
+  final IconData? iconData;
   final bool active;
   final VoidCallback onTap;
 
   const _DrawerItem({
     required this.colors,
     required this.label,
-    required this.assetPath,
+    this.assetPath,
+    this.iconData,
     required this.active,
     required this.onTap,
   });
@@ -735,9 +780,9 @@ class _DrawerItemState extends State<_DrawerItem> {
 
   @override
   Widget build(BuildContext context) {
-    final bg = widget.active ? AppColors.green : widget.colors.bgCardNeutral;
+    final bg = widget.active ? widget.colors.primary : widget.colors.bgCardNeutral;
     final shadowColor =
-        widget.active ? AppColors.greenShadow : widget.colors.divider;
+        widget.active ? widget.colors.primaryShadow : widget.colors.divider;
     final labelColor =
         widget.active ? Colors.white : widget.colors.textMain;
 
@@ -764,14 +809,17 @@ class _DrawerItemState extends State<_DrawerItem> {
         ),
         child: Row(
           children: [
-            Image.asset(
-              widget.assetPath,
-              width: 24,
-              height: 24,
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) =>
-                  const SizedBox(width: 24, height: 24),
-            ),
+            if (widget.iconData != null)
+              Icon(widget.iconData, size: 24, color: labelColor)
+            else if (widget.assetPath != null)
+              Image.asset(
+                widget.assetPath!,
+                width: 24,
+                height: 24,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) =>
+                    const SizedBox(width: 24, height: 24),
+              ),
             const SizedBox(width: 14),
             Text(
               widget.label,
@@ -788,84 +836,61 @@ class _DrawerItemState extends State<_DrawerItem> {
   }
 }
 
-class _SettingsDrawerItem extends StatefulWidget {
+class _ThemeSwitch extends StatelessWidget {
   final AppColors colors;
+  final bool isDark;
   final VoidCallback onTap;
 
-  const _SettingsDrawerItem({
+  const _ThemeSwitch({
     required this.colors,
+    required this.isDark,
     required this.onTap,
   });
 
   @override
-  State<_SettingsDrawerItem> createState() => _SettingsDrawerItemState();
-}
-
-class _SettingsDrawerItemState extends State<_SettingsDrawerItem> {
-  bool _pressed = false;
-
-  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: widget.onTap,
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 100),
-        transform: Matrix4.identity()
-          ..translate(0.0, _pressed ? 3.0 : 0.0),
-        padding: const EdgeInsets.symmetric(
-          vertical: 14,
-          horizontal: 16,
-        ),
+      onTap: onTap,
+      child: Container(
+        width: 52,
+        height: 30,
+        padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
-          color: widget.colors.bgCardNeutral,
-          borderRadius: BorderRadius.circular(
-            widget.colors.radiusLarge,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: widget.colors.divider,
-              offset: Offset(0, _pressed ? 1 : 4),
-            ),
-          ],
+          color: colors.bgCardNeutral,
+          borderRadius: BorderRadius.circular(20),
         ),
-        child: Row(
-          children: [
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: widget.colors.bg,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.settings_rounded,
-                size: 17,
-                color: widget.colors.textMain,
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 250),
+          alignment:
+              isDark ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: colors.switchThumb,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: colors.switchThumbShadow,
+                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+            child: Center(
+              child: SvgPicture.asset(
+                isDark
+                    ? 'assets/icons/moon-icon.svg'
+                    : 'assets/icons/sun-icon.svg',
+                width: 14,
+                height: 14,
+                colorFilter: const ColorFilter.mode(
+                    AppColors.orange, BlendMode.srcIn),
               ),
             ),
-            const SizedBox(width: 14),
-            Text(
-              'Definições',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: widget.colors.textMain,
-              ),
-            ),
-            const Spacer(),
-            Icon(
-              Icons.chevron_right_rounded,
-              size: 20,
-              color: widget.colors.textMuted,
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
-
