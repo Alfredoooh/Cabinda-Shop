@@ -6,6 +6,7 @@ import 'package:audioplayers/audioplayers.dart';
 import '../main.dart' show AppColors;
 
 final AudioPlayer _soundPlayer = AudioPlayer();
+final AudioPlayer _musicPlayer = AudioPlayer();
 
 class GameMemoryScreen extends StatefulWidget {
   final AppColors colors;
@@ -19,11 +20,16 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     with TickerProviderStateMixin {
   // Estado de seleção de nível
   bool _showLevelSelect = true;
-  int _levelPairs = 6; // número de pares (4,6,8,10)
+  int _levelPairs = 6;
   bool _timerEnabled = false;
-  int _timerDuration = 60; // segundos
+  int _timerDuration = 60;
   int _remainingSeconds = 60;
   Timer? _timer;
+
+  // Som e música
+  bool _soundOn = true;
+  bool _musicOn = true;
+  bool _musicStarted = false;
 
   // Estado do jogo
   static const List<String> _allLetters = [
@@ -35,15 +41,35 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   int? _primeira;
   bool _bloqueado = false;
   int _tentativas = 0;
+  int _streak = 0;
+  int _melhorStreak = 0;
 
-  // Índices do par errado atual (para animar o "wiggle" de erro)
+  // Índices do par errado atual
   int? _erroA;
   int? _erroB;
 
-  // Confete quando ganha o jogo
+  // Mensagem de encorajamento
+  String? _mensagem;
+  Timer? _mensagemTimer;
+
+  // Confete
   final List<_ConfettiParticle> _confetti = [];
   late AnimationController _confettiController;
   final _random = Random();
+
+  static const List<String> _mensagensAcerto = [
+    'Boa! 🌟',
+    'Excelente! ✨',
+    'Continua assim! 🚀',
+    'Muito bem! 🎯',
+    'Incrível! 💫',
+  ];
+
+  static const List<String> _mensagensStreak = [
+    'Sequência incrível! 🔥',
+    'Estás em fogo! 🔥🔥',
+    'Imparável! 🔥🔥🔥',
+  ];
 
   @override
   void initState() {
@@ -54,17 +80,67 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     )..addListener(() {
         if (mounted) setState(() {});
       });
-    // Não inicia o jogo automaticamente; aguarda seleção de nível
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _mensagemTimer?.cancel();
     _confettiController.dispose();
+    _musicPlayer.stop();
     super.dispose();
   }
 
-  // Inicia o jogo com a configuração escolhida
+  // ---------------- Áudio ----------------
+
+  Future<void> _playSound(String asset) async {
+    if (!_soundOn) return;
+    try {
+      await _soundPlayer.play(AssetSource(asset));
+    } catch (e) {
+      // ignora erros
+    }
+  }
+
+  Future<void> _startMusic() async {
+    if (_musicStarted) return;
+    _musicStarted = true;
+    try {
+      await _musicPlayer.setReleaseMode(ReleaseMode.loop);
+      await _musicPlayer.setVolume(0.4);
+      if (_musicOn) {
+        await _musicPlayer.play(AssetSource('songs/playing_song.mp3'));
+      }
+    } catch (e) {
+      // ignora erros
+    }
+  }
+
+  Future<void> _toggleSound() async {
+    setState(() => _soundOn = !_soundOn);
+    if (_soundOn) _playSound('audio/pressing.wav');
+  }
+
+  Future<void> _toggleMusic() async {
+    setState(() => _musicOn = !_musicOn);
+    try {
+      if (_musicOn) {
+        if (!_musicStarted) {
+          await _startMusic();
+        } else {
+          await _musicPlayer.resume();
+        }
+      } else {
+        await _musicPlayer.pause();
+      }
+    } catch (e) {
+      // ignora erros
+    }
+    if (_soundOn) _playSound('audio/pressing.wav');
+  }
+
+  // ---------------- Fluxo do jogo ----------------
+
   void _iniciarJogo(int pares, bool timerOn, int duracao) {
     final letrasSelecionadas = _allLetters.sublist(0, pares);
     final cartas = [...letrasSelecionadas, ...letrasSelecionadas]..shuffle();
@@ -79,10 +155,14 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
       _primeira = null;
       _bloqueado = false;
       _tentativas = 0;
+      _streak = 0;
+      _melhorStreak = 0;
       _erroA = null;
       _erroB = null;
+      _mensagem = null;
       _showLevelSelect = false;
     });
+    _startMusic();
     if (_timerEnabled) {
       _startTimer();
     } else {
@@ -105,7 +185,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   }
 
   void _tempoEsgotado() {
-    _playSound('audio/wrong.wav'); // ou um som específico de derrota
+    _playSound('audio/wrong.wav');
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -128,68 +208,100 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
 
   void _voltarParaNiveis() {
     _timer?.cancel();
+    _mensagemTimer?.cancel();
     setState(() => _showLevelSelect = true);
-  }
-
-  Future<void> _playSound(String asset) async {
-    try {
-      await _soundPlayer.play(AssetSource(asset));
-    } catch (e) {
-      // ignora erros
-    }
   }
 
   void _dispararConfete() {
     _confetti.clear();
-    for (int i = 0; i < 40; i++) {
+    for (int i = 0; i < 60; i++) {
       _confetti.add(_ConfettiParticle(_random));
     }
     _confettiController.forward(from: 0);
   }
 
+  void _mostrarMensagem(String texto) {
+    _mensagemTimer?.cancel();
+    setState(() => _mensagem = texto);
+    _mensagemTimer = Timer(const Duration(milliseconds: 1100), () {
+      if (!mounted) return;
+      setState(() => _mensagem = null);
+    });
+  }
+
   void _tocar(int index) {
-    if (_bloqueado || _virada[index] || _encontrada[index]) return;
+    // Guarda robusta: impede toques durante bloqueio, em cartas já viradas,
+    // já encontradas, ou fora do intervalo válido.
+    if (_bloqueado ||
+        index < 0 ||
+        index >= _cartas.length ||
+        _virada[index] ||
+        _encontrada[index]) {
+      return;
+    }
 
     _playSound('audio/pressing.wav');
-    setState(() => _virada[index] = true);
 
     if (_primeira == null) {
-      _primeira = index;
-    } else {
-      final a = _primeira!;
+      setState(() {
+        _virada[index] = true;
+        _primeira = index;
+      });
+      return;
+    }
+
+    final a = _primeira!;
+    // Proteção extra: não deixa comparar uma carta consigo mesma.
+    if (a == index) return;
+
+    setState(() {
+      _virada[index] = true;
+      _bloqueado = true;
       _primeira = null;
       _tentativas++;
-      if (_cartas[a] == _cartas[index]) {
-        // Acertou
-        _playSound('audio/correct.wav');
-        setState(() {
-          _encontrada[a] = true;
-          _encontrada[index] = true;
-        });
-        if (_ganhou) {
-          _playSound('audio/win.wav');
-          _timer?.cancel();
-          _dispararConfete();
-        }
+    });
+
+    if (_cartas[a] == _cartas[index]) {
+      _playSound('audio/correct.wav');
+      _streak++;
+      if (_streak > _melhorStreak) _melhorStreak = _streak;
+
+      setState(() {
+        _encontrada[a] = true;
+        _encontrada[index] = true;
+        _bloqueado = false;
+      });
+
+      if (_streak >= 3) {
+        _mostrarMensagem(
+            _mensagensStreak[min(_streak - 3, _mensagensStreak.length - 1)]);
       } else {
-        // Errou
-        _playSound('audio/wrong.wav');
-        _bloqueado = true;
-        setState(() {
-          _erroA = a;
-          _erroB = index;
-        });
-        Future.delayed(const Duration(milliseconds: 900), () {
-          if (!mounted) return;
-          setState(() {
-            _virada[a] = false;
-            _virada[index] = false;
-            _bloqueado = false;
-            _erroA = null;
-            _erroB = null;
-          });
-        });
+        _mostrarMensagem(
+            _mensagensAcerto[_random.nextInt(_mensagensAcerto.length)]);
       }
+
+      if (_ganhou) {
+        _playSound('audio/win.wav');
+        _timer?.cancel();
+        _dispararConfete();
+      }
+    } else {
+      _playSound('audio/wrong.wav');
+      _streak = 0;
+      setState(() {
+        _erroA = a;
+        _erroB = index;
+      });
+      Future.delayed(const Duration(milliseconds: 900), () {
+        if (!mounted) return;
+        setState(() {
+          _virada[a] = false;
+          _virada[index] = false;
+          _bloqueado = false;
+          _erroA = null;
+          _erroB = null;
+        });
+      });
     }
   }
 
@@ -203,6 +315,29 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     );
   }
 
+  // ---------------- Botões de áudio do appbar ----------------
+
+  Widget _audioButton({
+    required bool ativo,
+    required String iconOn,
+    required String iconOff,
+    required VoidCallback onTap,
+  }) {
+    final colors = widget.colors;
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        child: SvgPicture.asset(
+          ativo ? iconOn : iconOff,
+          width: 22,
+          height: 22,
+          colorFilter: ColorFilter.mode(colors.textMain, BlendMode.srcIn),
+        ),
+      ),
+    );
+  }
+
   // Tela de seleção de nível
   Widget _buildLevelSelect() {
     final colors = widget.colors;
@@ -212,15 +347,36 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Botão voltar (se veio de outro lugar)
-            GestureDetector(
-              onTap: () => Navigator.of(context).pop(),
-              child: SvgPicture.asset(
-                'assets/icons/back.svg',
-                width: 24,
-                height: 24,
-                colorFilter: ColorFilter.mode(colors.textMain, BlendMode.srcIn),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: SvgPicture.asset(
+                    'assets/icons/back.svg',
+                    width: 24,
+                    height: 24,
+                    colorFilter:
+                        ColorFilter.mode(colors.textMain, BlendMode.srcIn),
+                  ),
+                ),
+                Row(
+                  children: [
+                    _audioButton(
+                      ativo: _soundOn,
+                      iconOn: 'assets/icons/speaker-icon.svg',
+                      iconOff: 'assets/icons/speaker-off-icon.svg',
+                      onTap: _toggleSound,
+                    ),
+                    _audioButton(
+                      ativo: _musicOn,
+                      iconOn: 'assets/icons/music_on.svg',
+                      iconOff: 'assets/icons/music_off.svg',
+                      onTap: _toggleMusic,
+                    ),
+                  ],
+                ),
+              ],
             ),
             const SizedBox(height: 20),
             Text(
@@ -233,7 +389,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
               ),
             ),
             const SizedBox(height: 20),
-            // Grid de níveis
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
@@ -245,43 +400,30 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                     icon: 'assets/icons/easy.png',
                     label: 'Fácil',
                     pairs: 4,
-                    onTap: () {
-                      _playSound('audio/pressing.wav');
-                      _iniciarJogo(4, _timerEnabled, _timerDuration);
-                    },
+                    onTap: () => _iniciarJogo(4, _timerEnabled, _timerDuration),
                   ),
                   _buildLevelButton(
                     icon: 'assets/icons/normal.png',
                     label: 'Normal',
                     pairs: 6,
-                    onTap: () {
-                      _playSound('audio/pressing.wav');
-                      _iniciarJogo(6, _timerEnabled, _timerDuration);
-                    },
+                    onTap: () => _iniciarJogo(6, _timerEnabled, _timerDuration),
                   ),
                   _buildLevelButton(
                     icon: 'assets/icons/hard.png',
                     label: 'Difícil',
                     pairs: 8,
-                    onTap: () {
-                      _playSound('audio/pressing.wav');
-                      _iniciarJogo(8, _timerEnabled, _timerDuration);
-                    },
+                    onTap: () => _iniciarJogo(8, _timerEnabled, _timerDuration),
                   ),
                   _buildLevelButton(
                     icon: 'assets/icons/extreme.png',
                     label: 'Extremo',
                     pairs: 10,
-                    onTap: () {
-                      _playSound('audio/pressing.wav');
-                      _iniciarJogo(10, _timerEnabled, _timerDuration);
-                    },
+                    onTap: () => _iniciarJogo(10, _timerEnabled, _timerDuration),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
-            // Secção do temporizador
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -296,7 +438,8 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                         'assets/icons/clock.svg',
                         width: 24,
                         height: 24,
-                        colorFilter: ColorFilter.mode(colors.textMain, BlendMode.srcIn),
+                        colorFilter:
+                            ColorFilter.mode(colors.textMain, BlendMode.srcIn),
                       ),
                       const SizedBox(width: 10),
                       Text(
@@ -331,8 +474,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                               activeTrackColor: AppColors.green,
                               inactiveTrackColor: colors.divider,
                               thumbColor: AppColors.green,
-                              overlayColor:
-                                  AppColors.green.withOpacity(0.15),
+                              overlayColor: AppColors.green.withOpacity(0.15),
                               valueIndicatorColor: AppColors.green,
                             ),
                             child: Slider(
@@ -371,7 +513,10 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   }) {
     final colors = widget.colors;
     return _BounceOnTap(
-      onTap: onTap,
+      onTap: () {
+        _playSound('audio/pressing.wav');
+        onTap();
+      },
       child: Container(
         decoration: BoxDecoration(
           color: colors.c2Bg,
@@ -442,8 +587,20 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
           ),
         ),
         actions: [
+          _audioButton(
+            ativo: _soundOn,
+            iconOn: 'assets/icons/speaker-icon.svg',
+            iconOff: 'assets/icons/speaker-off-icon.svg',
+            onTap: _toggleSound,
+          ),
+          _audioButton(
+            ativo: _musicOn,
+            iconOn: 'assets/icons/music_on.svg',
+            iconOff: 'assets/icons/music_off.svg',
+            onTap: _toggleMusic,
+          ),
           Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.only(right: 16, left: 4),
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -458,7 +615,9 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                       '⏳ $_remainingSeconds s',
                       style: TextStyle(
                         fontSize: 13,
-                        color: _remainingSeconds <= 10 ? Colors.red : colors.textMuted,
+                        color: _remainingSeconds <= 10
+                            ? Colors.red
+                            : colors.textMuted,
                       ),
                     ),
                 ],
@@ -512,8 +671,8 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                             GestureDetector(
                               onTap: () {
                                 _playSound('audio/pressing.wav');
-                                _iniciarJogo(
-                                    _levelPairs, _timerEnabled, _timerDuration);
+                                _iniciarJogo(_levelPairs, _timerEnabled,
+                                    _timerDuration);
                               },
                               child: const Text(
                                 'Jogar de novo',
@@ -527,7 +686,32 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                           ],
                         ),
                       )
-                    : const SizedBox.shrink(key: ValueKey('vazio')),
+                    : (_streak >= 2
+                        ? Container(
+                            key: ValueKey('streak-$_streak'),
+                            margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: AppColors.orange,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '🔥 Sequência: $_streak',
+                                  style: const TextStyle(
+                                    fontFamily: 'ComicSansMS',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : const SizedBox.shrink(key: ValueKey('vazio'))),
               ),
               Expanded(
                 child: Padding(
@@ -556,6 +740,46 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
               ),
             ],
           ),
+          // Mensagem de encorajamento a meio do ecrã
+          if (_mensagem != null)
+            IgnorePointer(
+              child: Center(
+                child: TweenAnimationBuilder<double>(
+                  key: ValueKey(_mensagem),
+                  tween: Tween(begin: 0, end: 1),
+                  duration: const Duration(milliseconds: 260),
+                  curve: Curves.elasticOut,
+                  builder: (context, t, child) => Transform.scale(
+                    scale: t,
+                    child: Opacity(opacity: t.clamp(0, 1), child: child),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: colors.bgCardNeutral,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colors.divider,
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      _mensagem!,
+                      style: TextStyle(
+                        fontFamily: 'ComicSansMS',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 20,
+                        color: colors.textMain,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           if (_confettiController.isAnimating)
             IgnorePointer(
               child: CustomPaint(
@@ -652,7 +876,9 @@ class _Carta extends StatelessWidget {
                       color: colors.c2Bg,
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
-                        BoxShadow(color: colors.divider, offset: const Offset(0, 3)),
+                        BoxShadow(
+                            color: colors.divider,
+                            offset: const Offset(0, 3)),
                       ],
                     ),
                   ),
@@ -685,7 +911,6 @@ class _Carta extends StatelessWidget {
       ),
     );
 
-    // Wiggle (sacudidela) quando o par está errado
     if (errou) {
       carta = TweenAnimationBuilder<double>(
         tween: Tween(begin: 0, end: 1),
@@ -699,7 +924,6 @@ class _Carta extends StatelessWidget {
       );
     }
 
-    // Pop de vitória quando encontra o par
     if (encontrada) {
       carta = TweenAnimationBuilder<double>(
         tween: Tween(begin: 0.85, end: 1.0),
@@ -715,8 +939,7 @@ class _Carta extends StatelessWidget {
   }
 }
 
-/// Switch custom estilo Duolingo (mesmo padrão do _ThemeSwitch do drawer),
-/// substitui o Switch() do Material que estava a destoar visualmente.
+/// Switch custom estilo Duolingo.
 class _DuoSwitch extends StatelessWidget {
   final AppColors colors;
   final bool value;
@@ -811,7 +1034,8 @@ class _ConfettiPainter extends CustomPainter {
       canvas.translate(dx, dy);
       canvas.rotate(p.spin * t);
       canvas.drawRect(
-        Rect.fromCenter(center: Offset.zero, width: p.size, height: p.size * 0.5),
+        Rect.fromCenter(
+            center: Offset.zero, width: p.size, height: p.size * 0.5),
         paint,
       );
       canvas.restore();
