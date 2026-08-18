@@ -580,40 +580,44 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
       ),
       body: Stack(
         children: [
-          Column(
-            children: [
-              // Banner topo
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 280),
-                child: _ganhou
-                    ? _buildBannerVitoria()
-                    : _streak >= 2
-                        ? _buildBannerStreak()
-                        : const SizedBox.shrink(key: ValueKey('vazio')),
-              ),
+          // AQUI ESTÁ A CORREÇÃO: Positioned.fill garante que a Column
+          // ocupe todo o espaço do Stack, permitindo que o Expanded funcione.
+          Positioned.fill(
+            child: Column(
+              children: [
+                // Banner topo
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 280),
+                  child: _ganhou
+                      ? _buildBannerVitoria()
+                      : _streak >= 2
+                          ? _buildBannerStreak()
+                          : const SizedBox.shrink(key: ValueKey('vazio')),
+                ),
 
-              // ─── GRID DAS CARTAS (SIMPLES E SEMPRE VISÍVEL) ───
-              Expanded(
-                child: GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _cartas.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
-                  ),
-                  itemBuilder: (_, i) => _Carta(
-                    key: ValueKey('carta_$i'),
-                    colors: colors,
-                    letra: _cartas[i],
-                    virada: _virada[i],
-                    encontrada: _encontrada[i],
-                    errou: i == _erroA || i == _erroB,
-                    onTap: () => _tocar(i),
+                // GRID DAS CARTAS
+                Expanded(
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _cartas.length,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                    ),
+                    itemBuilder: (_, i) => _Carta(
+                      key: ValueKey('carta_$i'),
+                      colors: colors,
+                      letra: _cartas[i],
+                      virada: _virada[i],
+                      encontrada: _encontrada[i],
+                      errou: i == _erroA || i == _erroB,
+                      onTap: () => _tocar(i),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
 
           // Mensagem flutuante
