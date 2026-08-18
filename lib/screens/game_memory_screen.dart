@@ -18,7 +18,6 @@ class GameMemoryScreen extends StatefulWidget {
 
 class _GameMemoryScreenState extends State<GameMemoryScreen>
     with TickerProviderStateMixin {
-  // Estado de seleção de nível
   bool _showLevelSelect = true;
   int _levelPairs = 6;
   bool _timerEnabled = false;
@@ -26,12 +25,10 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   int _remainingSeconds = 60;
   Timer? _timer;
 
-  // Som e música
   bool _soundOn = true;
   bool _musicOn = true;
   bool _musicStarted = false;
 
-  // Estado do jogo
   static const List<String> _allLetters = [
     'A','B','C','D','E','F','G','H','I','J','K','L','M'
   ];
@@ -42,17 +39,13 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   bool _bloqueado = false;
   int _tentativas = 0;
   int _streak = 0;
-  int _melhorStreak = 0;
 
-  // Índices do par errado atual
   int? _erroA;
   int? _erroB;
 
-  // Mensagem de encorajamento
   String? _mensagem;
   Timer? _mensagemTimer;
 
-  // Confete
   final List<_ConfettiParticle> _confetti = [];
   late AnimationController _confettiController;
   final _random = Random();
@@ -117,11 +110,12 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   }
 
   Future<void> _toggleSound() async {
+    _playSound('audio/pressing.wav');
     setState(() => _soundOn = !_soundOn);
-    if (_soundOn) _playSound('audio/pressing.wav');
   }
 
   Future<void> _toggleMusic() async {
+    _playSound('audio/pressing.wav');
     setState(() => _musicOn = !_musicOn);
     try {
       if (_musicOn) {
@@ -136,7 +130,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     } catch (e) {
       // ignora erros
     }
-    if (_soundOn) _playSound('audio/pressing.wav');
   }
 
   // ---------------- Fluxo do jogo ----------------
@@ -156,7 +149,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
       _bloqueado = false;
       _tentativas = 0;
       _streak = 0;
-      _melhorStreak = 0;
       _erroA = null;
       _erroB = null;
       _mensagem = null;
@@ -230,8 +222,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   }
 
   void _tocar(int index) {
-    // Guarda robusta: impede toques durante bloqueio, em cartas já viradas,
-    // já encontradas, ou fora do intervalo válido.
     if (_bloqueado ||
         index < 0 ||
         index >= _cartas.length ||
@@ -251,7 +241,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     }
 
     final a = _primeira!;
-    // Proteção extra: não deixa comparar uma carta consigo mesma.
     if (a == index) return;
 
     setState(() {
@@ -264,7 +253,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     if (_cartas[a] == _cartas[index]) {
       _playSound('audio/correct.wav');
       _streak++;
-      if (_streak > _melhorStreak) _melhorStreak = _streak;
 
       setState(() {
         _encontrada[a] = true;
@@ -315,7 +303,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     );
   }
 
-  // ---------------- Botões de áudio do appbar ----------------
+  // ---------------- Botão circular de áudio estilo Duolingo ----------------
 
   Widget _audioButton({
     required bool ativo,
@@ -324,21 +312,34 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     required VoidCallback onTap,
   }) {
     final colors = widget.colors;
-    return GestureDetector(
+    return _BounceOnTap(
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        child: SvgPicture.asset(
-          ativo ? iconOn : iconOff,
-          width: 22,
-          height: 22,
-          colorFilter: ColorFilter.mode(colors.textMain, BlendMode.srcIn),
+      child: Container(
+        width: 40,
+        height: 40,
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: colors.bgCardNeutral,
+          boxShadow: [
+            BoxShadow(
+              color: colors.divider,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Center(
+          child: SvgPicture.asset(
+            ativo ? iconOn : iconOff,
+            width: 20,
+            height: 20,
+            colorFilter: ColorFilter.mode(colors.textMain, BlendMode.srcIn),
+          ),
         ),
       ),
     );
   }
 
-  // Tela de seleção de nível
   Widget _buildLevelSelect() {
     final colors = widget.colors;
     return SafeArea(
@@ -350,14 +351,24 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
+                _BounceOnTap(
                   onTap: () => Navigator.of(context).pop(),
-                  child: SvgPicture.asset(
-                    'assets/icons/back.svg',
-                    width: 24,
-                    height: 24,
-                    colorFilter:
-                        ColorFilter.mode(colors.textMain, BlendMode.srcIn),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: colors.bgCardNeutral,
+                    ),
+                    child: Center(
+                      child: SvgPicture.asset(
+                        'assets/icons/back.svg',
+                        width: 20,
+                        height: 20,
+                        colorFilter: ColorFilter.mode(
+                            colors.textMain, BlendMode.srcIn),
+                      ),
+                    ),
                   ),
                 ),
                 Row(
@@ -557,7 +568,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     );
   }
 
-  // Tela do jogo
   Widget _buildGame() {
     final colors = widget.colors;
     return Scaffold(
@@ -566,14 +576,27 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
         backgroundColor: colors.bg,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: GestureDetector(
-          onTap: _voltarParaNiveis,
-          child: Center(
-            child: SvgPicture.asset(
-              'assets/icons/back.svg',
-              width: 20,
-              height: 20,
-              colorFilter: ColorFilter.mode(colors.textMain, BlendMode.srcIn),
+        leadingWidth: 56,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: _BounceOnTap(
+            onTap: _voltarParaNiveis,
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colors.bgCardNeutral,
+              ),
+              child: Center(
+                child: SvgPicture.asset(
+                  'assets/icons/back.svg',
+                  width: 18,
+                  height: 18,
+                  colorFilter:
+                      ColorFilter.mode(colors.textMain, BlendMode.srcIn),
+                ),
+              ),
             ),
           ),
         ),
@@ -599,6 +622,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
             iconOff: 'assets/icons/music_off.svg',
             onTap: _toggleMusic,
           ),
+          const SizedBox(width: 8),
           Padding(
             padding: const EdgeInsets.only(right: 16, left: 4),
             child: Center(
@@ -726,7 +750,11 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                       crossAxisSpacing: 10,
                     ),
                     itemBuilder: (context, index) {
+                      // key por índice garante que o Flutter nunca troca o
+                      // Elemento desta carta por outro durante o rebuild,
+                      // o que era a causa principal do "sumiço".
                       return _Carta(
+                        key: ValueKey('carta_$index'),
                         colors: colors,
                         letra: _cartas[index],
                         virada: _virada[index],
@@ -740,7 +768,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
               ),
             ],
           ),
-          // Mensagem de encorajamento a meio do ecrã
           if (_mensagem != null)
             IgnorePointer(
               child: Center(
@@ -796,7 +823,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   }
 }
 
-/// Card com "bounce" ao premir, usado nos botões de nível.
+/// Bounce ao premir, usado em botões de nível e círculos de áudio.
 class _BounceOnTap extends StatefulWidget {
   final Widget child;
   final VoidCallback onTap;
@@ -818,7 +845,7 @@ class _BounceOnTapState extends State<_BounceOnTap> {
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedScale(
-        scale: _pressed ? 0.94 : 1.0,
+        scale: _pressed ? 0.88 : 1.0,
         duration: const Duration(milliseconds: 100),
         curve: Curves.easeOut,
         child: widget.child,
@@ -827,8 +854,16 @@ class _BounceOnTapState extends State<_BounceOnTap> {
   }
 }
 
-/// Carta do jogo da memória com "flip" 3D e wiggle ao errar o par.
-class _Carta extends StatelessWidget {
+/// Carta do jogo da memória.
+///
+/// Reescrita como StatefulWidget com AnimationController próprio e fixo.
+/// Antes, o flip era feito com TweenAnimationBuilder dentro de um build()
+/// que corria de novo a cada setState do ecrã pai — isso recriava a árvore
+/// de widgets da carta a meio da animação, fazendo-a "sumir" ou piscar em
+/// vez de rodar suavemente. Agora o controller vive fora do build() e só
+/// reage a mudanças reais de estado (didUpdateWidget), garantindo uma
+/// única fonte de verdade para o ângulo do flip.
+class _Carta extends StatefulWidget {
   final AppColors colors;
   final String letra;
   final bool virada;
@@ -837,6 +872,7 @@ class _Carta extends StatelessWidget {
   final VoidCallback onTap;
 
   const _Carta({
+    super.key,
     required this.colors,
     required this.letra,
     required this.virada,
@@ -846,96 +882,147 @@ class _Carta extends StatelessWidget {
   });
 
   @override
+  State<_Carta> createState() => _CartaState();
+}
+
+class _CartaState extends State<_Carta> with TickerProviderStateMixin {
+  late final AnimationController _flipController;
+  late final AnimationController _shakeController;
+  late final AnimationController _popController;
+
+  bool get _revealed => widget.virada || widget.encontrada;
+
+  @override
+  void initState() {
+    super.initState();
+    _flipController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 320),
+      value: _revealed ? 1.0 : 0.0,
+    );
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _popController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 280),
+      value: widget.encontrada ? 1.0 : 0.0,
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant _Carta old) {
+    super.didUpdateWidget(old);
+
+    final wasRevealed = old.virada || old.encontrada;
+    if (_revealed != wasRevealed) {
+      if (_revealed) {
+        _flipController.forward();
+      } else {
+        _flipController.reverse();
+      }
+    }
+
+    if (widget.errou && !old.errou) {
+      _shakeController.forward(from: 0);
+    }
+
+    if (widget.encontrada && !old.encontrada) {
+      _popController.forward(from: 0.85);
+    }
+  }
+
+  @override
+  void dispose() {
+    _flipController.dispose();
+    _shakeController.dispose();
+    _popController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final revealed = virada || encontrada;
-    final bg = encontrada
+    final colors = widget.colors;
+    final bg = widget.encontrada
         ? AppColors.green
-        : revealed
+        : _revealed
             ? colors.bgCardNeutral
             : colors.c2Bg;
 
-    Widget carta = TweenAnimationBuilder<double>(
-      tween: Tween(begin: revealed ? 0 : 1, end: revealed ? 1 : 0),
-      duration: const Duration(milliseconds: 320),
-      curve: Curves.easeInOutBack,
-      builder: (context, t, child) {
-        final angle = (1 - t) * pi / 2;
-        final mostraFrente = t > 0.5;
-        return Transform(
-          alignment: Alignment.center,
-          transform: Matrix4.identity()
-            ..setEntry(3, 2, 0.0015)
-            ..rotateY(angle),
-          child: mostraFrente
-              ? child
-              : Transform(
-                  alignment: Alignment.center,
-                  transform: Matrix4.identity()..rotateY(pi),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: colors.c2Bg,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                            color: colors.divider,
-                            offset: const Offset(0, 3)),
-                      ],
-                    ),
-                  ),
-                ),
-        );
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: encontrada ? AppColors.greenShadow : colors.divider,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            letra,
-            style: TextStyle(
-              fontFamily: 'ComicSansMS',
-              fontWeight: FontWeight.w700,
-              fontSize: 28,
-              color: encontrada ? Colors.white : colors.textMain,
-            ),
+    Widget face = Container(
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: widget.encontrada ? AppColors.greenShadow : colors.divider,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          widget.letra,
+          style: TextStyle(
+            fontFamily: 'ComicSansMS',
+            fontWeight: FontWeight.w700,
+            fontSize: 28,
+            color: widget.encontrada ? Colors.white : colors.textMain,
           ),
         ),
       ),
     );
 
-    if (errou) {
-      carta = TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0, end: 1),
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.elasticIn,
-        builder: (context, value, child) {
-          final shake = sin(value * pi * 6) * (1 - value) * 6;
-          return Transform.translate(offset: Offset(shake, 0), child: child);
-        },
-        child: carta,
-      );
-    }
+    Widget verso = Container(
+      decoration: BoxDecoration(
+        color: colors.c2Bg,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(color: colors.divider, offset: const Offset(0, 3)),
+        ],
+      ),
+    );
 
-    if (encontrada) {
-      carta = TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0.85, end: 1.0),
-        duration: const Duration(milliseconds: 280),
-        curve: Curves.elasticOut,
-        builder: (context, scale, child) =>
-            Transform.scale(scale: scale, child: child),
-        child: carta,
-      );
-    }
+    Widget carta = AnimatedBuilder(
+      animation: Listenable.merge(
+          [_flipController, _shakeController, _popController]),
+      builder: (context, _) {
+        final t = _flipController.value;
+        final angle = (1 - t) * pi / 2;
+        final mostraFrente = t > 0.5;
 
-    return GestureDetector(onTap: onTap, child: carta);
+        Widget conteudo = Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..setEntry(3, 2, 0.0015)
+            ..rotateY(angle),
+          child: mostraFrente
+              ? face
+              : Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.identity()..rotateY(pi),
+                  child: verso,
+                ),
+        );
+
+        if (_shakeController.isAnimating) {
+          final v = _shakeController.value;
+          final shake = sin(v * pi * 6) * (1 - v) * 6;
+          conteudo = Transform.translate(
+              offset: Offset(shake, 0), child: conteudo);
+        }
+
+        if (widget.encontrada) {
+          final scale = 0.85 + (0.15 * _popController.value);
+          conteudo = Transform.scale(scale: scale, child: conteudo);
+        }
+
+        return conteudo;
+      },
+    );
+
+    return GestureDetector(onTap: widget.onTap, child: carta);
   }
 }
 
