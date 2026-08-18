@@ -234,15 +234,7 @@ class _GameQuizScreenState extends State<GameQuizScreen>
   // ════════════════════════════════════════════════════════════
 
   Future<void> _playPressSound() async {
-    try {
-      await _feedbackPlayer.stop();
-
-      await _feedbackPlayer.play(
-        AssetSource(
-          'audio/pressing.wav',
-        ),
-      );
-    } catch (_) {}
+    await SoundManager.instance.playClick();
   }
 
   Future<void> _playFeedback(
@@ -1204,9 +1196,10 @@ class _GameQuizScreenState extends State<GameQuizScreen>
                               child:
                                   Transform.scale(
                                 scale:
-                                    0.92 +
+                                    (0.92 +
                                         (entry *
-                                            0.08),
+                                            0.08)) *
+                                    speakerScale,
                                 child:
                                     child,
                               ),
@@ -1290,11 +1283,7 @@ class _GameQuizScreenState extends State<GameQuizScreen>
                                   height: 18,
                                 ),
 
-                                Transform.scale(
-                                  scale:
-                                      speakerScale,
-                                  child:
-                                      Material(
+                                Material(
                                     color:
                                         Colors.transparent,
                                     child:
@@ -1349,7 +1338,6 @@ class _GameQuizScreenState extends State<GameQuizScreen>
                                       ),
                                     ),
                                   ),
-                                ),
 
                                 const SizedBox(
                                   height: 10,

@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../main.dart'
-    show AppColors, GridMode, DrawerSection, SoundManager, kConsonants;
+    show AppColors, AppSettings, GridMode, DrawerSection, SoundManager,
+        kConsonants;
 import 'detail_screen.dart';
 import 'games_screen.dart';
 import 'playlist_covers_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,18 +17,16 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  bool isDark = false;
+  final AppSettings _settings = AppSettings.instance;
+
   GridMode currentMode = GridMode.all;
   DrawerSection currentSection = DrawerSection.alphabet;
-  bool soundEnabled = true;
 
   late AnimationController _drawerController;
   late Animation<Offset> _drawerSlide;
-  late Animation<double> _contentPush;
   bool _drawerOpen = false;
 
-  static const double _drawerWidthFactor = 0.78;
-  static const double _pushFactor = 0.24;
+  static const double _drawerWidthFactor = 0.82;
 
   static const Curve _drawerCurve = Curves.easeInOutCubic;
 
@@ -40,20 +40,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _drawerSlide = Tween<Offset>(
       begin: const Offset(-1, 0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _drawerController,
-      curve: _drawerCurve,
-    ));
-    _contentPush = Tween<double>(begin: 0, end: 1).animate(
+    ).animate(
       CurvedAnimation(
         parent: _drawerController,
         curve: _drawerCurve,
       ),
     );
+
+    _settings.addListener(_onSettingsChanged);
+  }
+
+  void _onSettingsChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _settings.removeListener(_onSettingsChanged);
     _drawerController.dispose();
     super.dispose();
   }
@@ -69,20 +72,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
 
-  void toggleTheme() => setState(() => isDark = !isDark);
+  void openSettings() {
+    closeDrawer();
 
-  void toggleSound() {
-    setState(() {
-      soundEnabled = !soundEnabled;
-      SoundManager.instance.muted = !soundEnabled;
-    });
+    Navigator.of(context).push(
+      CupertinoPageRoute(
+        builder: (_) => SettingsScreen(
+          colors: AppColors(
+            _settings.isDark,
+            _settings.visualStyle,
+          ),
+        ),
+      ),
+    );
   }
 
   void openDetail(int consonantIndex) {
     Navigator.of(context).push(
       CupertinoPageRoute(
         builder: (_) => DetailScreen(
-          colors: AppColors(isDark),
+          colors: AppColors(_settings.isDark, _settings.visualStyle),
           initialConsonantIndex: consonantIndex,
         ),
       ),
@@ -113,27 +122,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors(isDark);
-    final screenWidth = MediaQuery.of(context).size.width;
-    final drawerWidth = screenWidth * _drawerWidthFactor;
+    final colors = AppColors(_settings.isDark, _settings.visualStyle);
 
     return Scaffold(
       backgroundColor: colors.bg,
       body: Stack(
         children: [
           // Conteúdo principal
-          AnimatedBuilder(
-            animation: _contentPush,
-            builder: (context, child) {
-              final dx = drawerWidth * _pushFactor * _contentPush.value;
-              return Transform.translate(
-                offset: Offset(dx, 0),
-                child: child,
-              );
-            },
-            child: SafeArea(
-              bottom: false,
-              child: Column(
+          SafeArea(
+            bottom: false,
+            child: Column(
                 children: [
                   _AppBarWidget(
                     colors: colors,
@@ -141,8 +139,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     currentSection: currentSection,
                     currentMode: currentMode,
                     onModeChange: (m) => setState(() => currentMode = m),
-                    soundEnabled: soundEnabled,
-                    onSoundToggle: toggleSound,
+                    soundEnabled: _settings.clickSoundsEnabled,
+                    onSoundToggle: () => _settings.setClickSounds(
+                      !_settings.clickSoundsEnabled,
+                    ),
                   ),
                   Expanded(
                     child: SafeArea(
@@ -180,7 +180,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                 ],
-              ),
             ),
           ),
 
@@ -208,13 +207,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 alignment: Alignment.centerLeft,
                 child: _AppDrawer(
                   colors: colors,
-                  isDark: isDark,
                   currentSection: currentSection,
                   onSectionSelected: (s) {
                     setState(() => currentSection = s);
                     closeDrawer();
                   },
-                  onThemeToggle: toggleTheme,
+                  onSettingsTap: openSettings,
                 ),
               ),
             ),
@@ -628,17 +626,15 @@ class _LetterCardState extends State<_LetterCard> {
 // ─────────────────────────────────────────────
 class _AppDrawer extends StatelessWidget {
   final AppColors colors;
-  final bool isDark;
   final DrawerSection currentSection;
   final ValueChanged<DrawerSection> onSectionSelected;
-  final VoidCallback onThemeToggle;
+  final VoidCallback onSettingsTap;
 
   const _AppDrawer({
     required this.colors,
-    required this.isDark,
     required this.currentSection,
     required this.onSectionSelected,
-    required this.onThemeToggle,
+    required this.onSettingsTap,
   });
 
   @override
@@ -646,7 +642,7 @@ class _AppDrawer extends StatelessWidget {
     return Container(
       width: 300,
       constraints: BoxConstraints(
-        maxWidth: MediaQuery.of(context).size.width * 0.78,
+        maxWidth: MediaQuery.of(context).size.width * _HomeScreenState._drawerWidthFactor,
       ),
       height: double.infinity,
       decoration: BoxDecoration(
@@ -664,7 +660,7 @@ class _AppDrawer extends StatelessWidget {
           children: [
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(10, 20, 10, 12),
+                padding: const EdgeInsets.fromLTRB(10, 18, 10, 12),
                 children: [
                   _DrawerItem(
                     colors: colors,
@@ -689,34 +685,22 @@ class _AppDrawer extends StatelessWidget {
                     active: currentSection == DrawerSection.videos,
                     onTap: () => onSectionSelected(DrawerSection.videos),
                   ),
+                  const SizedBox(height: 10),
+                  _SettingsDrawerItem(
+                    colors: colors,
+                    onTap: onSettingsTap,
+                  ),
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: colors.divider)),
-              ),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Tema',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: colors.textMain,
-                      ),
-                    ),
-                    _ThemeSwitch(
-                      colors: colors,
-                      isDark: isDark,
-                      onTap: onThemeToggle,
-                    ),
-                  ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: Text(
+                'Leya · Aprende ao teu ritmo',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: colors.textMuted,
                 ),
               ),
             ),
@@ -804,61 +788,84 @@ class _DrawerItemState extends State<_DrawerItem> {
   }
 }
 
-class _ThemeSwitch extends StatelessWidget {
+class _SettingsDrawerItem extends StatefulWidget {
   final AppColors colors;
-  final bool isDark;
   final VoidCallback onTap;
 
-  const _ThemeSwitch({
+  const _SettingsDrawerItem({
     required this.colors,
-    required this.isDark,
     required this.onTap,
   });
 
   @override
+  State<_SettingsDrawerItem> createState() => _SettingsDrawerItemState();
+}
+
+class _SettingsDrawerItemState extends State<_SettingsDrawerItem> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 52,
-        height: 30,
-        padding: const EdgeInsets.all(3),
-        decoration: BoxDecoration(
-          color: colors.bgCardNeutral,
-          borderRadius: BorderRadius.circular(20),
+      behavior: HitTestBehavior.opaque,
+      onTap: widget.onTap,
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 100),
+        transform: Matrix4.identity()
+          ..translate(0.0, _pressed ? 3.0 : 0.0),
+        padding: const EdgeInsets.symmetric(
+          vertical: 14,
+          horizontal: 16,
         ),
-        child: AnimatedAlign(
-          duration: const Duration(milliseconds: 250),
-          alignment:
-              isDark ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: colors.switchThumb,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: colors.switchThumbShadow,
-                  offset: const Offset(0, 2),
-                  blurRadius: 4,
-                ),
-              ],
+        decoration: BoxDecoration(
+          color: widget.colors.bgCardNeutral,
+          borderRadius: BorderRadius.circular(
+            widget.colors.radiusLarge,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: widget.colors.divider,
+              offset: Offset(0, _pressed ? 1 : 4),
             ),
-            child: Center(
-              child: SvgPicture.asset(
-                isDark
-                    ? 'assets/icons/moon-icon.svg'
-                    : 'assets/icons/sun-icon.svg',
-                width: 14,
-                height: 14,
-                colorFilter: const ColorFilter.mode(
-                    AppColors.orange, BlendMode.srcIn),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: widget.colors.bg,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.settings_rounded,
+                size: 17,
+                color: widget.colors.textMain,
               ),
             ),
-          ),
+            const SizedBox(width: 14),
+            Text(
+              'Definições',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: widget.colors.textMain,
+              ),
+            ),
+            const Spacer(),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 20,
+              color: widget.colors.textMuted,
+            ),
+          ],
         ),
       ),
     );
   }
 }
+

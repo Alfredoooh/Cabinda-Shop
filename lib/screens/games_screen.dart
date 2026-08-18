@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:audioplayers/audioplayers.dart';
-import '../main.dart' show AppColors;
+import '../main.dart' show AppColors, SoundManager;
 import 'game_memory_screen.dart';
 import 'game_quiz_screen.dart';
-
-final AudioPlayer _soundPlayer = AudioPlayer();
 
 class GamesScreen extends StatelessWidget {
   final AppColors colors;
@@ -14,8 +11,27 @@ class GamesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
       children: [
+        Text(
+          'Aprende a jogar com as letras',
+          style: TextStyle(
+            fontFamily: 'ComicSansMS',
+            fontWeight: FontWeight.w700,
+            fontSize: 22,
+            color: colors.textMain,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          'Escolhe uma atividade e pratica no teu ritmo.',
+          style: TextStyle(
+            fontSize: 13,
+            height: 1.3,
+            color: colors.textMuted,
+          ),
+        ),
+        const SizedBox(height: 18),
         _GameCard(
           colors: colors,
           titulo: 'Jogo da Memória',
@@ -70,13 +86,6 @@ class _GameCard extends StatefulWidget {
 class _GameCardState extends State<_GameCard> {
   bool _pressed = false;
 
-  Future<void> _playPress() async {
-    try {
-      await _soundPlayer.stop();
-      await _soundPlayer.play(AssetSource('audio/pressing.wav'));
-    } catch (_) {}
-  }
-
   @override
   Widget build(BuildContext context) {
     final bgList = widget.colors.cardBgList as List<Color>;
@@ -87,7 +96,7 @@ class _GameCardState extends State<_GameCard> {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        _playPress();
+        SoundManager.instance.playClick();
         widget.onTap();
       },
       onTapDown: (_) => setState(() => _pressed = true),
@@ -98,7 +107,7 @@ class _GameCardState extends State<_GameCard> {
         transform: Matrix4.identity()..translate(0.0, _pressed ? 3.0 : 0.0),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(widget.colors.radiusLarge),
           boxShadow: [
             BoxShadow(
               color: shadow,
@@ -113,7 +122,7 @@ class _GameCardState extends State<_GameCard> {
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(widget.colors.radiusSmall),
                 child: Image.asset(
                   widget.coverPath,
                   height: 160,
@@ -154,7 +163,7 @@ class _GameCardState extends State<_GameCard> {
                         vertical: 10, horizontal: 20),
                     decoration: BoxDecoration(
                       color: AppColors.green,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(widget.colors.radiusSmall),
                       boxShadow: const [
                         BoxShadow(
                           color: AppColors.greenShadow,

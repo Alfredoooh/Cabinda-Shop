@@ -3,10 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:audioplayers/audioplayers.dart';
-import '../main.dart' show AppColors;
+import '../main.dart' show AppColors, AppSettings, MusicManager, SoundManager;
 
 final AudioPlayer _soundPlayer = AudioPlayer();
-final AudioPlayer _musicPlayer = AudioPlayer();
 
 class GameMemoryScreen extends StatefulWidget {
   final AppColors colors;
@@ -36,9 +35,9 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
 
   Timer? _timer;
 
-  bool _soundOn = true;
-  bool _musicOn = true;
-  bool _musicStarted = false;
+  AppSettings get _settings => AppSettings.instance;
+  bool get _soundOn => _settings.clickSoundsEnabled;
+  bool get _musicOn => _settings.musicEnabled;
 
   static const List<String> _allLetters = [
     'A',
@@ -118,7 +117,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     _confettiController.dispose();
 
     _soundPlayer.stop();
-    _musicPlayer.stop();
 
     super.dispose();
   }
@@ -139,62 +137,43 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   }
 
   Future<void> _startMusic() async {
-    if (_musicStarted) {
-      if (_musicOn) {
-        try {
-          await _musicPlayer.resume();
-        } catch (_) {}
-      }
-      return;
-    }
+    if (!_settings.musicEnabled) return;
 
-    _musicStarted = true;
-
-    try {
-      await _musicPlayer.setReleaseMode(
-        ReleaseMode.loop,
-      );
-
-      await _musicPlayer.setVolume(0.35);
-
-      if (_musicOn) {
-        await _musicPlayer.play(
-          AssetSource('songs/playing_song.mp3'),
-        );
-      }
-    } catch (_) {}
+    await MusicManager.instance.playLoop(
+      'songs/playing_song.mp3',
+    );
   }
 
   Future<void> _toggleSound() async {
-    setState(() {
-      _soundOn = !_soundOn;
-    });
+    await _settings.setClickSounds(
+      !_settings.clickSoundsEnabled,
+    );
 
-    if (_soundOn) {
-      await _playSound('audio/pressing.wav');
+    if (_settings.clickSoundsEnabled) {
+      await SoundManager.instance.playClick();
+    }
+
+    if (mounted) {
+      setState(() {});
     }
   }
 
   Future<void> _toggleMusic() async {
-    setState(() {
-      _musicOn = !_musicOn;
-    });
+    await _settings.setMusic(
+      !_settings.musicEnabled,
+    );
 
-    try {
-      if (_musicOn) {
-        if (!_musicStarted) {
-          await _startMusic();
-        } else {
-          await _musicPlayer.resume();
-        }
-      } else {
-        await _musicPlayer.pause();
-      }
-    } catch (_) {}
-
-    if (_soundOn) {
-      await _playSound('audio/pressing.wav');
+    if (_settings.clickSoundsEnabled) {
+      await SoundManager.instance.playClick();
     }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _playClick() async {
+    await SoundManager.instance.playClick();
   }
 
   // ────────────────────────────────────────────────────────────
@@ -301,7 +280,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
         return AlertDialog(
           backgroundColor: colors.bgCardNeutral,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(colors.radiusLarge),
           ),
           title: Text(
             '⏰ Tempo esgotado!',
@@ -415,7 +394,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
       return;
     }
 
-    _playSound('audio/pressing.wav');
+    _playClick();
 
     // PRIMEIRA CARTA
     if (_primeira == null) {
@@ -727,7 +706,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: colors.bgCardNeutral,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(colors.radiusLarge),
             ),
             child: Column(
               children: [
@@ -858,7 +837,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
       child: Container(
         decoration: BoxDecoration(
           color: colors.c2Bg,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(colors.radiusLarge),
           boxShadow: [
             BoxShadow(
               color: colors.divider,
@@ -1300,7 +1279,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
       ),
       decoration: BoxDecoration(
         color: AppColors.orange,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(colors.radiusSmall),
       ),
       child: Center(
         child: Text(
@@ -1482,7 +1461,7 @@ class _CartaState extends State<_Carta>
       height: double.infinity,
       decoration: BoxDecoration(
         color: colors.c2Bg,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(colors.radiusSmall),
         boxShadow: [
           BoxShadow(
             color: colors.divider,
@@ -1514,7 +1493,7 @@ class _CartaState extends State<_Carta>
         color: widget.encontrada
             ? AppColors.green
             : colors.bgCardNeutral,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(colors.radiusSmall),
         boxShadow: [
           BoxShadow(
             color: widget.encontrada
@@ -1681,7 +1660,7 @@ class _DuoSwitch extends StatelessWidget {
               ? AppColors.green
               : colors.bgCardNeutral,
           borderRadius:
-              BorderRadius.circular(20),
+              BorderRadius.circular(colors.radiusLarge),
         ),
         child: AnimatedAlign(
           duration:
