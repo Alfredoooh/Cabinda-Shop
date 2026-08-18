@@ -88,18 +88,22 @@ class AppColors {
         return isDark
             ? const Color(0xFF071E29)
             : const Color(0xFFF1FBFF);
+
       case AppStyle.sunset:
         return isDark
             ? const Color(0xFF271611)
             : const Color(0xFFFFF7F1);
+
       case AppStyle.monochrome:
         return isDark
             ? const Color(0xFF181818)
             : const Color(0xFFF6F6F6);
+
       case AppStyle.playful:
         return isDark
             ? const Color(0xFF211523)
             : const Color(0xFFFFF5FB);
+
       case AppStyle.classic:
         return isDark
             ? const Color(0xFF242424)
@@ -113,18 +117,22 @@ class AppColors {
         return isDark
             ? const Color(0xFF103746)
             : const Color(0xFFE1F6FF);
+
       case AppStyle.sunset:
         return isDark
             ? const Color(0xFF40251D)
             : const Color(0xFFFFE9DA);
+
       case AppStyle.monochrome:
         return isDark
             ? const Color(0xFF292929)
             : const Color(0xFFFFFFFF);
+
       case AppStyle.playful:
         return isDark
             ? const Color(0xFF35233A)
             : const Color(0xFFFFE9F5);
+
       case AppStyle.classic:
         return isDark
             ? const Color(0xFF2C2C2E)
@@ -138,18 +146,22 @@ class AppColors {
         return isDark
             ? const Color(0xFFE8FBFF)
             : const Color(0xFF12323D);
+
       case AppStyle.sunset:
         return isDark
             ? const Color(0xFFFFEEE7)
             : const Color(0xFF3B2016);
+
       case AppStyle.monochrome:
         return isDark
             ? const Color(0xFFF2F2F2)
             : const Color(0xFF252525);
+
       case AppStyle.playful:
         return isDark
             ? const Color(0xFFFFECF8)
             : const Color(0xFF321D2E);
+
       case AppStyle.classic:
         return isDark
             ? const Color(0xFFF2F2F2)
@@ -157,27 +169,45 @@ class AppColors {
     }
   }
 
-  Color get textMuted =>
-      isDark ? const Color(0xFFA8A8AC) : const Color(0xFF6E6E73);
+  Color get textMuted {
+    return isDark
+        ? const Color(0xFFA8A8AC)
+        : const Color(0xFF6E6E73);
+  }
 
-  Color get divider =>
-      isDark ? const Color(0xFF3D3D40) : const Color(0xFFE0E0E0);
+  Color get divider {
+    return isDark
+        ? const Color(0xFF3D3D40)
+        : const Color(0xFFE0E0E0);
+  }
 
   Color get drawerBg => bgCardNeutral;
 
-  Color get overlay =>
-      isDark ? const Color(0x99000000) : const Color(0x66000000);
+  Color get overlay {
+    return isDark
+        ? const Color(0x99000000)
+        : const Color(0x66000000);
+  }
 
-  Color get drawerShadow =>
-      isDark ? const Color(0x66000000) : const Color(0x33000000);
+  Color get drawerShadow {
+    return isDark
+        ? const Color(0x66000000)
+        : const Color(0x33000000);
+  }
 
-  Color get neutralShadow =>
-      isDark ? const Color(0x40000000) : const Color(0x1A000000);
+  Color get neutralShadow {
+    return isDark
+        ? const Color(0x40000000)
+        : const Color(0x1A000000);
+  }
 
   Color get switchThumb => Colors.white;
 
-  Color get switchThumbShadow =>
-      isDark ? const Color(0x50000000) : const Color(0x30000000);
+  Color get switchThumbShadow {
+    return isDark
+        ? const Color(0x50000000)
+        : const Color(0x30000000);
+  }
 
   Color get primary {
     switch (style) {
@@ -185,110 +215,166 @@ class AppColors {
         return isDark
             ? const Color(0xFF64D8FF)
             : const Color(0xFF0288D1);
+
       case AppStyle.sunset:
         return isDark
             ? const Color(0xFFFFB74D)
             : const Color(0xFFF4511E);
+
       case AppStyle.monochrome:
         return isDark
             ? const Color(0xFFE0E0E0)
             : const Color(0xFF424242);
+
       case AppStyle.playful:
         return isDark
             ? const Color(0xFFFF75B9)
             : const Color(0xFFFF4B8C);
+
       case AppStyle.classic:
         return green;
     }
   }
 
-  Color get primaryShadow =>
-      Color.alphaBlend(
-        const Color(0x66000000),
-        primary,
-      );
+  Color get primaryShadow {
+    return Color.alphaBlend(
+      const Color(0x66000000),
+      primary,
+    );
+  }
 
-  Color get danger =>
-      isDark ? const Color(0xFFFF6B6B) : const Color(0xFFD32F2F);
+  Color get danger {
+    return isDark
+        ? const Color(0xFFFF6B6B)
+        : const Color(0xFFD32F2F);
+  }
 
-  static const green = Color(0xFF58CC02);
-  static const greenShadow = Color(0xFF46A302);
-  static const red = Color(0xFFFF4B4B);
-  static const redShadow = Color(0xFFD63D3D);
-  static const orange = Color(0xFFFF9600);
+  static const green =
+      Color(0xFF58CC02);
 
-  Color get c0Bg =>
-      isDark ? const Color(0xFF17394A) : const Color(0xFFDDF4FF);
-  Color get c0Fg =>
-      isDark ? const Color(0xFF6FCBFA) : const Color(0xFF1CB0F6);
-  Color get c0Shadow =>
-      isDark ? const Color(0xFF0E2732) : const Color(0x591CB0F6);
+  static const greenShadow =
+      Color(0xFF46A302);
 
-  Color get c1Bg =>
-      isDark ? const Color(0xFF4A3320) : const Color(0xFFFFE8D6);
-  Color get c1Fg =>
-      isDark ? const Color(0xFFFFB05C) : const Color(0xFFFF9600);
-  Color get c1Shadow =>
-      isDark ? const Color(0xFF302014) : const Color(0x59FF9600);
+  static const red =
+      Color(0xFFFF4B4B);
 
-  Color get c2Bg =>
-      isDark ? const Color(0xFF22421C) : const Color(0xFFE3F9D9);
-  Color get c2Fg =>
-      isDark ? const Color(0xFF86E048) : const Color(0xFF58CC02);
-  Color get c2Shadow =>
-      isDark ? const Color(0xFF152912) : const Color(0x5958CC02);
+  static const redShadow =
+      Color(0xFFD63D3D);
 
-  Color get c3Bg =>
-      isDark ? const Color(0xFF4A2333) : const Color(0xFFFFE0EC);
-  Color get c3Fg =>
-      isDark ? const Color(0xFFFF83B0) : const Color(0xFFFF4B8C);
-  Color get c3Shadow =>
-      isDark ? const Color(0xFF2E1521) : const Color(0x59FF4B8C);
+  static const orange =
+      Color(0xFFFF9600);
 
-  Color get c4Bg =>
-      isDark ? const Color(0xFF362142) : const Color(0xFFF1E4FF);
-  Color get c4Fg =>
-      isDark ? const Color(0xFFDCA6FF) : const Color(0xFFCE82FF);
-  Color get c4Shadow =>
-      isDark ? const Color(0xFF21142A) : const Color(0x59CE82FF);
+  Color get c0Bg {
+    return isDark
+        ? const Color(0xFF17394A)
+        : const Color(0xFFDDF4FF);
+  }
 
-  Color get c5Bg =>
-      isDark ? const Color(0xFF453A16) : const Color(0xFFFFF4CC);
-  Color get c5Fg =>
-      isDark ? const Color(0xFFFFDD6B) : const Color(0xFFFFC800);
-  Color get c5Shadow =>
-      isDark ? const Color(0xFF2B240E) : const Color(0x59FFC800);
+  Color get c0Fg {
+    return isDark
+        ? const Color(0xFF6FCBFA)
+        : const Color(0xFF1CB0F6);
+  }
 
-  List<Color> get cardBgList => [
-        c0Bg,
-        c1Bg,
-        c2Bg,
-        c3Bg,
-        c4Bg,
-        c5Bg,
-      ];
+  Color get c0Shadow {
+    return isDark
+        ? const Color(0xFF0E2732)
+        : const Color(0x591CB0F6);
+  }
 
-  List<Color> get cardFgList => [
-        c0Fg,
-        c1Fg,
-        c2Fg,
-        c3Fg,
-        c4Fg,
-        c5Fg,
-      ];
+  Color get c1Bg {
+    return isDark
+        ? const Color(0xFF4A3320)
+        : const Color(0xFFFFE8D6);
+  }
 
-  List<Color> get cardShadowList => [
-        c0Shadow,
-        c1Shadow,
-        c2Shadow,
-        c3Shadow,
-        c4Shadow,
-        c5Shadow,
-      ];
+  Color get c1Fg {
+    return isDark
+        ? const Color(0xFFFFB05C)
+        : const Color(0xFFFF9600);
+  }
+
+  Color get c1Shadow {
+    return isDark
+        ? const Color(0xFF302014)
+        : const Color(0x59FF9600);
+  }
+
+  Color get c2Bg {
+    return isDark
+        ? const Color(0xFF22421C)
+        : const Color(0xFFE3F9D9);
+  }
+
+  Color get c2Fg {
+    return isDark
+        ? const Color(0xFF86E048)
+        : const Color(0xFF58CC02);
+  }
+
+  Color get c2Shadow {
+    return isDark
+        ? const Color(0xFF152912)
+        : const Color(0x5958CC02);
+  }
+
+  Color get c3Bg {
+    return isDark
+        ? const Color(0xFF4A2333)
+        : const Color(0xFFFFE0EC);
+  }
+
+  Color get c3Fg {
+    return isDark
+        ? const Color(0xFFFF83B0)
+        : const Color(0xFFFF4B8C);
+  }
+
+  Color get c3Shadow {
+    return isDark
+        ? const Color(0xFF2E1521)
+        : const Color(0x59FF4B8C);
+  }
+
+  Color get c4Bg {
+    return isDark
+        ? const Color(0xFF362142)
+        : const Color(0xFFF1E4FF);
+  }
+
+  Color get c4Fg {
+    return isDark
+        ? const Color(0xFFDCA6FF)
+        : const Color(0xFFCE82FF);
+  }
+
+  Color get c4Shadow {
+    return isDark
+        ? const Color(0xFF21142A)
+        : const Color(0x59CE82FF);
+  }
+
+  Color get c5Bg {
+    return isDark
+        ? const Color(0xFF453A16)
+        : const Color(0xFFFFF4CC);
+  }
+
+  Color get c5Fg {
+    return isDark
+        ? const Color(0xFFFFDD6B)
+        : const Color(0xFFFFC800);
+  }
+
+  Color get c5Shadow {
+    return isDark
+        ? const Color(0xFF2B240E)
+        : const Color(0x59FFC800);
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
-// ALFABETO
+// LETRAS
 // ══════════════════════════════════════════════════════════════
 
 const List<String> kVowels = [
@@ -328,8 +414,11 @@ const List<String> kAllLetters = [
   'z',
 ];
 
-final List<String> kConsonants =
-    kAllLetters.where((letter) => !kVowels.contains(letter)).toList();
+final List<String> kConsonants = kAllLetters
+    .where(
+      (letter) => !kVowels.contains(letter),
+    )
+    .toList();
 
 String buildSyllable(
   String consonant,
@@ -339,6 +428,7 @@ String buildSyllable(
   final c = consonantUpper
       ? consonant.toUpperCase()
       : consonant.toLowerCase();
+
   final v = vowel.toLowerCase();
 
   if (consonant.toLowerCase() == 'q') {
@@ -353,24 +443,146 @@ String buildSyllable(
 }
 
 // ══════════════════════════════════════════════════════════════
-// ASSETS
+// ASSET UTILS
 // ══════════════════════════════════════════════════════════════
 
 class AssetUtils {
   static List<String>? _assets;
 
   static Future<List<String>> assets() async {
-    if (_assets != null) return _assets!;
+    if (_assets != null) {
+      return _assets!;
+    }
 
     final manifest =
-        await AssetManifest.loadFromAssetBundle(rootBundle);
-    _assets = manifest.listAssets().toList(growable: false);
+        await AssetManifest.loadFromAssetBundle(
+      rootBundle,
+    );
+
+    _assets = manifest
+        .listAssets()
+        .toList(
+          growable: false,
+        );
+
     return _assets!;
   }
 
-  static Future<bool> exists(String path) async {
-    final all = await assets();
-    return all.contains(path) || all.contains('assets/$path');
+  static Future<bool> exists(
+    String path,
+  ) async {
+    final all =
+        await assets();
+
+    if (all.contains(path)) {
+      return true;
+    }
+
+    if (all.contains('assets/$path')) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // NOVO MÉTODO QUE ESTAVA A FALTAR
+  // ──────────────────────────────────────────────────────────
+
+  static Future<List<String>> getAssetsInFolder(
+    String folderPath,
+  ) async {
+    final all =
+        await assets();
+
+    String normalized =
+        folderPath.trim();
+
+    if (normalized.isEmpty) {
+      return const [];
+    }
+
+    normalized =
+        normalized.replaceAll(
+      '\\',
+      '/',
+    );
+
+    normalized =
+        normalized.replaceFirst(
+      RegExp(r'^/+'),
+      '',
+    );
+
+    if (normalized.startsWith(
+      'assets/',
+    )) {
+      normalized =
+          normalized.substring(
+        'assets/'.length,
+      );
+    }
+
+    normalized =
+        normalized.replaceFirst(
+      RegExp(r'/+$'),
+      '',
+    );
+
+    if (normalized.isEmpty) {
+      return const [];
+    }
+
+    final prefix =
+        'assets/$normalized/';
+
+    final result =
+        <String>[];
+
+    for (final asset in all) {
+      if (!asset.startsWith(
+        prefix,
+      )) {
+        continue;
+      }
+
+      final remaining =
+          asset.substring(
+        prefix.length,
+      );
+
+      if (remaining.isEmpty) {
+        continue;
+      }
+
+      // Somente arquivos diretamente
+      // dentro da pasta.
+      //
+      // Assim:
+      //
+      // assets/images/ca/1.png
+      //
+      // entra.
+      //
+      // assets/images/ca/sub/2.png
+      //
+      // não entra.
+      if (remaining.contains(
+        '/',
+      )) {
+        continue;
+      }
+
+      result.add(
+        asset,
+      );
+    }
+
+    result.sort();
+
+    return List<String>.unmodifiable(
+      result,
+    );
   }
 }
 
@@ -381,10 +593,14 @@ class AssetUtils {
 class SoundManager {
   SoundManager._();
 
-  static final SoundManager instance = SoundManager._();
+  static final SoundManager instance =
+      SoundManager._();
 
-  final AudioPlayer _player = AudioPlayer();
-  final FlutterTts _tts = FlutterTts();
+  final AudioPlayer _player =
+      AudioPlayer();
+
+  final FlutterTts _tts =
+      FlutterTts();
 
   bool muted = false;
   bool clickMuted = false;
@@ -393,159 +609,330 @@ class SoundManager {
   bool _ttsReady = false;
 
   Future<void> _prepareTts() async {
-    if (_ttsReady) return;
+    if (_ttsReady) {
+      return;
+    }
 
     try {
-      await _tts.setLanguage('pt-PT');
-      await _tts.setSpeechRate(0.38);
-      await _tts.setPitch(1.0);
-      await _tts.setVolume(1.0);
+      await _tts.setLanguage(
+        'pt-PT',
+      );
+
+      await _tts.setSpeechRate(
+        0.38,
+      );
+
+      await _tts.setPitch(
+        1.0,
+      );
+
+      await _tts.setVolume(
+        1.0,
+      );
+
       _ttsReady = true;
     } catch (_) {}
   }
 
   Future<void> playClick() async {
-    if (muted || clickMuted) return;
-
-    if (await AssetUtils.exists('audio/pressing.wav')) {
-      await _playAsset('audio/pressing.wav');
+    if (muted ||
+        clickMuted) {
       return;
     }
 
-    await speak('clique', rate: 0.55);
+    if (await AssetUtils.exists(
+      'audio/pressing.wav',
+    )) {
+      await _playAsset(
+        'audio/pressing.wav',
+      );
+
+      return;
+    }
+
+    await speak(
+      'clique',
+      rate: 0.55,
+    );
   }
 
-  Future<void> play(String text) async {
-    final value = text.trim().toLowerCase();
-    if (value.isEmpty || muted) return;
+  Future<void> play(
+    String text,
+  ) async {
+    final value =
+        text.trim().toLowerCase();
+
+    if (value.isEmpty ||
+        muted) {
+      return;
+    }
 
     if (value.length == 1) {
-      await playLetter(value);
+      await playLetter(
+        value,
+      );
+
       return;
     }
 
-    if (_looksLikeSyllable(value)) {
-      await playSyllable(value);
+    if (_looksLikeSyllable(
+      value,
+    )) {
+      await playSyllable(
+        value,
+      );
+
       return;
     }
 
-    await playWord(value);
+    await playWord(
+      value,
+    );
   }
 
-  Future<void> playLetter(String letter) async {
-    final value = letter.trim().toLowerCase();
-    if (value.length != 1 || muted) return;
+  Future<void> playLetter(
+    String letter,
+  ) async {
+    final value =
+        letter.trim().toLowerCase();
 
-    final folder = kVowels.contains(value)
-        ? 'audio/vowels'
-        : 'audio/consonants';
-
-    final path = '$folder/$value.wav';
-
-    if (await AssetUtils.exists(path)) {
-      await _playAsset(path);
+    if (value.length != 1 ||
+        muted) {
       return;
     }
 
-    await speak(value, rate: 0.30);
+    final folder =
+        kVowels.contains(value)
+            ? 'audio/vowels'
+            : 'audio/consonants';
+
+    final path =
+        '$folder/$value.wav';
+
+    if (await AssetUtils.exists(
+      path,
+    )) {
+      await _playAsset(
+        path,
+      );
+
+      return;
+    }
+
+    await speak(
+      value,
+      rate: 0.30,
+    );
   }
 
-  Future<void> playSyllable(String syllable) async {
-    final value = syllable.trim().toLowerCase();
-    if (value.isEmpty || muted) return;
+  Future<void> playSyllable(
+    String syllable,
+  ) async {
+    final value =
+        syllable.trim().toLowerCase();
+
+    if (value.isEmpty ||
+        muted) {
+      return;
+    }
 
     String? consonant;
-    for (final item in kConsonants) {
-      if (value.startsWith(item)) {
-        consonant = item;
+
+    for (final item
+        in kConsonants) {
+      if (value.startsWith(
+        item,
+      )) {
+        consonant =
+            item;
         break;
       }
     }
 
-    if (consonant != null) {
-      final path = 'audio/syllables/$consonant/$value.wav';
-      if (await AssetUtils.exists(path)) {
-        await _playAsset(path);
+    if (consonant !=
+        null) {
+      final path =
+          'audio/syllables/$consonant/$value.wav';
+
+      if (await AssetUtils.exists(
+        path,
+      )) {
+        await _playAsset(
+          path,
+        );
+
         return;
       }
     }
 
-    await speak(value, rate: 0.34);
+    await speak(
+      value,
+      rate: 0.34,
+    );
   }
 
-  Future<void> playExample(String syllable) async {
-    final value = syllable.trim().toLowerCase();
-    if (value.isEmpty || muted) return;
+  Future<void> playExample(
+    String syllable,
+  ) async {
+    final value =
+        syllable.trim().toLowerCase();
+
+    if (value.isEmpty ||
+        muted) {
+      return;
+    }
 
     String? consonant;
-    for (final item in kConsonants) {
-      if (value.startsWith(item)) {
-        consonant = item;
+
+    for (final item
+        in kConsonants) {
+      if (value.startsWith(
+        item,
+      )) {
+        consonant =
+            item;
         break;
       }
     }
 
-    if (consonant != null) {
-      final path = 'audio/syllables/$consonant/${value}_ex.wav';
-      if (await AssetUtils.exists(path)) {
-        await _playAsset(path);
+    if (consonant !=
+        null) {
+      final path =
+          'audio/syllables/$consonant/${value}_ex.wav';
+
+      if (await AssetUtils.exists(
+        path,
+      )) {
+        await _playAsset(
+          path,
+        );
+
         return;
       }
     }
 
-    await speak(value, rate: 0.34);
+    await speak(
+      value,
+      rate: 0.34,
+    );
   }
 
-  Future<void> playWord(String word) async {
-    final value = word.trim().toLowerCase();
-    if (value.isEmpty || muted) return;
+  Future<void> playWord(
+    String word,
+  ) async {
+    final value =
+        word.trim().toLowerCase();
 
-    final filename = value.replaceAll(RegExp(r'[^a-z0-9áàâãéêíóôõúç_ ]'), '').replaceAll(' ', '_');
-    final path = 'audio/words/$filename.wav';
-
-    if (await AssetUtils.exists(path)) {
-      await _playAsset(path);
+    if (value.isEmpty ||
+        muted) {
       return;
     }
 
-    await speak(value, rate: 0.36);
+    final filename = value
+        .replaceAll(
+          RegExp(
+            r'[^a-z0-9áàâãéêíóôõúç_ ]',
+          ),
+          '',
+        )
+        .replaceAll(
+          ' ',
+          '_',
+        );
+
+    final path =
+        'audio/words/$filename.wav';
+
+    if (await AssetUtils.exists(
+      path,
+    )) {
+      await _playAsset(
+        path,
+      );
+
+      return;
+    }
+
+    await speak(
+      value,
+      rate: 0.36,
+    );
   }
 
   Future<void> speak(
     String text, {
     double rate = 0.38,
   }) async {
-    if (muted || text.trim().isEmpty) return;
+    if (muted ||
+        text.trim().isEmpty) {
+      return;
+    }
 
     try {
       await _prepareTts();
+
       await _tts.stop();
-      await _tts.setSpeechRate(rate);
-      await _tts.speak(text.trim());
+
+      await _tts.setSpeechRate(
+        rate,
+      );
+
+      await _tts.speak(
+        text.trim(),
+      );
     } catch (_) {}
   }
 
-  bool _looksLikeSyllable(String value) {
-    if (value.length < 2 || value.length > 4) return false;
+  bool _looksLikeSyllable(
+    String value,
+  ) {
+    if (value.length < 2 ||
+        value.length > 4) {
+      return false;
+    }
 
-    for (final consonant in kConsonants) {
-      if (!value.startsWith(consonant)) continue;
+    for (final consonant
+        in kConsonants) {
+      if (!value.startsWith(
+        consonant,
+      )) {
+        continue;
+      }
 
-      for (final vowel in kVowels) {
-        final built = buildSyllable(consonant, vowel, false);
-        if (built == value) return true;
+      for (final vowel
+          in kVowels) {
+        final built =
+            buildSyllable(
+          consonant,
+          vowel,
+          false,
+        );
+
+        if (built ==
+            value) {
+          return true;
+        }
       }
     }
 
     return false;
   }
 
-  Future<void> _playAsset(String path) async {
-    if (muted) return;
+  Future<void> _playAsset(
+    String path,
+  ) async {
+    if (muted) {
+      return;
+    }
 
     try {
       await _player.stop();
-      await _player.play(AssetSource(path));
+
+      await _player.play(
+        AssetSource(
+          path,
+        ),
+      );
     } catch (_) {}
   }
 
@@ -564,7 +951,8 @@ class SoundManager {
 // ÍCONE ADAPTÁVEL
 // ══════════════════════════════════════════════════════════════
 
-class AppIcon extends StatelessWidget {
+class AppIcon
+    extends StatelessWidget {
   final AppColors colors;
   final IconData materialIcon;
   final String? customAsset;
@@ -579,8 +967,12 @@ class AppIcon extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    if (colors.design == AppDesign.material || customAsset == null) {
+  Widget build(
+    BuildContext context,
+  ) {
+    if (colors.design ==
+            AppDesign.material ||
+        customAsset == null) {
       return Icon(
         materialIcon,
         size: size,
@@ -593,11 +985,18 @@ class AppIcon extends StatelessWidget {
       width: size,
       height: size,
       fit: BoxFit.contain,
-      errorBuilder: (_, __, ___) => Icon(
-        materialIcon,
-        size: size,
-        color: colors.textMain,
-      ),
+      errorBuilder:
+          (
+        _,
+        __,
+        ___,
+      ) {
+        return Icon(
+          materialIcon,
+          size: size,
+          color: colors.textMain,
+        );
+      },
     );
   }
 }
