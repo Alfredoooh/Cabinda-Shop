@@ -417,7 +417,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
 
     _playSound('audio/pressing.wav');
 
-    // Primeira carta
+    // PRIMEIRA CARTA
     if (_primeira == null) {
       setState(() {
         _virada[index] = true;
@@ -631,7 +631,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                   ),
                 ),
               ),
-
               Row(
                 children: [
                   _audioBtn(
@@ -803,8 +802,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                                 AppColors.green,
                           ),
                           child: Slider(
-                            value: _timerDuration
-                                .toDouble(),
+                            value: _timerDuration.toDouble(),
                             min: 15,
                             max: 120,
                             divisions: 7,
@@ -1029,7 +1027,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
               Column(
                 children: [
                   // BANNER
-
                   AnimatedSwitcher(
                     duration:
                         const Duration(milliseconds: 280),
@@ -1412,7 +1409,7 @@ class _CartaState extends State<_Carta>
     _flip = AnimationController(
       vsync: this,
       duration:
-          const Duration(milliseconds: 320),
+          const Duration(milliseconds: 360),
       value: _revealed ? 1.0 : 0.0,
     );
 
@@ -1436,11 +1433,11 @@ class _CartaState extends State<_Carta>
   ) {
     super.didUpdateWidget(oldWidget);
 
-    final wasRevealed =
+    final oldRevealed =
         oldWidget.virada ||
         oldWidget.encontrada;
 
-    if (_revealed != wasRevealed) {
+    if (_revealed != oldRevealed) {
       if (_revealed) {
         _flip.forward();
       } else {
@@ -1476,18 +1473,16 @@ class _CartaState extends State<_Carta>
   Widget build(BuildContext context) {
     final colors = widget.colors;
 
-    final faceColor = widget.encontrada
-        ? AppColors.green
-        : _revealed
-            ? colors.bgCardNeutral
-            : colors.c2Bg;
+    // ─────────────────────────────────────────────
+    // TRASEIRA DA CARTA
+    // ─────────────────────────────────────────────
 
-    // VERSO
     final verso = Container(
+      width: double.infinity,
+      height: double.infinity,
       decoration: BoxDecoration(
         color: colors.c2Bg,
-        borderRadius:
-            BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
             color: colors.divider,
@@ -1501,22 +1496,25 @@ class _CartaState extends State<_Carta>
           style: TextStyle(
             fontFamily: 'ComicSansMS',
             fontWeight: FontWeight.w700,
-            fontSize: 24,
-            color: colors.textMuted
-                .withOpacity(0.35),
+            fontSize: 30,
+            color: colors.textMuted,
           ),
         ),
       ),
     );
 
-    // FRENTE
-    final face = AnimatedContainer(
-      duration:
-          const Duration(milliseconds: 200),
+    // ─────────────────────────────────────────────
+    // FRENTE DA CARTA
+    // ─────────────────────────────────────────────
+
+    final face = Container(
+      width: double.infinity,
+      height: double.infinity,
       decoration: BoxDecoration(
-        color: faceColor,
-        borderRadius:
-            BorderRadius.circular(14),
+        color: widget.encontrada
+            ? AppColors.green
+            : colors.bgCardNeutral,
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
             color: widget.encontrada
@@ -1532,7 +1530,7 @@ class _CartaState extends State<_Carta>
           style: TextStyle(
             fontFamily: 'ComicSansMS',
             fontWeight: FontWeight.w700,
-            fontSize: 28,
+            fontSize: 30,
             color: widget.encontrada
                 ? Colors.white
                 : colors.textMain,
@@ -1540,6 +1538,10 @@ class _CartaState extends State<_Carta>
         ),
       ),
     );
+
+    // ─────────────────────────────────────────────
+    // ANIMAÇÃO DA CARTA
+    // ─────────────────────────────────────────────
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -1550,16 +1552,45 @@ class _CartaState extends State<_Carta>
           _shake,
           _pop,
         ]),
-        builder: (_, __) {
-          final t = _flip.value;
+        builder: (context, child) {
+          final t = Curves.easeInOutCubic.transform(
+            _flip.value,
+          );
 
-          final angle =
-              (1 - t) * pi / 2;
+          final rotation = pi * t;
 
-          final showFace =
-              t > 0.5;
+          final showingFace = t >= 0.5;
 
-          Widget result = Transform(
+          Widget card;
+
+          // ───────────────────────────────────────
+          // TRASEIRA
+          // ───────────────────────────────────────
+
+          if (!showingFace) {
+            card = verso;
+          }
+
+          // ───────────────────────────────────────
+          // FRENTE
+          // ───────────────────────────────────────
+
+          else {
+            card = Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.identity()
+                ..rotateY(pi),
+              child: face,
+            );
+          }
+
+          // Rotação principal.
+          //
+          // 0°   = traseira totalmente visível
+          // 90°  = carta de lado
+          // 180° = frente
+          //
+          card = Transform(
             alignment: Alignment.center,
             transform: Matrix4.identity()
               ..setEntry(
@@ -1567,34 +1598,37 @@ class _CartaState extends State<_Carta>
                 2,
                 0.0015,
               )
-              ..rotateY(angle),
-            child: showFace
-                ? face
-                : Transform(
-                    alignment:
-                        Alignment.center,
-                    transform:
-                        Matrix4.identity()
-                          ..rotateY(pi),
-                    child: verso,
-                  ),
+              ..rotateY(rotation),
+            child: card,
           );
+
+          // ───────────────────────────────────────
+          // SHAKE NO ERRO
+          // ───────────────────────────────────────
 
           if (_shake.value > 0 &&
               _shake.value < 1) {
-            final s = sin(
-                  _shake.value *
-                      pi *
-                      6,
-                ) *
-                (1 - _shake.value) *
-                7;
+            final shake =
+                sin(
+                      _shake.value *
+                          pi *
+                          6,
+                    ) *
+                    (1 - _shake.value) *
+                    7;
 
-            result = Transform.translate(
-              offset: Offset(s, 0),
-              child: result,
+            card = Transform.translate(
+              offset: Offset(
+                shake,
+                0,
+              ),
+              child: card,
             );
           }
+
+          // ───────────────────────────────────────
+          // POP AO ENCONTRAR PAR
+          // ───────────────────────────────────────
 
           if (widget.encontrada) {
             final scale =
@@ -1602,13 +1636,13 @@ class _CartaState extends State<_Carta>
                     (0.2 *
                         _pop.value);
 
-            result = Transform.scale(
+            card = Transform.scale(
               scale: scale,
-              child: result,
+              child: card,
             );
           }
 
-          return result;
+          return card;
         },
       ),
     );
@@ -1680,7 +1714,7 @@ class _DuoSwitch extends StatelessWidget {
 }
 
 // ──────────────────────────────────────────────────────────────
-// CONFETE
+// PARTÍCULA DE CONFETE
 // ──────────────────────────────────────────────────────────────
 
 class _ConfettiParticle {
@@ -1747,7 +1781,9 @@ class _ConfettiPainter
       final dx =
           size.width *
               particle.startX +
-          sin(particle.angle) *
+          sin(
+                particle.angle,
+              ) *
               160 *
               progress;
 
