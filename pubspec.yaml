@@ -60,6 +60,8 @@ flutter:
     - assets/icons/normal.png
     - assets/icons/hard.png
     - assets/icons/extreme.png
+#--------------songs---------------
+    - assets/songs/playing_song.mp3
     - assets/audio/pressing.wav
     - assets/audio/correct.wav
     - assets/audio/wrong.wav
@@ -87,6 +89,7 @@ flutter:
     #- assets/audio/syllables/x/
     #- assets/audio/syllables/y/
     #- assets/audio/syllables/z/
+#---------------images-----------  
     - assets/images/syllables/b/a/
     - assets/images/syllables/b/e/
     - assets/images/syllables/b/i/
@@ -192,6 +195,7 @@ flutter:
     #- assets/images/syllables/z/i/
     #- assets/images/syllables/z/o/
     #- assets/images/syllables/z/u/
+#----------------videos------------
     - assets/links/videos/playlists/EnsinandoMeuFilho/01_Aprendendo_a_ler/
     - assets/links/videos/playlists/EnsinandoMeuFilho/02_As_Vogais_A_E_I_O_U/
     - assets/links/videos/playlists/EnsinandoMeuFilho/03_Alfabeto/
