@@ -5,6 +5,10 @@ import 'package:flutter_tts/flutter_tts.dart';
 
 import 'screens/home_screen.dart';
 
+// ══════════════════════════════════════════════════════════════
+// MAIN
+// ══════════════════════════════════════════════════════════════
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -36,7 +40,7 @@ class ABCtubeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const bool isDark = false;
+    const isDark = false;
 
     final colors = AppColors(
       isDark,
@@ -107,46 +111,44 @@ class AppColors {
   ]);
 
   // ════════════════════════════════════════════════════════════
-  // CONSTANTES GLOBAIS
-  // ════════════════════════════════════════════════════════════
-  //
-  // Estes membros precisam ser "static const" porque vários
-  // jogos antigos do projeto usam:
-  //
-  // AppColors.green
-  // AppColors.greenShadow
-  // AppColors.orange
-  // AppColors.red
-  // AppColors.redShadow
-  //
+  // CORES ESTÁTICAS
   // ════════════════════════════════════════════════════════════
 
-  static const Color green =
-      Color(0xFF58CC02);
+  static const Color green = Color(
+    0xFF58CC02,
+  );
 
-  static const Color greenShadow =
-      Color(0xFF46A302);
+  static const Color greenShadow = Color(
+    0xFF46A302,
+  );
 
-  static const Color orange =
-      Color(0xFFFF9600);
+  static const Color orange = Color(
+    0xFFFF9600,
+  );
 
-  static const Color red =
-      Color(0xFFFF4B4B);
+  static const Color red = Color(
+    0xFFFF4B4B,
+  );
 
-  static const Color redShadow =
-      Color(0xFFD63D3D);
+  static const Color redShadow = Color(
+    0xFFD63D3D,
+  );
 
-  static const Color blue =
-      Color(0xFF1CB0F6);
+  static const Color blue = Color(
+    0xFF1CB0F6,
+  );
 
-  static const Color pink =
-      Color(0xFFFF4B8C);
+  static const Color pink = Color(
+    0xFFFF4B8C,
+  );
 
-  static const Color purple =
-      Color(0xFFCE82FF);
+  static const Color purple = Color(
+    0xFFCE82FF,
+  );
 
-  static const Color yellow =
-      Color(0xFFFFC800);
+  static const Color yellow = Color(
+    0xFFFFC800,
+  );
 
   // ════════════════════════════════════════════════════════════
   // BACKGROUND
@@ -222,8 +224,12 @@ class AppColors {
         : const Color(0xFFFFFFFF);
   }
 
-  Color get bgCardNeutral =>
-      bgSecondary;
+  Color get surface => bgCardNeutral;
+
+  Color get bgCardNeutral => bgSecondary;
+
+  Color get dialogBackground =>
+      bgElevated;
 
   // ════════════════════════════════════════════════════════════
   // TEXT
@@ -277,7 +283,7 @@ class AppColors {
   }
 
   // ════════════════════════════════════════════════════════════
-  // BORDER
+  // BORDER / DIVIDER / SHADOW
   // ════════════════════════════════════════════════════════════
 
   Color get divider {
@@ -286,8 +292,31 @@ class AppColors {
         : const Color(0xFFE0E0E0);
   }
 
-  Color get border =>
-      divider;
+  Color get border => divider;
+
+  Color get borderSoft {
+    return isDark
+        ? const Color(0x303D3D40)
+        : const Color(0x20D0D0D0);
+  }
+
+  Color get neutralShadow {
+    return isDark
+        ? const Color(0x40000000)
+        : const Color(0x20000000);
+  }
+
+  Color get drawerShadow {
+    return isDark
+        ? const Color(0x66000000)
+        : const Color(0x33000000);
+  }
+
+  Color get overlay {
+    return isDark
+        ? const Color(0x99000000)
+        : const Color(0x66000000);
+  }
 
   // ════════════════════════════════════════════════════════════
   // PRIMARY
@@ -320,8 +349,7 @@ class AppColors {
     }
   }
 
-  Color get accentPrimary =>
-      primary;
+  Color get accentPrimary => primary;
 
   Color get primaryShadow {
     return Color.alphaBlend(
@@ -330,52 +358,35 @@ class AppColors {
     );
   }
 
-  // ════════════════════════════════════════════════════════════
-  // STATES
-  // ════════════════════════════════════════════════════════════
+  Color get danger {
+    return isDark
+        ? const Color(0xFFFF6B6B)
+        : const Color(0xFFD32F2F);
+  }
 
-  Color get danger =>
-      isDark
-          ? const Color(0xFFFF6B6B)
-          : const Color(0xFFD32F2F);
+  Color get success => green;
 
-  Color get success =>
-      green;
+  Color get warning => yellow;
 
-  Color get warning =>
-      yellow;
-
-  Color get info =>
-      blue;
+  Color get info => blue;
 
   // ════════════════════════════════════════════════════════════
   // DRAWER
   // ════════════════════════════════════════════════════════════
 
-  Color get drawerBg =>
-      bgSecondary;
-
-  Color get drawerShadow =>
-      isDark
-          ? const Color(0x66000000)
-          : const Color(0x33000000);
-
-  Color get overlay =>
-      isDark
-          ? const Color(0x99000000)
-          : const Color(0x66000000);
+  Color get drawerBg => bgSecondary;
 
   // ════════════════════════════════════════════════════════════
   // SWITCH
   // ════════════════════════════════════════════════════════════
 
-  Color get switchThumb =>
-      Colors.white;
+  Color get switchThumb => Colors.white;
 
-  Color get switchThumbShadow =>
-      isDark
-          ? const Color(0x55000000)
-          : const Color(0x33000000);
+  Color get switchThumbShadow {
+    return isDark
+        ? const Color(0x55000000)
+        : const Color(0x33000000);
+  }
 
   // ════════════════════════════════════════════════════════════
   // CARD 0
@@ -510,7 +521,7 @@ class AppColors {
   }
 
   // ════════════════════════════════════════════════════════════
-  // LISTAS UTILIZADAS PELO GAMES SCREEN
+  // LISTAS DOS JOGOS
   // ════════════════════════════════════════════════════════════
 
   List<Color> get cardBgList => [
@@ -545,29 +556,26 @@ class AppColors {
   // ════════════════════════════════════════════════════════════
 
   double get radiusSmall {
-    return design ==
-            AppDesign.material
+    return design == AppDesign.material
         ? 8
         : 12;
   }
 
   double get radiusMedium {
-    return design ==
-            AppDesign.material
+    return design == AppDesign.material
         ? 12
         : 16;
   }
 
   double get radiusLarge {
-    return design ==
-            AppDesign.material
+    return design == AppDesign.material
         ? 16
         : 20;
   }
 }
 
 // ══════════════════════════════════════════════════════════════
-// THEME
+// APP THEME
 // ══════════════════════════════════════════════════════════════
 
 class AppTheme {
@@ -581,8 +589,7 @@ class AppTheme {
             ? Brightness.dark
             : Brightness.light;
 
-    if (design ==
-        AppDesign.material) {
+    if (design == AppDesign.material) {
       return ThemeData(
         useMaterial3: true,
         brightness: brightness,
@@ -620,6 +627,35 @@ class AppTheme {
             ),
           ),
         ),
+        switchTheme:
+            SwitchThemeData(
+          thumbColor:
+              WidgetStateProperty.resolveWith(
+            (states) {
+              if (states.contains(
+                WidgetState.selected,
+              )) {
+                return colors.primary;
+              }
+
+              return colors.switchThumb;
+            },
+          ),
+          trackColor:
+              WidgetStateProperty.resolveWith(
+            (states) {
+              if (states.contains(
+                WidgetState.selected,
+              )) {
+                return colors.primary.withOpacity(
+                  0.35,
+                );
+              }
+
+              return colors.divider;
+            },
+          ),
+        ),
       );
     }
 
@@ -640,7 +676,7 @@ class AppTheme {
 }
 
 // ══════════════════════════════════════════════════════════════
-// VOGAIS / CONSOANTES
+// LETRAS
 // ══════════════════════════════════════════════════════════════
 
 const List<String> kVowels = [
@@ -684,9 +720,7 @@ final List<String> kConsonants =
     kAllLetters
         .where(
           (letter) =>
-              !kVowels.contains(
-            letter,
-          ),
+              !kVowels.contains(letter),
         )
         .toList();
 
@@ -703,8 +737,7 @@ String buildSyllable(
   final v =
       vowel.toLowerCase();
 
-  if (consonant.toLowerCase() ==
-      'q') {
+  if (consonant.toLowerCase() == 'q') {
     switch (v) {
       case 'a':
         return '${c}ua';
@@ -731,19 +764,15 @@ String buildSyllable(
 // ══════════════════════════════════════════════════════════════
 
 class AssetUtils {
-  static List<String>?
-      _cachedAssets;
+  static List<String>? _cachedAssets;
 
-  static Future<List<String>>
-      getAssets() async {
-    if (_cachedAssets !=
-        null) {
+  static Future<List<String>> getAssets() async {
+    if (_cachedAssets != null) {
       return _cachedAssets!;
     }
 
     final manifest =
-        await AssetManifest
-            .loadFromAssetBundle(
+        await AssetManifest.loadFromAssetBundle(
       rootBundle,
     );
 
@@ -757,60 +786,63 @@ class AssetUtils {
     return _cachedAssets!;
   }
 
-  static Future<List<String>>
-      assets() async {
+  static Future<List<String>> assets() async {
     return getAssets();
   }
 
-  static String _normalize(
+  static String _normalizePath(
     String value,
   ) {
-    var result =
-        value.trim();
+    var path = value.trim();
 
-    result =
-        result.replaceAll(
+    path = path.replaceAll(
       '\\',
       '/',
     );
 
-    result =
-        result.replaceFirst(
+    path = path.replaceFirst(
       RegExp(r'^/+'),
       '',
     );
 
-    return result;
+    return path;
   }
 
   static Future<bool> exists(
     String path,
   ) async {
     final normalized =
-        _normalize(
+        _normalizePath(
       path,
     );
 
-    final assets =
+    final all =
         await getAssets();
 
-    return assets.contains(
-          normalized,
-        ) ||
-        assets.contains(
-          'assets/$normalized',
-        );
+    if (all.contains(
+      normalized,
+    )) {
+      return true;
+    }
+
+    if (all.contains(
+      'assets/$normalized',
+    )) {
+      return true;
+    }
+
+    return false;
   }
 
   static Future<List<String>>
       getAssetsInFolder(
     String folderPath,
   ) async {
-    final assets =
+    final all =
         await getAssets();
 
     var folder =
-        _normalize(
+        _normalizePath(
       folderPath,
     );
 
@@ -819,7 +851,7 @@ class AssetUtils {
     )) {
       folder =
           folder.substring(
-        7,
+        'assets/'.length,
       );
     }
 
@@ -839,8 +871,7 @@ class AssetUtils {
     final result =
         <String>[];
 
-    for (final asset
-        in assets) {
+    for (final asset in all) {
       if (!asset.startsWith(
         prefix,
       )) {
@@ -882,8 +913,7 @@ class AssetUtils {
 class SoundManager {
   SoundManager._();
 
-  static final SoundManager
-      instance =
+  static final SoundManager instance =
       SoundManager._();
 
   final AudioPlayer _player =
@@ -893,14 +923,14 @@ class SoundManager {
       FlutterTts();
 
   bool muted = false;
+
   bool clickMuted = false;
+
   bool musicMuted = false;
 
-  bool _ttsInitialized =
-      false;
+  bool _ttsInitialized = false;
 
-  Future<void>
-      _initializeTts() async {
+  Future<void> _initializeTts() async {
     if (_ttsInitialized) {
       return;
     }
@@ -922,8 +952,7 @@ class SoundManager {
         1.0,
       );
 
-      _ttsInitialized =
-          true;
+      _ttsInitialized = true;
     } catch (_) {}
   }
 
@@ -933,8 +962,7 @@ class SoundManager {
       return;
     }
 
-    if (await AssetUtils
-        .exists(
+    if (await AssetUtils.exists(
       'audio/pressing.wav',
     )) {
       await _playAsset(
@@ -996,17 +1024,14 @@ class SoundManager {
     }
 
     final folder =
-        kVowels.contains(
-      value,
-    )
+        kVowels.contains(value)
             ? 'audio/vowels'
             : 'audio/consonants';
 
     final path =
         '$folder/$value.wav';
 
-    if (await AssetUtils
-        .exists(
+    if (await AssetUtils.exists(
       path,
     )) {
       await _playAsset(
@@ -1049,10 +1074,11 @@ class SoundManager {
     if (consonant !=
         null) {
       final path =
-          'audio/syllables/$consonant/$value.wav';
+          'audio/syllables/'
+          '$consonant/'
+          '$value.wav';
 
-      if (await AssetUtils
-          .exists(
+      if (await AssetUtils.exists(
         path,
       )) {
         await _playAsset(
@@ -1093,13 +1119,13 @@ class SoundManager {
       }
     }
 
-    if (consonant !=
-        null) {
+    if (consonant != null) {
       final path =
-          'audio/syllables/$consonant/${value}_ex.wav';
+          'audio/syllables/'
+          '$consonant/'
+          '${value}_ex.wav';
 
-      if (await AssetUtils
-          .exists(
+      if (await AssetUtils.exists(
         path,
       )) {
         await _playAsset(
@@ -1143,8 +1169,7 @@ class SoundManager {
     final path =
         'audio/words/$fileName.wav';
 
-    if (await AssetUtils
-        .exists(
+    if (await AssetUtils.exists(
       path,
     )) {
       await _playAsset(
@@ -1202,15 +1227,14 @@ class SoundManager {
 
       for (final vowel
           in kVowels) {
-        final result =
+        final built =
             buildSyllable(
           consonant,
           vowel,
           false,
         );
 
-        if (result ==
-            value) {
+        if (built == value) {
           return true;
         }
       }
@@ -1258,8 +1282,7 @@ class SoundManager {
 // APP ICON
 // ══════════════════════════════════════════════════════════════
 
-class AppIcon
-    extends StatelessWidget {
+class AppIcon extends StatelessWidget {
   final AppColors colors;
   final IconData materialIcon;
   final String? customAsset;
@@ -1274,28 +1297,22 @@ class AppIcon
   });
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
-    // MATERIAL
+  Widget build(BuildContext context) {
     if (colors.design ==
         AppDesign.material) {
       return Icon(
         materialIcon,
         size: size,
-        color:
-            colors.textMain,
+        color: colors.textMain,
       );
     }
 
-    // CUSTOM
     if (customAsset != null) {
       return Image.asset(
         customAsset!,
         width: size,
         height: size,
-        fit:
-            BoxFit.contain,
+        fit: BoxFit.contain,
         errorBuilder:
             (
           _,
@@ -1304,10 +1321,8 @@ class AppIcon
         ) {
           return Icon(
             materialIcon,
-            size:
-                size,
-            color:
-                colors.textMain,
+            size: size,
+            color: colors.textMain,
           );
         },
       );
@@ -1316,8 +1331,7 @@ class AppIcon
     return Icon(
       materialIcon,
       size: size,
-      color:
-          colors.textMain,
+      color: colors.textMain,
     );
   }
 }
