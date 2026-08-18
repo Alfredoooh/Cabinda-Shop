@@ -19,24 +19,22 @@ class GamesScreen extends StatelessWidget {
         _GameCard(
           colors: colors,
           titulo: 'Jogo da Memória',
-          descricao: 'Encontra os pares de letras antes que o tempo acabe!',
-          emoji: '🧠',
-          corCard: const Color(0xFF1CB0F6),
-          corShadow: const Color(0xFF0A8AC4),
+          descricao: 'Encontra os pares de letras e imagens!',
+          coverPath: 'assets/covers/game_memory_cover.png',
+          corIndex: 0,
           onTap: () => Navigator.of(context).push(
             CupertinoPageRoute(
               builder: (_) => GameMemoryScreen(colors: colors),
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         _GameCard(
           colors: colors,
           titulo: 'Quiz do Alfabeto',
-          descricao: 'Testa o teu conhecimento das letras e sons!',
-          emoji: '🎯',
-          corCard: const Color(0xFFFF9600),
-          corShadow: const Color(0xFFCC7700),
+          descricao: 'Testa o teu conhecimento das letras!',
+          coverPath: 'assets/covers/game_quiz_cover.png',
+          corIndex: 2,
           onTap: () => Navigator.of(context).push(
             CupertinoPageRoute(
               builder: (_) => GameQuizScreen(colors: colors),
@@ -52,18 +50,16 @@ class _GameCard extends StatefulWidget {
   final AppColors colors;
   final String titulo;
   final String descricao;
-  final String emoji;
-  final Color corCard;
-  final Color corShadow;
+  final String coverPath;
+  final int corIndex;
   final VoidCallback onTap;
 
   const _GameCard({
     required this.colors,
     required this.titulo,
     required this.descricao,
-    required this.emoji,
-    required this.corCard,
-    required this.corShadow,
+    required this.coverPath,
+    required this.corIndex,
     required this.onTap,
   });
 
@@ -71,29 +67,8 @@ class _GameCard extends StatefulWidget {
   State<_GameCard> createState() => _GameCardState();
 }
 
-class _GameCardState extends State<_GameCard>
-    with SingleTickerProviderStateMixin {
+class _GameCardState extends State<_GameCard> {
   bool _pressed = false;
-  late final AnimationController _pulseController;
-  late final Animation<double> _pulseAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
-    _pulseAnim = Tween<double>(begin: 1.0, end: 1.04).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    super.dispose();
-  }
 
   Future<void> _playPress() async {
     try {
@@ -104,7 +79,10 @@ class _GameCardState extends State<_GameCard>
 
   @override
   Widget build(BuildContext context) {
-    final colors = widget.colors;
+    final bgList = widget.colors.cardBgList as List<Color>;
+    final shadowList = widget.colors.cardShadowList as List<Color>;
+    final bg = bgList[widget.corIndex];
+    final shadow = shadowList[widget.corIndex];
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -117,18 +95,13 @@ class _GameCardState extends State<_GameCard>
       onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 100),
-        transform: Matrix4.identity()..translate(0.0, _pressed ? 4.0 : 0.0),
+        transform: Matrix4.identity()..translate(0.0, _pressed ? 3.0 : 0.0),
         decoration: BoxDecoration(
-          color: colors.c2Bg,
-          borderRadius: BorderRadius.circular(24),
+          color: bg,
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: widget.corShadow.withOpacity(0.35),
-              offset: Offset(0, _pressed ? 1 : 5),
-              blurRadius: 10,
-            ),
-            BoxShadow(
-              color: colors.divider,
+              color: shadow,
               offset: Offset(0, _pressed ? 1 : 4),
             ),
           ],
@@ -136,51 +109,25 @@ class _GameCardState extends State<_GameCard>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── Banner colorido com emoji animado ──────────
-            Container(
-              height: 140,
-              decoration: BoxDecoration(
-                color: widget.corCard.withOpacity(0.15),
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(24),
-                ),
-                border: Border(
-                  bottom: BorderSide(
-                    color: widget.corCard.withOpacity(0.25),
-                    width: 1.5,
+            // Cover
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.asset(
+                  widget.coverPath,
+                  height: 160,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    height: 160,
+                    color: widget.colors.bgCardNeutral,
                   ),
                 ),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Círculo decorativo de fundo
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: widget.corCard.withOpacity(0.12),
-                    ),
-                  ),
-                  // Emoji pulsante
-                  AnimatedBuilder(
-                    animation: _pulseAnim,
-                    builder: (_, __) => Transform.scale(
-                      scale: _pressed ? 0.88 : _pulseAnim.value,
-                      child: Text(
-                        widget.emoji,
-                        style: const TextStyle(fontSize: 64),
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ),
-
-            // ── Informações + botão ────────────────────────
+            // Informações
             Padding(
-              padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -189,52 +136,41 @@ class _GameCardState extends State<_GameCard>
                     style: TextStyle(
                       fontFamily: 'ComicSansMS',
                       fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                      color: colors.textMain,
+                      fontSize: 17,
+                      color: widget.colors.textMain,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 5),
                   Text(
                     widget.descricao,
                     style: TextStyle(
                       fontSize: 13,
-                      color: colors.textMuted,
+                      color: widget.colors.textMuted,
                     ),
                   ),
-                  const SizedBox(height: 16),
-
-                  // Botão JOGAR
+                  const SizedBox(height: 14),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 24,
-                    ),
+                        vertical: 10, horizontal: 20),
                     decoration: BoxDecoration(
-                      color: widget.corCard,
+                      color: AppColors.green,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
-                          color: widget.corShadow,
-                          offset: const Offset(0, 4),
+                          color: AppColors.greenShadow,
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Text(
-                          'JOGAR',
-                          style: TextStyle(
-                            fontFamily: 'ComicSansMS',
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                            color: Colors.white,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Text('▶', style: TextStyle(color: Colors.white, fontSize: 13)),
-                      ],
+                    child: const Text(
+                      'JOGAR',
+                      style: TextStyle(
+                        fontFamily: 'ComicSansMS',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        color: Colors.white,
+                        letterSpacing: 1,
+                      ),
                     ),
                   ),
                 ],

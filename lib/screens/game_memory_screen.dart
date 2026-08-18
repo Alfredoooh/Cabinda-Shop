@@ -57,14 +57,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     'Sequência! 🔥', 'Em fogo! 🔥🔥', 'Imparável! 🔥🔥🔥',
   ];
 
-  // Configurações de nível
-  static const _niveis = [
-    {'label': 'Fácil',   'emoji': '😊', 'pairs': 4,  'cor': Color(0xFF58CC02)},
-    {'label': 'Normal',  'emoji': '😐', 'pairs': 6,  'cor': Color(0xFF1CB0F6)},
-    {'label': 'Difícil', 'emoji': '😤', 'pairs': 8,  'cor': Color(0xFFFF9600)},
-    {'label': 'Extremo', 'emoji': '🔥', 'pairs': 10, 'cor': Color(0xFFFF4B8C)},
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -127,20 +119,20 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     final letras = _allLetters.sublist(0, pares);
     final cartas = [...letras, ...letras]..shuffle();
     setState(() {
-      _levelPairs   = pares;
-      _timerEnabled = timerOn;
-      _timerDuration = duracao;
+      _levelPairs      = pares;
+      _timerEnabled    = timerOn;
+      _timerDuration   = duracao;
       _remainingSeconds = duracao;
-      _cartas    = cartas;
-      _virada    = List.filled(cartas.length, false);
-      _encontrada = List.filled(cartas.length, false);
-      _primeira  = null;
-      _bloqueado = false;
-      _tentativas = 0;
-      _streak    = 0;
-      _erroA = null;
-      _erroB = null;
-      _mensagem = null;
+      _cartas          = cartas;
+      _virada          = List.filled(cartas.length, false);
+      _encontrada      = List.filled(cartas.length, false);
+      _primeira        = null;
+      _bloqueado       = false;
+      _tentativas      = 0;
+      _streak          = 0;
+      _erroA           = null;
+      _erroB           = null;
+      _mensagem        = null;
       _showLevelSelect = false;
     });
     _startMusic();
@@ -167,7 +159,11 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
         content: const Text('Não conseguiste completar o jogo a tempo.'),
         actions: [
           TextButton(
-            onPressed: () { Navigator.pop(ctx); setState(() => _showLevelSelect = true); _timer?.cancel(); },
+            onPressed: () {
+              Navigator.pop(ctx);
+              setState(() => _showLevelSelect = true);
+              _timer?.cancel();
+            },
             child: const Text('Voltar aos níveis'),
           ),
         ],
@@ -197,8 +193,11 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   }
 
   void _tocar(int index) {
-    if (_bloqueado || index < 0 || index >= _cartas.length ||
-        _virada[index] || _encontrada[index]) return;
+    if (_bloqueado ||
+        index < 0 ||
+        index >= _cartas.length ||
+        _virada[index] ||
+        _encontrada[index]) return;
 
     _playSound('audio/pressing.wav');
 
@@ -212,8 +211,8 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
 
     setState(() {
       _virada[index] = true;
-      _bloqueado = true;
-      _primeira  = null;
+      _bloqueado     = true;
+      _primeira      = null;
       _tentativas++;
     });
 
@@ -223,12 +222,16 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
       setState(() {
         _encontrada[a]     = true;
         _encontrada[index] = true;
-        _bloqueado = false;
+        _bloqueado         = false;
       });
       _mostrarMensagem(_streak >= 3
           ? _mensagensStreak[min(_streak - 3, _mensagensStreak.length - 1)]
           : _mensagensAcerto[_random.nextInt(_mensagensAcerto.length)]);
-      if (_ganhou) { _playSound('audio/win.wav'); _timer?.cancel(); _dispararConfete(); }
+      if (_ganhou) {
+        _playSound('audio/win.wav');
+        _timer?.cancel();
+        _dispararConfete();
+      }
     } else {
       _playSound('audio/wrong.wav');
       _streak = 0;
@@ -238,9 +241,9 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
         setState(() {
           _virada[a]     = false;
           _virada[index] = false;
-          _bloqueado = false;
-          _erroA = null;
-          _erroB = null;
+          _bloqueado     = false;
+          _erroA         = null;
+          _erroB         = null;
         });
       });
     }
@@ -281,7 +284,8 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
         child: Center(
           child: SvgPicture.asset(
             ativo ? iconOn : iconOff,
-            width: 20, height: 20,
+            width: 20,
+            height: 20,
             colorFilter: ColorFilter.mode(
               ativo ? colors.textMain : colors.textMuted,
               BlendMode.srcIn,
@@ -297,15 +301,17 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   Widget _buildLevelSelect() {
     final colors = widget.colors;
     return SafeArea(
-      child: Column(
-        children: [
-          // Header
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: Row(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _Bounce(
-                  onTap: () { _playSound('audio/pressing.wav'); Navigator.of(context).pop(); },
+                  onTap: () => Navigator.of(context).pop(),
                   child: Container(
                     width: 42, height: 42,
                     decoration: BoxDecoration(
@@ -315,75 +321,98 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                     ),
                     child: Center(
                       child: SvgPicture.asset(
-                        'assets/icons/back.svg', width: 20, height: 20,
+                        'assets/icons/back.svg',
+                        width: 20, height: 20,
                         colorFilter: ColorFilter.mode(colors.textMain, BlendMode.srcIn),
                       ),
                     ),
                   ),
                 ),
-                const Spacer(),
-                _audioBtn(
-                  ativo: _soundOn,
-                  iconOn: 'assets/icons/speaker-icon.svg',
-                  iconOff: 'assets/icons/speaker-off-icon.svg',
-                  onTap: _toggleSound,
-                ),
-                _audioBtn(
-                  ativo: _musicOn,
-                  iconOn: 'assets/icons/music_on.svg',
-                  iconOff: 'assets/icons/music_off.svg',
-                  onTap: _toggleMusic,
+                Row(
+                  children: [
+                    _audioBtn(
+                      ativo: _soundOn,
+                      iconOn: 'assets/icons/speaker-icon.svg',
+                      iconOff: 'assets/icons/speaker-off-icon.svg',
+                      onTap: _toggleSound,
+                    ),
+                    _audioBtn(
+                      ativo: _musicOn,
+                      iconOn: 'assets/icons/music_on.svg',
+                      iconOff: 'assets/icons/music_off.svg',
+                      onTap: _toggleMusic,
+                    ),
+                  ],
                 ),
               ],
             ),
-          ),
 
-          const SizedBox(height: 24),
-          Text(
-            '🎮 Escolhe o nível',
-            style: TextStyle(
-              fontFamily: 'ComicSansMS',
-              fontWeight: FontWeight.w700,
-              fontSize: 22,
-              color: colors.textMain,
+            const SizedBox(height: 20),
+            Text(
+              'Escolhe o nível',
+              style: TextStyle(
+                fontFamily: 'ComicSansMS',
+                fontWeight: FontWeight.w700,
+                fontSize: 24,
+                color: colors.textMain,
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-          // Grid de níveis — usa Wrap para nunca colapsar
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: _niveis.map((n) {
-                return _buildLevelCard(
-                  emoji: n['emoji'] as String,
-                  label: n['label'] as String,
-                  pairs: n['pairs'] as int,
-                  cor: n['cor'] as Color,
-                );
-              }).toList(),
+            // Grid de níveis — EXATAMENTE como o original com PNG
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 14,
+                crossAxisSpacing: 14,
+                childAspectRatio: 1.1,
+                children: [
+                  _buildLevelButton(
+                    icon: 'assets/icons/easy.png',
+                    label: 'Fácil',
+                    pairs: 4,
+                    onTap: () => _iniciarJogo(4, _timerEnabled, _timerDuration),
+                  ),
+                  _buildLevelButton(
+                    icon: 'assets/icons/normal.png',
+                    label: 'Normal',
+                    pairs: 6,
+                    onTap: () => _iniciarJogo(6, _timerEnabled, _timerDuration),
+                  ),
+                  _buildLevelButton(
+                    icon: 'assets/icons/hard.png',
+                    label: 'Difícil',
+                    pairs: 8,
+                    onTap: () => _iniciarJogo(8, _timerEnabled, _timerDuration),
+                  ),
+                  _buildLevelButton(
+                    icon: 'assets/icons/extreme.png',
+                    label: 'Extremo',
+                    pairs: 10,
+                    onTap: () => _iniciarJogo(10, _timerEnabled, _timerDuration),
+                  ),
+                ],
+              ),
             ),
-          ),
 
-          const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
-          // Temporizador
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              padding: const EdgeInsets.all(14),
+            // Temporizador
+            Container(
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: colors.bgCardNeutral,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [BoxShadow(color: colors.divider, offset: const Offset(0, 3))],
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 children: [
                   Row(
                     children: [
-                      Text('⏱️', style: const TextStyle(fontSize: 22)),
+                      SvgPicture.asset(
+                        'assets/icons/clock.svg',
+                        width: 24, height: 24,
+                        colorFilter: ColorFilter.mode(colors.textMain, BlendMode.srcIn),
+                      ),
                       const SizedBox(width: 10),
                       Text('Temporizador', style: TextStyle(
                         fontFamily: 'ComicSansMS',
@@ -403,15 +432,10 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                     ],
                   ),
                   if (_timerEnabled) ...[
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
-                        Text('$_timerDuration s', style: TextStyle(
-                          fontFamily: 'ComicSansMS',
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                          color: colors.textMain,
-                        )),
+                        Text('Tempo:', style: TextStyle(color: colors.textMain)),
                         Expanded(
                           child: SliderTheme(
                             data: SliderThemeData(
@@ -419,6 +443,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                               inactiveTrackColor: colors.divider,
                               thumbColor: AppColors.green,
                               overlayColor: AppColors.green.withOpacity(0.15),
+                              valueIndicatorColor: AppColors.green,
                             ),
                             child: Slider(
                               value: _timerDuration.toDouble(),
@@ -428,58 +453,52 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                             ),
                           ),
                         ),
-                        Text('2 min', style: TextStyle(fontSize: 12, color: colors.textMuted)),
+                        Text('$_timerDuration s', style: TextStyle(color: colors.textMain)),
                       ],
                     ),
                   ],
                 ],
               ),
             ),
-          ),
-
-          const SizedBox(height: 20),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildLevelCard({
-    required String emoji,
+  Widget _buildLevelButton({
+    required String icon,
     required String label,
     required int pairs,
-    required Color cor,
+    required VoidCallback onTap,
   }) {
     final colors = widget.colors;
-    // calcula metade do ecrã menos padding e spacing
-    final cardW = (MediaQuery.of(context).size.width - 32 - 12) / 2;
-
     return _Bounce(
       onTap: () {
         _playSound('audio/pressing.wav');
-        _iniciarJogo(pairs, _timerEnabled, _timerDuration);
+        onTap();
       },
       child: Container(
-        width: cardW,
-        padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 12),
         decoration: BoxDecoration(
-          color: cor.withOpacity(0.12),
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: cor.withOpacity(0.5), width: 2),
-          boxShadow: [BoxShadow(color: cor.withOpacity(0.18), offset: const Offset(0, 4), blurRadius: 8)],
+          color: colors.c2Bg,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [BoxShadow(color: colors.divider, offset: const Offset(0, 4))],
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 42)),
+            Image.asset(
+              icon,
+              width: 50, height: 50,
+              errorBuilder: (_, __, ___) => Icon(Icons.star, size: 50, color: colors.textMain),
+            ),
             const SizedBox(height: 10),
             Text(label, style: TextStyle(
               fontFamily: 'ComicSansMS',
               fontWeight: FontWeight.w700,
               fontSize: 16,
-              color: cor,
+              color: colors.textMain,
             )),
-            const SizedBox(height: 4),
-            Text('$pairs pares', style: TextStyle(fontSize: 12, color: colors.textMuted)),
           ],
         ),
       ),
@@ -490,8 +509,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
 
   Widget _buildGame() {
     final colors = widget.colors;
-    // Descobre colunas consoante pares
-    final cols = _levelPairs <= 4 ? 4 : 4;
 
     return Scaffold(
       backgroundColor: colors.bg,
@@ -539,7 +556,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
             iconOff: 'assets/icons/music_off.svg',
             onTap: _toggleMusic,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 14),
@@ -547,7 +564,8 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('$_tentativas tent.', style: TextStyle(fontSize: 12, color: colors.textMuted)),
+                  Text('$_tentativas tentativas',
+                      style: TextStyle(fontSize: 12, color: colors.textMuted)),
                   if (_timerEnabled)
                     Text('⏳ $_remainingSeconds s', style: TextStyle(
                       fontSize: 12,
@@ -564,7 +582,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
         children: [
           Column(
             children: [
-              // Banner topo (vitória ou streak)
+              // Banner topo
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 280),
                 child: _ganhou
@@ -575,31 +593,29 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
               ),
 
               // ─── GRID DAS CARTAS ───────────────────────────
-              // Usa LayoutBuilder + GridView com shrinkWrap:false
-              // e sem NeverScrollableScrollPhysics para o web
-              // nunca colapsar a altura.
+              // LayoutBuilder resolve o colapso de altura no Flutter Web:
+              // calcula a altura real do grid e decide se precisa de scroll.
               Expanded(
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    final total   = _cartas.length; // sempre par
-                    final spacing = 10.0;
-                    final pad     = 16.0;
-                    final availW  = constraints.maxWidth - pad * 2;
-                    final cellW   = (availW - spacing * (cols - 1)) / cols;
-                    final rows    = (total / cols).ceil();
-                    final gridH   = rows * cellW + (rows - 1) * spacing;
-                    final availH  = constraints.maxHeight - pad * 2;
-                    // Se cabe sem scroll usa SizedBox fixo, senão scrollável
-                    final needsScroll = gridH > availH;
+                    const cols     = 4;
+                    const spacing  = 10.0;
+                    const pad      = 16.0;
+                    final availW   = constraints.maxWidth - pad * 2;
+                    final cellW    = (availW - spacing * (cols - 1)) / cols;
+                    final rows     = (_cartas.length / cols).ceil();
+                    final gridH    = rows * cellW + (rows - 1) * spacing + pad * 2;
+                    final needsScroll = gridH > constraints.maxHeight;
 
-                    final grid = GridView.builder(
-                      padding: EdgeInsets.all(pad),
+                    return GridView.builder(
+                      padding: const EdgeInsets.all(pad),
                       physics: needsScroll
                           ? const BouncingScrollPhysics()
                           : const NeverScrollableScrollPhysics(),
-                      shrinkWrap: needsScroll ? false : true,
-                      itemCount: total,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      shrinkWrap: !needsScroll,
+                      itemCount: _cartas.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: cols,
                         mainAxisSpacing: spacing,
                         crossAxisSpacing: spacing,
@@ -614,8 +630,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                         onTap: () => _tocar(i),
                       ),
                     );
-
-                    return needsScroll ? grid : SingleChildScrollView(child: grid);
                   },
                 ),
               ),
@@ -632,14 +646,19 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
                   duration: const Duration(milliseconds: 260),
                   curve: Curves.elasticOut,
                   builder: (_, t, child) => Transform.scale(
-                    scale: t, child: Opacity(opacity: t.clamp(0, 1), child: child),
+                    scale: t,
+                    child: Opacity(opacity: t.clamp(0, 1), child: child),
                   ),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
                     decoration: BoxDecoration(
                       color: colors.bgCardNeutral,
                       borderRadius: BorderRadius.circular(24),
-                      boxShadow: [BoxShadow(color: colors.divider, blurRadius: 16, offset: const Offset(0, 6))],
+                      boxShadow: [BoxShadow(
+                        color: colors.divider,
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      )],
                     ),
                     child: Text(_mensagem!, style: TextStyle(
                       fontFamily: 'ComicSansMS',
@@ -686,7 +705,10 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
             fontSize: 14, color: Colors.white,
           )),
           _Bounce(
-            onTap: () { _playSound('audio/pressing.wav'); _iniciarJogo(_levelPairs, _timerEnabled, _timerDuration); },
+            onTap: () {
+              _playSound('audio/pressing.wav');
+              _iniciarJogo(_levelPairs, _timerEnabled, _timerDuration);
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
@@ -713,14 +735,11 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
         color: AppColors.orange,
         borderRadius: BorderRadius.circular(14),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('🔥 Sequência: $_streak em linha!', style: const TextStyle(
-            fontFamily: 'ComicSansMS', fontWeight: FontWeight.w700,
-            fontSize: 13, color: Colors.white,
-          )),
-        ],
+      child: Center(
+        child: Text('🔥 Sequência: $_streak em linha!', style: const TextStyle(
+          fontFamily: 'ComicSansMS', fontWeight: FontWeight.w700,
+          fontSize: 13, color: Colors.white,
+        )),
       ),
     );
   }
@@ -758,10 +777,6 @@ class _BounceState extends State<_Bounce> {
 }
 
 // ─── _Carta ───────────────────────────────────────────────────────────────────
-//
-// StatefulWidget com AnimationController próprio.
-// A key ValueKey('carta_$index') no GridView garante que o Flutter
-// nunca reutiliza o Element desta carta para outra posição.
 
 class _Carta extends StatefulWidget {
   final AppColors colors;
@@ -795,23 +810,16 @@ class _CartaState extends State<_Carta> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _flip = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 320),
-      value: _revealed ? 1.0 : 0.0,
-    );
+    _flip  = AnimationController(vsync: this, duration: const Duration(milliseconds: 320), value: _revealed ? 1.0 : 0.0);
     _shake = AnimationController(vsync: this, duration: const Duration(milliseconds: 420));
-    _pop   = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
-    if (widget.encontrada) _pop.value = 1.0;
+    _pop   = AnimationController(vsync: this, duration: const Duration(milliseconds: 300), value: widget.encontrada ? 1.0 : 0.0);
   }
 
   @override
   void didUpdateWidget(covariant _Carta old) {
     super.didUpdateWidget(old);
     final wasRevealed = old.virada || old.encontrada;
-    if (_revealed != wasRevealed) {
-      _revealed ? _flip.forward() : _flip.reverse();
-    }
+    if (_revealed != wasRevealed) _revealed ? _flip.forward() : _flip.reverse();
     if (widget.errou && !old.errou) _shake.forward(from: 0);
     if (widget.encontrada && !old.encontrada) _pop.forward(from: 0.8);
   }
@@ -840,13 +848,12 @@ class _CartaState extends State<_Carta> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [BoxShadow(color: colors.divider, offset: const Offset(0, 3))],
       ),
-      // Padrão no verso para ser mais divertido
       child: Center(
         child: Text('?', style: TextStyle(
           fontFamily: 'ComicSansMS',
           fontWeight: FontWeight.w700,
-          fontSize: 26,
-          color: colors.textMuted.withOpacity(0.3),
+          fontSize: 24,
+          color: colors.textMuted.withOpacity(0.35),
         )),
       ),
     );
@@ -856,12 +863,10 @@ class _CartaState extends State<_Carta> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: faceColor,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: widget.encontrada ? AppColors.greenShadow : colors.divider,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        boxShadow: [BoxShadow(
+          color: widget.encontrada ? AppColors.greenShadow : colors.divider,
+          offset: const Offset(0, 3),
+        )],
       ),
       child: Center(
         child: Text(widget.letra, style: TextStyle(
@@ -878,8 +883,8 @@ class _CartaState extends State<_Carta> with TickerProviderStateMixin {
       child: AnimatedBuilder(
         animation: Listenable.merge([_flip, _shake, _pop]),
         builder: (_, __) {
-          final t     = _flip.value;
-          final angle = (1 - t) * pi / 2;
+          final t        = _flip.value;
+          final angle    = (1 - t) * pi / 2;
           final showFace = t > 0.5;
 
           Widget w = Transform(
@@ -896,13 +901,11 @@ class _CartaState extends State<_Carta> with TickerProviderStateMixin {
                   ),
           );
 
-          // Shake ao errar
           if (_shake.value > 0 && _shake.value < 1) {
             final s = sin(_shake.value * pi * 6) * (1 - _shake.value) * 7;
             w = Transform.translate(offset: Offset(s, 0), child: w);
           }
 
-          // Pop ao acertar
           if (widget.encontrada) {
             final scale = 0.8 + 0.2 * _pop.value;
             w = Transform.scale(scale: scale, child: w);
@@ -993,8 +996,8 @@ class _ConfettiPainter extends CustomPainter {
     final paint = Paint();
     for (final p in particles) {
       final fade = (1 - progress).clamp(0.0, 1.0);
-      final dx = size.width * p.startX + sin(p.angle) * 160 * progress;
-      final dy = -30 + size.height * progress * progress * 0.95;
+      final dx   = size.width * p.startX + sin(p.angle) * 160 * progress;
+      final dy   = -30 + size.height * progress * progress * 0.95;
       paint.color = p.color.withOpacity(fade);
       canvas.save();
       canvas.translate(dx, dy);
