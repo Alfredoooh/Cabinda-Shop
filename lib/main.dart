@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+
 import 'screens/home_screen.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    systemNavigationBarColor: Colors.transparent,
-  ));
+
+  await SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.edgeToEdge,
+  );
+
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent,
+    ),
+  );
+
   runApp(const AlfabetoApp());
 }
 
@@ -18,94 +27,189 @@ class AlfabetoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ABCtube',
-      home: HomeScreen(),
+      theme: ThemeData(
+        useMaterial3: true,
+      ),
+      home: const HomeScreen(),
     );
   }
 }
 
+// ══════════════════════════════════════════════════════════════
+// INTERFACE / ESTILOS
+// ══════════════════════════════════════════════════════════════
+
+enum AppDesign {
+  custom,
+  material,
+}
+
+enum AppStyle {
+  classic,
+  playful,
+  ocean,
+  sunset,
+  monochrome,
+}
+
+enum GridMode {
+  all,
+  vowels,
+  consonants,
+}
+
+enum DrawerSection {
+  alphabet,
+  games,
+  videos,
+}
+
+// ══════════════════════════════════════════════════════════════
+// CORES
+// ══════════════════════════════════════════════════════════════
+
 class AppColors {
   final bool isDark;
   final AppStyle style;
-  AppColors(this.isDark, [this.style = AppStyle.classic]);
+  final AppDesign design;
 
-  Color get bg => isDark ? const Color(0xFF1E1B16) : const Color(0xFFFFF8EE);
-  Color get bgCardNeutral =>
-      isDark ? const Color(0xFF2E2A22) : const Color(0xFFF0E6D2);
-  Color get textMain =>
-      isDark ? const Color(0xFFF5EEDD) : const Color(0xFF3D2B1F);
+  AppColors(
+    this.isDark, [
+    this.style = AppStyle.classic,
+    this.design = AppDesign.custom,
+  ]);
+
+  Color get bg {
+    switch (style) {
+      case AppStyle.ocean:
+        return isDark
+            ? const Color(0xFF071E29)
+            : const Color(0xFFF1FBFF);
+      case AppStyle.sunset:
+        return isDark
+            ? const Color(0xFF271611)
+            : const Color(0xFFFFF7F1);
+      case AppStyle.monochrome:
+        return isDark
+            ? const Color(0xFF181818)
+            : const Color(0xFFF6F6F6);
+      case AppStyle.playful:
+        return isDark
+            ? const Color(0xFF211523)
+            : const Color(0xFFFFF5FB);
+      case AppStyle.classic:
+        return isDark
+            ? const Color(0xFF242424)
+            : const Color(0xFFFFFFFF);
+    }
+  }
+
+  Color get bgCardNeutral {
+    switch (style) {
+      case AppStyle.ocean:
+        return isDark
+            ? const Color(0xFF103746)
+            : const Color(0xFFE1F6FF);
+      case AppStyle.sunset:
+        return isDark
+            ? const Color(0xFF40251D)
+            : const Color(0xFFFFE9DA);
+      case AppStyle.monochrome:
+        return isDark
+            ? const Color(0xFF292929)
+            : const Color(0xFFFFFFFF);
+      case AppStyle.playful:
+        return isDark
+            ? const Color(0xFF35233A)
+            : const Color(0xFFFFE9F5);
+      case AppStyle.classic:
+        return isDark
+            ? const Color(0xFF2C2C2E)
+            : const Color(0xFFF5F5F5);
+    }
+  }
+
+  Color get textMain {
+    switch (style) {
+      case AppStyle.ocean:
+        return isDark
+            ? const Color(0xFFE8FBFF)
+            : const Color(0xFF12323D);
+      case AppStyle.sunset:
+        return isDark
+            ? const Color(0xFFFFEEE7)
+            : const Color(0xFF3B2016);
+      case AppStyle.monochrome:
+        return isDark
+            ? const Color(0xFFF2F2F2)
+            : const Color(0xFF252525);
+      case AppStyle.playful:
+        return isDark
+            ? const Color(0xFFFFECF8)
+            : const Color(0xFF321D2E);
+      case AppStyle.classic:
+        return isDark
+            ? const Color(0xFFF2F2F2)
+            : const Color(0xFF242424);
+    }
+  }
+
   Color get textMuted =>
-      isDark ? const Color(0xFF9C9082) : const Color(0xFFA08868);
+      isDark ? const Color(0xFFA8A8AC) : const Color(0xFF6E6E73);
+
   Color get divider =>
-      isDark ? const Color(0xFF3A352A) : const Color(0xFFEDE1C8);
-  Color get drawerBg =>
-      isDark ? const Color(0xFF26221B) : const Color(0xFFFFFFFF);
+      isDark ? const Color(0xFF3D3D40) : const Color(0xFFE0E0E0);
+
+  Color get drawerBg => bgCardNeutral;
+
   Color get overlay =>
       isDark ? const Color(0x99000000) : const Color(0x66000000);
-  Color get neutralShadow =>
-      isDark ? const Color(0x40000000) : const Color(0x1A000000);
+
   Color get drawerShadow =>
       isDark ? const Color(0x66000000) : const Color(0x33000000);
-  Color get switchThumb =>
-      isDark ? const Color(0xFFF5EEDD) : const Color(0xFFFFFFFF);
+
+  Color get neutralShadow =>
+      isDark ? const Color(0x40000000) : const Color(0x1A000000);
+
+  Color get switchThumb => Colors.white;
+
   Color get switchThumbShadow =>
-      isDark ? const Color(0x40000000) : const Color(0x33000000);
-
-  Color get c0Bg => isDark ? const Color(0xFF17394A) : const Color(0xFFDDF4FF);
-  Color get c0Fg => isDark ? const Color(0xFF6FCBFA) : const Color(0xFF1CB0F6);
-  Color get c0Shadow =>
-      isDark ? const Color(0xFF0E2732) : const Color(0x591CB0F6);
-
-  Color get c1Bg => isDark ? const Color(0xFF4A3320) : const Color(0xFFFFE8D6);
-  Color get c1Fg => isDark ? const Color(0xFFFFB05C) : const Color(0xFFFF9600);
-  Color get c1Shadow =>
-      isDark ? const Color(0xFF302014) : const Color(0x59FF9600);
-
-  Color get c2Bg => isDark ? const Color(0xFF22421C) : const Color(0xFFE3F9D9);
-  Color get c2Fg => isDark ? const Color(0xFF86E048) : const Color(0xFF58CC02);
-  Color get c2Shadow =>
-      isDark ? const Color(0xFF152912) : const Color(0x5958CC02);
-
-  Color get c3Bg => isDark ? const Color(0xFF4A2333) : const Color(0xFFFFE0EC);
-  Color get c3Fg => isDark ? const Color(0xFFFF83B0) : const Color(0xFFFF4B8C);
-  Color get c3Shadow =>
-      isDark ? const Color(0xFF2E1521) : const Color(0x59FF4B8C);
-
-  Color get c4Bg => isDark ? const Color(0xFF362142) : const Color(0xFFF1E4FF);
-  Color get c4Fg => isDark ? const Color(0xFFDCA6FF) : const Color(0xFFCE82FF);
-  Color get c4Shadow =>
-      isDark ? const Color(0xFF21142A) : const Color(0x59CE82FF);
-
-  Color get c5Bg => isDark ? const Color(0xFF453A16) : const Color(0xFFFFF4CC);
-  Color get c5Fg => isDark ? const Color(0xFFFFDD6B) : const Color(0xFFFFC800);
-  Color get c5Shadow =>
-      isDark ? const Color(0xFF2B240E) : const Color(0x59FFC800);
+      isDark ? const Color(0x50000000) : const Color(0x30000000);
 
   Color get primary {
     switch (style) {
-      case AppStyle.material:
-        return isDark ? const Color(0xFF90CAF9) : const Color(0xFF1976D2);
-      case AppStyle.playful:
-        return isDark ? const Color(0xFFFF6FB5) : const Color(0xFFFF4B8C);
       case AppStyle.ocean:
-        return isDark ? const Color(0xFF64D8FF) : const Color(0xFF0288D1);
+        return isDark
+            ? const Color(0xFF64D8FF)
+            : const Color(0xFF0288D1);
       case AppStyle.sunset:
-        return isDark ? const Color(0xFFFFB74D) : const Color(0xFFF4511E);
+        return isDark
+            ? const Color(0xFFFFB74D)
+            : const Color(0xFFF4511E);
       case AppStyle.monochrome:
-        return isDark ? const Color(0xFFE0E0E0) : const Color(0xFF424242);
+        return isDark
+            ? const Color(0xFFE0E0E0)
+            : const Color(0xFF424242);
+      case AppStyle.playful:
+        return isDark
+            ? const Color(0xFFFF75B9)
+            : const Color(0xFFFF4B8C);
       case AppStyle.classic:
         return green;
     }
   }
 
-  Color get primaryShadow {
-    final c = primary;
-    return Color.alphaBlend(const Color(0x66000000), c);
-  }
+  Color get primaryShadow =>
+      Color.alphaBlend(
+        const Color(0x66000000),
+        primary,
+      );
 
-  Color get danger => isDark ? const Color(0xFFFF6B6B) : const Color(0xFFD32F2F);
+  Color get danger =>
+      isDark ? const Color(0xFFFF6B6B) : const Color(0xFFD32F2F);
 
   static const green = Color(0xFF58CC02);
   static const greenShadow = Color(0xFF46A302);
@@ -113,104 +217,387 @@ class AppColors {
   static const redShadow = Color(0xFFD63D3D);
   static const orange = Color(0xFFFF9600);
 
-  List<Color> get cardBgList => [c0Bg, c1Bg, c2Bg, c3Bg, c4Bg, c5Bg];
-  List<Color> get cardFgList => [c0Fg, c1Fg, c2Fg, c3Fg, c4Fg, c5Fg];
-  List<Color> get cardShadowList =>
-      [c0Shadow, c1Shadow, c2Shadow, c3Shadow, c4Shadow, c5Shadow];
+  Color get c0Bg =>
+      isDark ? const Color(0xFF17394A) : const Color(0xFFDDF4FF);
+  Color get c0Fg =>
+      isDark ? const Color(0xFF6FCBFA) : const Color(0xFF1CB0F6);
+  Color get c0Shadow =>
+      isDark ? const Color(0xFF0E2732) : const Color(0x591CB0F6);
+
+  Color get c1Bg =>
+      isDark ? const Color(0xFF4A3320) : const Color(0xFFFFE8D6);
+  Color get c1Fg =>
+      isDark ? const Color(0xFFFFB05C) : const Color(0xFFFF9600);
+  Color get c1Shadow =>
+      isDark ? const Color(0xFF302014) : const Color(0x59FF9600);
+
+  Color get c2Bg =>
+      isDark ? const Color(0xFF22421C) : const Color(0xFFE3F9D9);
+  Color get c2Fg =>
+      isDark ? const Color(0xFF86E048) : const Color(0xFF58CC02);
+  Color get c2Shadow =>
+      isDark ? const Color(0xFF152912) : const Color(0x5958CC02);
+
+  Color get c3Bg =>
+      isDark ? const Color(0xFF4A2333) : const Color(0xFFFFE0EC);
+  Color get c3Fg =>
+      isDark ? const Color(0xFFFF83B0) : const Color(0xFFFF4B8C);
+  Color get c3Shadow =>
+      isDark ? const Color(0xFF2E1521) : const Color(0x59FF4B8C);
+
+  Color get c4Bg =>
+      isDark ? const Color(0xFF362142) : const Color(0xFFF1E4FF);
+  Color get c4Fg =>
+      isDark ? const Color(0xFFDCA6FF) : const Color(0xFFCE82FF);
+  Color get c4Shadow =>
+      isDark ? const Color(0xFF21142A) : const Color(0x59CE82FF);
+
+  Color get c5Bg =>
+      isDark ? const Color(0xFF453A16) : const Color(0xFFFFF4CC);
+  Color get c5Fg =>
+      isDark ? const Color(0xFFFFDD6B) : const Color(0xFFFFC800);
+  Color get c5Shadow =>
+      isDark ? const Color(0xFF2B240E) : const Color(0x59FFC800);
+
+  List<Color> get cardBgList => [
+        c0Bg,
+        c1Bg,
+        c2Bg,
+        c3Bg,
+        c4Bg,
+        c5Bg,
+      ];
+
+  List<Color> get cardFgList => [
+        c0Fg,
+        c1Fg,
+        c2Fg,
+        c3Fg,
+        c4Fg,
+        c5Fg,
+      ];
+
+  List<Color> get cardShadowList => [
+        c0Shadow,
+        c1Shadow,
+        c2Shadow,
+        c3Shadow,
+        c4Shadow,
+        c5Shadow,
+      ];
 }
 
-const List<String> kVowels = ['a', 'e', 'i', 'o', 'u'];
-const List<String> kAllLetters = [
-  'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
-  'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+// ══════════════════════════════════════════════════════════════
+// ALFABETO
+// ══════════════════════════════════════════════════════════════
+
+const List<String> kVowels = [
+  'a',
+  'e',
+  'i',
+  'o',
+  'u',
 ];
-final List<String> kConsonants =
-    kAllLetters.where((l) => !kVowels.contains(l)).toList();
 
-String buildSyllable(String consonant, String vowel, bool consonantUpper) {
-  final cRaw =
-      consonantUpper ? consonant.toUpperCase() : consonant.toLowerCase();
+const List<String> kAllLetters = [
+  'a',
+  'b',
+  'c',
+  'd',
+  'e',
+  'f',
+  'g',
+  'h',
+  'i',
+  'j',
+  'k',
+  'l',
+  'm',
+  'n',
+  'o',
+  'p',
+  'q',
+  'r',
+  's',
+  't',
+  'u',
+  'v',
+  'w',
+  'x',
+  'y',
+  'z',
+];
+
+final List<String> kConsonants =
+    kAllLetters.where((letter) => !kVowels.contains(letter)).toList();
+
+String buildSyllable(
+  String consonant,
+  String vowel,
+  bool consonantUpper,
+) {
+  final c = consonantUpper
+      ? consonant.toUpperCase()
+      : consonant.toLowerCase();
   final v = vowel.toLowerCase();
+
   if (consonant.toLowerCase() == 'q') {
-    if (v == 'e') return '${cRaw}ue';
-    if (v == 'i') return '${cRaw}ui';
-    if (v == 'a') return '${cRaw}ua';
-    if (v == 'o') return '${cRaw}uo';
-    if (v == 'u') return '${cRaw}u';
+    if (v == 'e') return '${c}ue';
+    if (v == 'i') return '${c}ui';
+    if (v == 'a') return '${c}ua';
+    if (v == 'o') return '${c}uo';
+    if (v == 'u') return '${c}u';
   }
-  return '$cRaw$v';
+
+  return '$c$v';
 }
 
-enum GridMode { all, vowels, consonants }
-enum DrawerSection { alphabet, games, videos }
-enum AppStyle { classic, material, playful, ocean, sunset, monochrome }
-
+// ══════════════════════════════════════════════════════════════
+// ASSETS
+// ══════════════════════════════════════════════════════════════
 
 class AssetUtils {
-  static Future<List<String>> getAssetsInFolder(String folder) async {
-    final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-    final keys = manifest.listAssets().where((key) =>
-        key.startsWith(folder) &&
-        (key.endsWith('.png') || key.endsWith('.jpg') || key.endsWith('.jpeg')));
-    final list = keys.toList()..sort();
-    return list;
+  static List<String>? _assets;
+
+  static Future<List<String>> assets() async {
+    if (_assets != null) return _assets!;
+
+    final manifest =
+        await AssetManifest.loadFromAssetBundle(rootBundle);
+    _assets = manifest.listAssets().toList(growable: false);
+    return _assets!;
+  }
+
+  static Future<bool> exists(String path) async {
+    final all = await assets();
+    return all.contains(path) || all.contains('assets/$path');
   }
 }
+
+// ══════════════════════════════════════════════════════════════
+// SOM + FALLBACK
+// ══════════════════════════════════════════════════════════════
 
 class SoundManager {
   SoundManager._();
+
   static final SoundManager instance = SoundManager._();
+
   final AudioPlayer _player = AudioPlayer();
+  final FlutterTts _tts = FlutterTts();
+
   bool muted = false;
   bool clickMuted = false;
   bool musicMuted = false;
 
+  bool _ttsReady = false;
+
+  Future<void> _prepareTts() async {
+    if (_ttsReady) return;
+
+    try {
+      await _tts.setLanguage('pt-PT');
+      await _tts.setSpeechRate(0.38);
+      await _tts.setPitch(1.0);
+      await _tts.setVolume(1.0);
+      _ttsReady = true;
+    } catch (_) {}
+  }
+
   Future<void> playClick() async {
-    if (clickMuted) return;
-    await _play('audio/pressing.wav');
-  }
+    if (muted || clickMuted) return;
 
-  Future<void> playLetter(String letter) async {
-    final l = letter.toLowerCase();
-    if (l.isEmpty || l.length != 1) return;
-    final path =
-        kVowels.contains(l) ? 'audio/vowels/$l.wav' : 'audio/consonants/$l.wav';
-    await _play(path);
-  }
-
-  Future<void> playSyllable(String syllable) async {
-    final s = syllable.toLowerCase();
-    if (s.isEmpty) return;
-    final firstConsonant = s[0];
-    if (!kConsonants.contains(firstConsonant)) {
-      await playLetter(firstConsonant);
+    if (await AssetUtils.exists('audio/pressing.wav')) {
+      await _playAsset('audio/pressing.wav');
       return;
     }
-    await _play('audio/syllables/$firstConsonant/$s.wav');
-  }
 
-  Future<void> playExample(String syllable) async {
-    final s = syllable.toLowerCase();
-    if (s.isEmpty) return;
-    final firstConsonant = s[0];
-    if (!kConsonants.contains(firstConsonant)) return;
-    await _play('audio/syllables/$firstConsonant/${s}_ex.wav');
+    await speak('clique', rate: 0.55);
   }
 
   Future<void> play(String text) async {
-    final t = text.toLowerCase();
-    if (t.length == 1) {
-      await playLetter(t);
-    } else {
-      await playSyllable(t);
+    final value = text.trim().toLowerCase();
+    if (value.isEmpty || muted) return;
+
+    if (value.length == 1) {
+      await playLetter(value);
+      return;
     }
+
+    if (_looksLikeSyllable(value)) {
+      await playSyllable(value);
+      return;
+    }
+
+    await playWord(value);
   }
 
-  Future<void> _play(String assetPath) async {
+  Future<void> playLetter(String letter) async {
+    final value = letter.trim().toLowerCase();
+    if (value.length != 1 || muted) return;
+
+    final folder = kVowels.contains(value)
+        ? 'audio/vowels'
+        : 'audio/consonants';
+
+    final path = '$folder/$value.wav';
+
+    if (await AssetUtils.exists(path)) {
+      await _playAsset(path);
+      return;
+    }
+
+    await speak(value, rate: 0.30);
+  }
+
+  Future<void> playSyllable(String syllable) async {
+    final value = syllable.trim().toLowerCase();
+    if (value.isEmpty || muted) return;
+
+    String? consonant;
+    for (final item in kConsonants) {
+      if (value.startsWith(item)) {
+        consonant = item;
+        break;
+      }
+    }
+
+    if (consonant != null) {
+      final path = 'audio/syllables/$consonant/$value.wav';
+      if (await AssetUtils.exists(path)) {
+        await _playAsset(path);
+        return;
+      }
+    }
+
+    await speak(value, rate: 0.34);
+  }
+
+  Future<void> playExample(String syllable) async {
+    final value = syllable.trim().toLowerCase();
+    if (value.isEmpty || muted) return;
+
+    String? consonant;
+    for (final item in kConsonants) {
+      if (value.startsWith(item)) {
+        consonant = item;
+        break;
+      }
+    }
+
+    if (consonant != null) {
+      final path = 'audio/syllables/$consonant/${value}_ex.wav';
+      if (await AssetUtils.exists(path)) {
+        await _playAsset(path);
+        return;
+      }
+    }
+
+    await speak(value, rate: 0.34);
+  }
+
+  Future<void> playWord(String word) async {
+    final value = word.trim().toLowerCase();
+    if (value.isEmpty || muted) return;
+
+    final filename = value.replaceAll(RegExp(r'[^a-z0-9áàâãéêíóôõúç_ ]'), '').replaceAll(' ', '_');
+    final path = 'audio/words/$filename.wav';
+
+    if (await AssetUtils.exists(path)) {
+      await _playAsset(path);
+      return;
+    }
+
+    await speak(value, rate: 0.36);
+  }
+
+  Future<void> speak(
+    String text, {
+    double rate = 0.38,
+  }) async {
+    if (muted || text.trim().isEmpty) return;
+
+    try {
+      await _prepareTts();
+      await _tts.stop();
+      await _tts.setSpeechRate(rate);
+      await _tts.speak(text.trim());
+    } catch (_) {}
+  }
+
+  bool _looksLikeSyllable(String value) {
+    if (value.length < 2 || value.length > 4) return false;
+
+    for (final consonant in kConsonants) {
+      if (!value.startsWith(consonant)) continue;
+
+      for (final vowel in kVowels) {
+        final built = buildSyllable(consonant, vowel, false);
+        if (built == value) return true;
+      }
+    }
+
+    return false;
+  }
+
+  Future<void> _playAsset(String path) async {
     if (muted) return;
+
     try {
       await _player.stop();
-      await _player.play(AssetSource(assetPath));
+      await _player.play(AssetSource(path));
     } catch (_) {}
+  }
+
+  Future<void> stop() async {
+    try {
+      await _player.stop();
+    } catch (_) {}
+
+    try {
+      await _tts.stop();
+    } catch (_) {}
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// ÍCONE ADAPTÁVEL
+// ══════════════════════════════════════════════════════════════
+
+class AppIcon extends StatelessWidget {
+  final AppColors colors;
+  final IconData materialIcon;
+  final String? customAsset;
+  final double size;
+
+  const AppIcon({
+    super.key,
+    required this.colors,
+    required this.materialIcon,
+    this.customAsset,
+    this.size = 24,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (colors.design == AppDesign.material || customAsset == null) {
+      return Icon(
+        materialIcon,
+        size: size,
+        color: colors.textMain,
+      );
+    }
+
+    return Image.asset(
+      customAsset!,
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) => Icon(
+        materialIcon,
+        size: size,
+        color: colors.textMain,
+      ),
+    );
   }
 }

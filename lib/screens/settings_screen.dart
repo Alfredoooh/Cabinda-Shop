@@ -2,30 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../main.dart'
-    show
-        AppColors,
-        AppStyle,
-        SoundManager;
+    show AppColors, AppDesign, AppIcon, AppStyle, SoundManager;
 
 class AppSettingsResult {
   final bool isDark;
   final AppStyle style;
+  final AppDesign design;
   final bool soundEnabled;
   final bool musicEnabled;
 
   const AppSettingsResult({
     required this.isDark,
     required this.style,
+    required this.design,
     required this.soundEnabled,
     required this.musicEnabled,
   });
 }
 
-class SettingsScreen
-    extends StatefulWidget {
+class SettingsScreen extends StatefulWidget {
   final AppColors colors;
   final bool isDark;
   final AppStyle style;
+  final AppDesign design;
   final bool soundEnabled;
   final bool musicEnabled;
 
@@ -34,356 +33,202 @@ class SettingsScreen
     required this.colors,
     required this.isDark,
     required this.style,
+    required this.design,
     required this.soundEnabled,
     required this.musicEnabled,
   });
 
   @override
-  State<SettingsScreen>
-      createState() =>
-          _SettingsScreenState();
+  State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState
-    extends State<SettingsScreen> {
+class _SettingsScreenState extends State<SettingsScreen> {
   late bool _dark;
   late AppStyle _style;
+  late AppDesign _design;
   late bool _sound;
   late bool _music;
+
+  AppColors get colors => AppColors(_dark, _style, _design);
 
   @override
   void initState() {
     super.initState();
+    _dark = widget.isDark;
+    _style = widget.style;
+    _design = widget.design;
+    _sound = widget.soundEnabled;
+    _music = widget.musicEnabled;
 
-    _dark =
-        widget.isDark;
-
-    _style =
-        widget.style;
-
-    _sound =
-        widget.soundEnabled;
-
-    _music =
-        widget.musicEnabled;
-
-    SystemChrome
-        .setEnabledSystemUIMode(
-      SystemUiMode
-          .edgeToEdge,
-    );
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   }
 
-  AppColors get colors =>
-      AppColors(
-        _dark,
-        _style,
-      );
+  void _finish() {
+    SoundManager.instance
+      ..muted = !_sound
+      ..clickMuted = !_sound
+      ..musicMuted = !_music;
 
-  void _applyAudioState() {
-    final manager =
-        SoundManager.instance;
-
-    manager.muted =
-        !_sound;
-
-    manager.clickMuted =
-        !_sound;
-
-    manager.musicMuted =
-        !_music;
-  }
-
-  void _closeAndApply() {
-    _applyAudioState();
-
-    Navigator.of(context)
-        .pop(
+    Navigator.of(context).pop(
       AppSettingsResult(
-        isDark:
-            _dark,
-        style:
-            _style,
-        soundEnabled:
-            _sound,
-        musicEnabled:
-            _music,
+        isDark: _dark,
+        style: _style,
+        design: _design,
+        soundEnabled: _sound,
+        musicEnabled: _music,
       ),
-    );
-  }
-
-  void _setSound(
-    bool value,
-  ) {
-    setState(
-      () {
-        _sound =
-            value;
-      },
-    );
-
-    SoundManager.instance
-        .muted = !value;
-
-    SoundManager.instance
-        .clickMuted = !value;
-  }
-
-  void _setMusic(
-    bool value,
-  ) {
-    setState(
-      () {
-        _music =
-            value;
-      },
-    );
-
-    SoundManager.instance
-        .musicMuted = !value;
-  }
-
-  void _setTheme(
-    bool value,
-  ) {
-    setState(
-      () {
-        _dark =
-            value;
-      },
     );
   }
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
-    final c =
-        colors;
+  Widget build(BuildContext context) {
+    final c = colors;
+    final isMaterial = _design == AppDesign.material;
 
-    return AnnotatedRegion<
-        SystemUiOverlayStyle>(
-      value:
-          SystemUiOverlayStyle(
-        statusBarColor:
-            Colors.transparent,
-        systemNavigationBarColor:
-            Colors.transparent,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
         statusBarIconBrightness:
-            _dark
-                ? Brightness.light
-                : Brightness.dark,
+            _dark ? Brightness.light : Brightness.dark,
         statusBarBrightness:
-            _dark
-                ? Brightness.dark
-                : Brightness.light,
+            _dark ? Brightness.dark : Brightness.light,
         systemNavigationBarIconBrightness:
-            _dark
-                ? Brightness.light
-                : Brightness.dark,
+            _dark ? Brightness.light : Brightness.dark,
       ),
-      child:
-          Scaffold(
-        backgroundColor:
-            c.bg,
-        body:
-            SafeArea(
-          child:
-              Column(
+      child: Scaffold(
+        backgroundColor: c.bg,
+        body: SafeArea(
+          child: Column(
             children: [
               _SettingsHeader(
-                colors:
-                    c,
-                onBack:
-                    _closeAndApply,
+                colors: c,
+                onBack: _finish,
               ),
-
               Expanded(
-                child:
-                    ListView(
-                  physics:
-                      const BouncingScrollPhysics(),
-                  padding:
-                      const EdgeInsets.fromLTRB(
-                    16,
-                    8,
-                    16,
-                    28,
-                  ),
+                child: ListView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 30),
                   children: [
-                    _SectionHeader(
-                      colors:
-                          c,
-                      icon:
-                          Icons
-                              .volume_up_outlined,
-                      title:
-                          'Som e reprodução',
-                      subtitle:
-                          'Controla os sons e a música do ABCtube.',
+                    _SettingsSection(
+                      colors: c,
+                      icon: Icons.volume_up_outlined,
+                      title: 'Som e reprodução',
+                      description:
+                          'Controla os sons de interação e a música do ABCtube.',
                     ),
-
-                    const SizedBox(
-                      height:
-                          10,
-                    ),
-
+                    const SizedBox(height: 10),
                     _SettingTile(
-                      colors:
-                          c,
-                      icon:
-                          Icons
-                              .touch_app_outlined,
-                      title:
-                          'Sons de clique',
-                      subtitle:
-                          'Feedback sonoro ao tocar nos botões.',
-                      value:
-                          _sound,
-                      onChanged:
-                          _setSound,
-                    ),
-
-                    const SizedBox(
-                      height:
-                          10,
-                    ),
-
-                    _SettingTile(
-                      colors:
-                          c,
-                      icon:
-                          Icons
-                              .music_note_outlined,
-                      title:
-                          'Música',
-                      subtitle:
-                          'Música ambiente durante a utilização.',
-                      value:
-                          _music,
-                      onChanged:
-                          _setMusic,
-                    ),
-
-                    const SizedBox(
-                      height:
-                          24,
-                    ),
-
-                    _SectionHeader(
-                      colors:
-                          c,
-                      icon:
-                          Icons
-                              .palette_outlined,
-                      title:
-                          'Aparência',
-                      subtitle:
-                          'Personaliza o visual do ABCtube.',
-                    ),
-
-                    const SizedBox(
-                      height:
-                          10,
-                    ),
-
-                    _SettingTile(
-                      colors:
-                          c,
-                      icon: _dark
-                          ? Icons
-                              .dark_mode_outlined
-                          : Icons
-                              .light_mode_outlined,
-                      title:
-                          'Tema escuro',
-                      subtitle:
-                          _dark
-                              ? 'Tema escuro ativo.'
-                              : 'Tema claro ativo.',
-                      value:
-                          _dark,
-                      onChanged:
-                          _setTheme,
-                    ),
-
-                    const SizedBox(
-                      height:
-                          18,
-                    ),
-
-                    _SubsectionTitle(
-                      colors:
-                          c,
-                      title:
-                          'Estilo visual',
-                    ),
-
-                    const SizedBox(
-                      height:
-                          6,
-                    ),
-
-                    Text(
-                      'Escolhe uma linguagem visual. As cores, os botões e os destaques do app adaptam-se ao estilo selecionado.',
-                      style:
-                          TextStyle(
-                        color:
-                            c.textMuted,
-                        fontSize:
-                            13,
-                        height:
-                            1.4,
-                      ),
-                    ),
-
-                    const SizedBox(
-                      height:
-                          12,
-                    ),
-
-                    _StyleGrid(
-                      colors:
-                          c,
-                      selectedStyle:
-                          _style,
-                      isDark:
-                          _dark,
-                      onChanged:
-                          (
-                        style,
-                      ) {
-                        setState(
-                          () {
-                            _style =
-                                style;
-                          },
-                        );
+                      colors: c,
+                      icon: Icons.touch_app_outlined,
+                      title: 'Sons de clique',
+                      description: 'Feedback sonoro dos botões.',
+                      value: _sound,
+                      material: isMaterial,
+                      onChanged: (value) {
+                        setState(() => _sound = value);
+                        SoundManager.instance
+                          ..muted = !value
+                          ..clickMuted = !value;
                       },
                     ),
-
-                    const SizedBox(
-                      height:
-                          24,
+                    const SizedBox(height: 10),
+                    _SettingTile(
+                      colors: c,
+                      icon: Icons.music_note_outlined,
+                      title: 'Música',
+                      description: 'Música ambiente dos jogos.',
+                      value: _music,
+                      material: isMaterial,
+                      onChanged: (value) {
+                        setState(() => _music = value);
+                        SoundManager.instance.musicMuted = !value;
+                      },
                     ),
-
-                    _PreviewCard(
-                      colors:
-                          c,
-                      style:
-                          _style,
+                    const SizedBox(height: 26),
+                    _SettingsSection(
+                      colors: c,
+                      icon: _dark
+                          ? Icons.dark_mode_outlined
+                          : Icons.light_mode_outlined,
+                      title: 'Tema',
+                      description:
+                          'Escolhe entre a aparência clara e escura.',
                     ),
-
-                    const SizedBox(
-                      height:
-                          24,
+                    const SizedBox(height: 10),
+                    _SettingTile(
+                      colors: c,
+                      icon: _dark
+                          ? Icons.dark_mode_outlined
+                          : Icons.light_mode_outlined,
+                      title: 'Tema escuro',
+                      description:
+                          _dark ? 'Tema escuro ativo.' : 'Tema claro ativo.',
+                      value: _dark,
+                      material: isMaterial,
+                      onChanged: (value) => setState(() => _dark = value),
                     ),
-
+                    const SizedBox(height: 26),
+                    _SettingsSection(
+                      colors: c,
+                      icon: Icons.tune_outlined,
+                      title: 'Interface',
+                      description:
+                          'Escolhe entre os componentes customizados e Material.',
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _ModeCard(
+                            colors: c,
+                            title: 'Personalizada',
+                            subtitle: 'ABCtube',
+                            icon: Icons.tune_outlined,
+                            selected: !isMaterial,
+                            onTap: () => setState(
+                              () => _design = AppDesign.custom,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _ModeCard(
+                            colors: c,
+                            title: 'Material',
+                            subtitle: 'Material 3',
+                            icon: Icons.layers_outlined,
+                            selected: isMaterial,
+                            onTap: () => setState(
+                              () => _design = AppDesign.material,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 26),
+                    _SettingsSection(
+                      colors: c,
+                      icon: Icons.palette_outlined,
+                      title: 'Estilo visual',
+                      description:
+                          'Mantém todos os estilos anteriores e muda cores, botões e destaques.',
+                    ),
+                    const SizedBox(height: 12),
+                    _StyleGrid(
+                      colors: c,
+                      isDark: _dark,
+                      design: _design,
+                      selected: _style,
+                      onChanged: (style) => setState(() => _style = style),
+                    ),
+                    const SizedBox(height: 26),
+                    _PreviewCard(colors: c),
+                    const SizedBox(height: 20),
                     _ApplyButton(
-                      colors:
-                          c,
-                      onTap:
-                          _closeAndApply,
+                      colors: c,
+                      material: isMaterial,
+                      onTap: _finish,
                     ),
                   ],
                 ),
@@ -396,12 +241,7 @@ class _SettingsScreenState
   }
 }
 
-// ─────────────────────────────────────────────
-// HEADER
-// ─────────────────────────────────────────────
-
-class _SettingsHeader
-    extends StatelessWidget {
+class _SettingsHeader extends StatelessWidget {
   final AppColors colors;
   final VoidCallback onBack;
 
@@ -411,66 +251,49 @@ class _SettingsHeader
   });
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return SizedBox(
-      height:
-          58,
-      child:
-          Row(
+      height: 58,
+      child: Row(
         children: [
-          const SizedBox(
-            width:
-                10,
-          ),
-
-          _HeaderIconButton(
-            colors:
-                colors,
-            icon:
-                Icons.arrow_back_rounded,
-            onTap:
-                onBack,
-          ),
-
-          const SizedBox(
-            width:
-                12,
-          ),
-
-          Expanded(
-            child:
-                Text(
-              'Definições',
-              style:
-                  TextStyle(
-                fontFamily:
-                    'ComicSansMS',
-                fontWeight:
-                    FontWeight.w700,
-                fontSize:
-                    20,
-                color:
-                    colors.textMain,
+          const SizedBox(width: 10),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: onBack,
+              child: Ink(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: colors.bgCardNeutral,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: AppIcon(
+                  colors: colors,
+                  materialIcon: Icons.arrow_back_rounded,
+                  customAsset: 'assets/icons/back.svg',
+                ),
               ),
             ),
           ),
-
-          Padding(
-            padding:
-                const EdgeInsets.only(
-              right:
-                  14,
+          const SizedBox(width: 12),
+          Text(
+            'Definições',
+            style: TextStyle(
+              fontFamily: 'ComicSansMS',
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+              color: colors.textMain,
             ),
-            child:
-                Icon(
-              Icons
-                  .settings_outlined,
-              size:
-                  22,
-              color:
-                  colors.textMuted,
+          ),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.only(right: 14),
+            child: Icon(
+              Icons.settings_outlined,
+              size: 22,
+              color: colors.textMuted,
             ),
           ),
         ],
@@ -479,173 +302,58 @@ class _SettingsHeader
   }
 }
 
-// ─────────────────────────────────────────────
-// HEADER BUTTON
-// ─────────────────────────────────────────────
-
-class _HeaderIconButton
-    extends StatelessWidget {
-  final AppColors colors;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _HeaderIconButton({
-    required this.colors,
-    required this.icon,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(
-    BuildContext context,
-  ) {
-    return Material(
-      color:
-          Colors.transparent,
-      child:
-          InkWell(
-        borderRadius:
-            BorderRadius.circular(
-          12,
-        ),
-        onTap:
-            onTap,
-        child:
-            Ink(
-          width:
-              42,
-          height:
-              42,
-          decoration:
-              BoxDecoration(
-            color:
-                colors.bgCardNeutral,
-            borderRadius:
-                BorderRadius.circular(
-              12,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color:
-                    colors.divider,
-                offset:
-                    const Offset(
-                  0,
-                  3,
-                ),
-              ),
-            ],
-          ),
-          child:
-              Icon(
-            icon,
-            size:
-                21,
-            color:
-                colors.textMain,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
-// SECTION HEADER
-// ─────────────────────────────────────────────
-
-class _SectionHeader
-    extends StatelessWidget {
+class _SettingsSection extends StatelessWidget {
   final AppColors colors;
   final IconData icon;
   final String title;
-  final String subtitle;
+  final String description;
 
-  const _SectionHeader({
+  const _SettingsSection({
     required this.colors,
     required this.icon,
     required this.title,
-    required this.subtitle,
+    required this.description,
   });
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment:
-          CrossAxisAlignment
-              .start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width:
-              38,
-          height:
-              38,
-          decoration:
-              BoxDecoration(
-            color:
-                colors.primary
-                    .withOpacity(
-              0.12,
-            ),
-            borderRadius:
-                BorderRadius.circular(
-              11,
-            ),
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: colors.primary.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(11),
           ),
-          child:
-              Icon(
+          child: Icon(
             icon,
-            size:
-                21,
-            color:
-                colors.primary,
+            size: 21,
+            color: colors.primary,
           ),
         ),
-
-        const SizedBox(
-          width:
-              11,
-        ),
-
+        const SizedBox(width: 11),
         Expanded(
-          child:
-              Column(
-            crossAxisAlignment:
-                CrossAxisAlignment
-                    .start,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style:
-                    TextStyle(
-                  fontFamily:
-                      'ComicSansMS',
-                  fontWeight:
-                      FontWeight.w700,
-                  fontSize:
-                      16,
-                  color:
-                      colors.textMain,
+                style: TextStyle(
+                  fontFamily: 'ComicSansMS',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                  color: colors.textMain,
                 ),
               ),
-
-              const SizedBox(
-                height:
-                    3,
-              ),
-
+              const SizedBox(height: 3),
               Text(
-                subtitle,
-                style:
-                    TextStyle(
-                  fontSize:
-                      12,
-                  height:
-                      1.3,
-                  color:
-                      colors.textMuted,
+                description,
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1.3,
+                  color: colors.textMuted,
                 ),
               ),
             ],
@@ -656,327 +364,352 @@ class _SectionHeader
   }
 }
 
-// ─────────────────────────────────────────────
-// SUBSECTION
-// ─────────────────────────────────────────────
-
-class _SubsectionTitle
-    extends StatelessWidget {
-  final AppColors colors;
-  final String title;
-
-  const _SubsectionTitle({
-    required this.colors,
-    required this.title,
-  });
-
-  @override
-  Widget build(
-    BuildContext context,
-  ) {
-    return Text(
-      title,
-      style:
-          TextStyle(
-        fontFamily:
-            'ComicSansMS',
-        fontWeight:
-            FontWeight.w700,
-        fontSize:
-            15,
-        color:
-            colors.textMain,
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
-// SETTING TILE
-// ─────────────────────────────────────────────
-
-class _SettingTile
-    extends StatelessWidget {
+class _SettingTile extends StatelessWidget {
   final AppColors colors;
   final IconData icon;
   final String title;
-  final String subtitle;
+  final String description;
   final bool value;
-  final ValueChanged<bool>
-      onChanged;
+  final bool material;
+  final ValueChanged<bool> onChanged;
 
   const _SettingTile({
     required this.colors,
     required this.icon,
     required this.title,
-    required this.subtitle,
+    required this.description,
     required this.value,
+    required this.material,
     required this.onChanged,
   });
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
-    return AnimatedContainer(
-      duration:
-          const Duration(
-        milliseconds:
-            180,
-      ),
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal:
-            14,
-        vertical:
-            13,
-      ),
-      decoration:
-          BoxDecoration(
-        color:
-            colors.bgCardNeutral,
-        borderRadius:
-            BorderRadius.circular(
-          16,
-        ),
-        border:
-            Border.all(
-          color:
-              value
-                  ? colors.primary
-                      .withOpacity(
-                0.18,
-              )
-                  : Colors.transparent,
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+      decoration: BoxDecoration(
+        color: colors.bgCardNeutral,
+        borderRadius: BorderRadius.circular(material ? 12 : 16),
+        border: Border.all(
+          color: value ? colors.primary.withOpacity(0.18) : Colors.transparent,
         ),
       ),
-      child:
-          Row(
+      child: Row(
         children: [
           Container(
-            width:
-                38,
-            height:
-                38,
-            decoration:
-                BoxDecoration(
-              color:
-                  value
-                      ? colors.primary
-                          .withOpacity(
-                      0.12,
-                    )
-                      : colors.bg,
-              borderRadius:
-                  BorderRadius.circular(
-                11,
-              ),
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: value
+                  ? colors.primary.withOpacity(0.12)
+                  : colors.bg,
+              borderRadius: BorderRadius.circular(material ? 10 : 11),
             ),
-            child:
-                Icon(
+            child: Icon(
               icon,
-              size:
-                  21,
-              color:
-                  value
-                      ? colors.primary
-                      : colors.textMuted,
+              size: 21,
+              color: value ? colors.primary : colors.textMuted,
             ),
           ),
-
-          const SizedBox(
-            width:
-                11,
-          ),
-
+          const SizedBox(width: 11),
           Expanded(
-            child:
-                Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style:
-                      TextStyle(
-                    fontWeight:
-                        FontWeight.w700,
-                    color:
-                        colors.textMain,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: colors.textMain,
                   ),
                 ),
-
-                const SizedBox(
-                  height:
-                      3,
-                ),
-
+                const SizedBox(height: 3),
                 Text(
-                  subtitle,
-                  style:
-                      TextStyle(
-                    fontSize:
-                        12,
-                    height:
-                        1.3,
-                    color:
-                        colors.textMuted,
+                  description,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colors.textMuted,
                   ),
                 ),
               ],
             ),
           ),
-
-          const SizedBox(
-            width:
-                8,
-          ),
-
-          Switch.adaptive(
-            value:
-                value,
-            activeTrackColor:
-                colors.primary,
-            onChanged:
-                onChanged,
-          ),
+          const SizedBox(width: 8),
+          if (material)
+            Switch(
+              value: value,
+              onChanged: onChanged,
+              activeColor: colors.primary,
+            )
+          else
+            _CustomSwitch(
+              colors: colors,
+              value: value,
+              onChanged: onChanged,
+            ),
         ],
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────
-// STYLE GRID
-// ─────────────────────────────────────────────
-
-class _StyleGrid
-    extends StatelessWidget {
+class _CustomSwitch extends StatelessWidget {
   final AppColors colors;
-  final AppStyle selectedStyle;
-  final bool isDark;
-  final ValueChanged<AppStyle>
-      onChanged;
+  final bool value;
+  final ValueChanged<bool> onChanged;
 
-  const _StyleGrid({
+  const _CustomSwitch({
     required this.colors,
-    required this.selectedStyle,
-    required this.isDark,
+    required this.value,
     required this.onChanged,
   });
 
-  static const List<
-      _StyleInfo> _styles = [
-    _StyleInfo(
-      style:
-          AppStyle.classic,
-      title:
-          'Clássico',
-      icon:
-          Icons
-              .auto_awesome_outlined,
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onChanged(!value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        width: 52,
+        height: 30,
+        padding: const EdgeInsets.all(3),
+        decoration: BoxDecoration(
+          color: value ? colors.primary : colors.divider,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          alignment:
+              value ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: colors.switchThumb,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: colors.switchThumbShadow,
+                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ModeCard extends StatelessWidget {
+  final AppColors colors;
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ModeCard({
+    required this.colors,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: selected
+              ? colors.primary.withOpacity(0.12)
+              : colors.bgCardNeutral,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected ? colors.primary : colors.divider,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  icon,
+                  size: 24,
+                  color: colors.primary,
+                ),
+                const Spacer(),
+                if (selected)
+                  Icon(
+                    Icons.check_circle_rounded,
+                    size: 19,
+                    color: colors.primary,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: TextStyle(
+                fontFamily: 'ComicSansMS',
+                fontWeight: FontWeight.w700,
+                color: colors.textMain,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 11,
+                color: colors.textMuted,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StyleGrid extends StatelessWidget {
+  final AppColors colors;
+  final bool isDark;
+  final AppDesign design;
+  final AppStyle selected;
+  final ValueChanged<AppStyle> onChanged;
+
+  const _StyleGrid({
+    required this.colors,
+    required this.isDark,
+    required this.design,
+    required this.selected,
+    required this.onChanged,
+  });
+
+  static const _items = [
+    (
+      AppStyle.classic,
+      'Clássico',
+      Icons.auto_awesome_outlined,
     ),
-    _StyleInfo(
-      style:
-          AppStyle.material,
-      title:
-          'Material',
-      icon:
-          Icons
-              .layers_outlined,
+    (
+      AppStyle.playful,
+      'Divertido',
+      Icons.bolt_outlined,
     ),
-    _StyleInfo(
-      style:
-          AppStyle.playful,
-      title:
-          'Divertido',
-      icon:
-          Icons.bolt_outlined,
+    (
+      AppStyle.ocean,
+      'Oceano',
+      Icons.water_drop_outlined,
     ),
-    _StyleInfo(
-      style:
-          AppStyle.ocean,
-      title:
-          'Oceano',
-      icon:
-          Icons
-              .water_drop_outlined,
+    (
+      AppStyle.sunset,
+      'Pôr do sol',
+      Icons.wb_sunny_outlined,
     ),
-    _StyleInfo(
-      style:
-          AppStyle.sunset,
-      title:
-          'Pôr do sol',
-      icon:
-          Icons
-              .wb_sunny_outlined,
-    ),
-    _StyleInfo(
-      style:
-          AppStyle.monochrome,
-      title:
-          'Monocromático',
-      icon:
-          Icons
-              .contrast_outlined,
+    (
+      AppStyle.monochrome,
+      'Monocromático',
+      Icons.contrast_outlined,
     ),
   ];
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return GridView.builder(
-      shrinkWrap:
-          true,
-      physics:
-          const NeverScrollableScrollPhysics(),
-      itemCount:
-          _styles.length,
-      gridDelegate:
-          const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount:
-            2,
-        crossAxisSpacing:
-            10,
-        mainAxisSpacing:
-            10,
-        childAspectRatio:
-            1.35,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _items.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        childAspectRatio: 1.28,
       ),
-      itemBuilder:
-          (
-        context,
-        index,
-      ) {
-        final item =
-            _styles[index];
+      itemBuilder: (context, index) {
+        final item = _items[index];
+        final style = item.$1;
+        final preview = AppColors(isDark, style, design);
+        final isSelected = selected == style;
 
-        final previewColors =
-            AppColors(
-          isDark,
-          item.style,
-        );
-
-        final selected =
-            selectedStyle ==
-                item.style;
-
-        return _StyleCard(
-          colors:
-              colors,
-          previewColors:
-              previewColors,
-          title:
-              item.title,
-          icon:
-              item.icon,
-          selected:
-              selected,
-          onTap:
-              () => onChanged(
-            item.style,
+        return GestureDetector(
+          onTap: () => onChanged(style),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? preview.primary.withOpacity(0.12)
+                  : colors.bgCardNeutral,
+              borderRadius:
+                  BorderRadius.circular(design == AppDesign.material ? 12 : 18),
+              border: Border.all(
+                color: isSelected ? preview.primary : colors.divider,
+                width: isSelected ? 2 : 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      item.$3,
+                      size: 22,
+                      color: preview.primary,
+                    ),
+                    const Spacer(),
+                    if (isSelected)
+                      Icon(
+                        Icons.check_circle_rounded,
+                        size: 19,
+                        color: preview.primary,
+                      ),
+                  ],
+                ),
+                const Spacer(),
+                Text(
+                  item.$2,
+                  style: TextStyle(
+                    fontFamily: 'ComicSansMS',
+                    fontWeight: FontWeight.w700,
+                    color: colors.textMain,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: preview.primary,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Container(
+                      width: 28,
+                      height: 7,
+                      decoration: BoxDecoration(
+                        color: preview.c2Fg,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -984,396 +717,99 @@ class _StyleGrid
   }
 }
 
-class _StyleInfo {
-  final AppStyle style;
-  final String title;
-  final IconData icon;
-
-  const _StyleInfo({
-    required this.style,
-    required this.title,
-    required this.icon,
-  });
-}
-
-// ─────────────────────────────────────────────
-// STYLE CARD
-// ─────────────────────────────────────────────
-
-class _StyleCard
-    extends StatelessWidget {
+class _PreviewCard extends StatelessWidget {
   final AppColors colors;
-  final AppColors previewColors;
-  final String title;
-  final IconData icon;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _StyleCard({
-    required this.colors,
-    required this.previewColors,
-    required this.title,
-    required this.icon,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(
-    BuildContext context,
-  ) {
-    final primary =
-        previewColors.primary;
-
-    return Material(
-      color:
-          Colors.transparent,
-      child:
-          InkWell(
-        borderRadius:
-            BorderRadius.circular(
-          18,
-        ),
-        onTap:
-            onTap,
-        child:
-            AnimatedContainer(
-          duration:
-              const Duration(
-            milliseconds:
-                180,
-          ),
-          padding:
-              const EdgeInsets.all(
-            12,
-          ),
-          decoration:
-              BoxDecoration(
-            color:
-                selected
-                    ? primary
-                        .withOpacity(
-                    0.11,
-                  )
-                    : colors.bgCardNeutral,
-            borderRadius:
-                BorderRadius.circular(
-              18,
-            ),
-            border:
-                Border.all(
-              color:
-                  selected
-                      ? primary
-                      : colors.divider,
-              width:
-                  selected
-                      ? 2
-                      : 1,
-            ),
-          ),
-          child:
-              Column(
-            crossAxisAlignment:
-                CrossAxisAlignment
-                    .start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width:
-                        36,
-                    height:
-                        36,
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          primary
-                              .withOpacity(
-                        0.13,
-                      ),
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                        11,
-                      ),
-                    ),
-                    child:
-                        Icon(
-                      icon,
-                      size:
-                          21,
-                      color:
-                          primary,
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  AnimatedSwitcher(
-                    duration:
-                        const Duration(
-                      milliseconds:
-                          180,
-                    ),
-                    child:
-                        selected
-                            ? Icon(
-                                Icons
-                                    .check_circle_rounded,
-                                key:
-                                    const ValueKey(
-                                  'selected',
-                                ),
-                                size:
-                                    20,
-                                color:
-                                    primary,
-                              )
-                            : const SizedBox(
-                                key:
-                                    ValueKey(
-                                  'unselected',
-                                ),
-                                width:
-                                    20,
-                                height:
-                                    20,
-                              ),
-                  ),
-                ],
-              ),
-
-              const Spacer(),
-
-              Text(
-                title,
-                style:
-                    TextStyle(
-                  fontFamily:
-                      'ComicSansMS',
-                  fontWeight:
-                      FontWeight.w700,
-                  color:
-                      colors.textMain,
-                ),
-              ),
-
-              const SizedBox(
-                height:
-                    8,
-              ),
-
-              Row(
-                children: [
-                  Expanded(
-                    child:
-                        Container(
-                      height:
-                          7,
-                      decoration:
-                          BoxDecoration(
-                        color:
-                            primary,
-                        borderRadius:
-                            BorderRadius.circular(
-                          6,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(
-                    width:
-                        5,
-                  ),
-
-                  Container(
-                    width:
-                        28,
-                    height:
-                        7,
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          previewColors.c2Fg,
-                      borderRadius:
-                          BorderRadius.circular(
-                        6,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
-// PREVIEW
-// ─────────────────────────────────────────────
-
-class _PreviewCard
-    extends StatelessWidget {
-  final AppColors colors;
-  final AppStyle style;
 
   const _PreviewCard({
     required this.colors,
-    required this.style,
   });
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
-    final preview =
-        AppColors(
-      colors.isDark,
-      style,
-    );
+  Widget build(BuildContext context) {
+    final material = colors.design == AppDesign.material;
 
     return Container(
-      padding:
-          const EdgeInsets.all(
-        16,
-      ),
-      decoration:
-          BoxDecoration(
-        color:
-            colors.bgCardNeutral,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colors.bgCardNeutral,
         borderRadius:
-            BorderRadius.circular(
-          20,
-        ),
-        border:
-            Border.all(
-          color:
-              colors.divider,
-        ),
+            BorderRadius.circular(material ? 12 : 20),
+        border: Border.all(color: colors.divider),
       ),
-      child:
-          Column(
-        crossAxisAlignment:
-            CrossAxisAlignment
-                .start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Icon(
-                Icons
-                    .preview_outlined,
-                size:
-                    20,
-                color:
-                    colors.primary,
+                Icons.preview_outlined,
+                color: colors.primary,
+                size: 20,
               ),
-              const SizedBox(
-                width:
-                    8,
-              ),
+              const SizedBox(width: 7),
               Text(
                 'Pré-visualização',
-                style:
-                    TextStyle(
-                  fontFamily:
-                      'ComicSansMS',
-                  fontWeight:
-                      FontWeight.w700,
-                  color:
-                      colors.textMain,
+                style: TextStyle(
+                  fontFamily: 'ComicSansMS',
+                  fontWeight: FontWeight.w700,
+                  color: colors.textMain,
                 ),
               ),
             ],
           ),
-
-          const SizedBox(
-            height:
-                14,
-          ),
-
+          const SizedBox(height: 14),
           Row(
             children: [
               Expanded(
-                child:
-                    Container(
-                  height:
-                      46,
-                  decoration:
-                      BoxDecoration(
-                    color:
-                        preview.primary,
+                child: Container(
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: colors.primary,
                     borderRadius:
-                        BorderRadius.circular(
-                      13,
+                        BorderRadius.circular(material ? 8 : 14),
+                    boxShadow: material
+                        ? const []
+                        : [
+                            BoxShadow(
+                              color: colors.primaryShadow,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Principal',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            preview.primaryShadow,
-                        offset:
-                            const Offset(
-                          0,
-                          3,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: material
+                    ? FilledButton(
+                        onPressed: () {},
+                        child: const Text('Material'),
+                      )
+                    : Container(
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color: colors.c2Bg,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Custom',
+                            style: TextStyle(
+                              color: colors.c2Fg,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                         ),
                       ),
-                    ],
-                  ),
-                  child:
-                      const Center(
-                    child:
-                        Text(
-                      'Principal',
-                      style:
-                          TextStyle(
-                        color:
-                            Colors.white,
-                        fontWeight:
-                            FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(
-                width:
-                    10,
-              ),
-
-              Expanded(
-                child:
-                    Container(
-                  height:
-                      46,
-                  decoration:
-                      BoxDecoration(
-                    color:
-                        preview.c2Bg,
-                    borderRadius:
-                        BorderRadius.circular(
-                      13,
-                    ),
-                  ),
-                  child:
-                      Center(
-                    child:
-                        Text(
-                      'Secundário',
-                      style:
-                          TextStyle(
-                        color:
-                            preview.c2Fg,
-                        fontWeight:
-                            FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
               ),
             ],
           ),
@@ -1383,95 +819,58 @@ class _PreviewCard
   }
 }
 
-// ─────────────────────────────────────────────
-// APPLY
-// ─────────────────────────────────────────────
-
-class _ApplyButton
-    extends StatelessWidget {
+class _ApplyButton extends StatelessWidget {
   final AppColors colors;
+  final bool material;
   final VoidCallback onTap;
 
   const _ApplyButton({
     required this.colors,
+    required this.material,
     required this.onTap,
   });
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
-    return Material(
-      color:
-          Colors.transparent,
-      child:
-          InkWell(
-        borderRadius:
-            BorderRadius.circular(
-          16,
+  Widget build(BuildContext context) {
+    if (material) {
+      return SizedBox(
+        width: double.infinity,
+        height: 50,
+        child: FilledButton.icon(
+          onPressed: onTap,
+          icon: const Icon(Icons.check_rounded),
+          label: const Text('APLICAR DEFINIÇÕES'),
         ),
-        onTap:
-            onTap,
-        child:
-            Ink(
-          width:
-              double.infinity,
-          padding:
-              const EdgeInsets.symmetric(
-            vertical:
-                15,
-          ),
-          decoration:
-              BoxDecoration(
-            color:
-                colors.primary,
-            borderRadius:
-                BorderRadius.circular(
-              16,
-            ),
+      );
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Ink(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          decoration: BoxDecoration(
+            color: colors.primary,
+            borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color:
-                    colors.primaryShadow,
-                offset:
-                    const Offset(
-                  0,
-                  4,
-                ),
+                color: colors.primaryShadow,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
-          child:
-              const Row(
-            mainAxisAlignment:
-                MainAxisAlignment
-                    .center,
-            children: [
-              Icon(
-                Icons
-                    .check_rounded,
-                color:
-                    Colors.white,
-                size:
-                    20,
+          child: const Center(
+            child: Text(
+              'APLICAR DEFINIÇÕES',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.7,
               ),
-              SizedBox(
-                width:
-                    7,
-              ),
-              Text(
-                'APLICAR DEFINIÇÕES',
-                style:
-                    TextStyle(
-                  color:
-                      Colors.white,
-                  fontWeight:
-                      FontWeight.w800,
-                  letterSpacing:
-                      0.7,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
