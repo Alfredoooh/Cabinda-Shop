@@ -16,30 +16,120 @@ Future<void> main() async {
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       systemNavigationBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+      systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
 
-  runApp(const AlfabetoApp());
+  runApp(const ABCtubeApp());
 }
 
-class AlfabetoApp extends StatelessWidget {
-  const AlfabetoApp({super.key});
+// ══════════════════════════════════════════════════════════════
+// APP
+// ══════════════════════════════════════════════════════════════
+
+class ABCtubeApp extends StatefulWidget {
+  const ABCtubeApp({super.key});
+
+  @override
+  State<ABCtubeApp> createState() => _ABCtubeAppState();
+}
+
+class _ABCtubeAppState extends State<ABCtubeApp> {
+  bool _isDark = false;
+
+  AppStyle _style = AppStyle.classic;
+
+  AppDesign _design = AppDesign.custom;
+
+  bool _soundEnabled = true;
+
+  bool _musicEnabled = true;
+
+  void _updateAppearance({
+    required bool dark,
+    required AppStyle style,
+    required AppDesign design,
+  }) {
+    setState(() {
+      _isDark = dark;
+      _style = style;
+      _design = design;
+    });
+
+    _updateSystemBars();
+  }
+
+  void _updateSystemBars() {
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+        statusBarIconBrightness:
+            _isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness:
+            _isDark ? Brightness.dark : Brightness.light,
+        systemNavigationBarIconBrightness:
+            _isDark ? Brightness.light : Brightness.dark,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors(
+      _isDark,
+      _style,
+      _design,
+    );
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ABCtube',
-      theme: ThemeData(
-        useMaterial3: true,
+      theme: AppTheme.build(
+        colors: colors,
+        isDark: _isDark,
+        design: _design,
       ),
-      home: const HomeScreen(),
+      home: HomeScreen(
+        colors: colors,
+        isDark: _isDark,
+        style: _style,
+        design: _design,
+        soundEnabled: _soundEnabled,
+        musicEnabled: _musicEnabled,
+        onAppearanceChanged: ({
+          required bool dark,
+          required AppStyle style,
+          required AppDesign design,
+        }) {
+          _updateAppearance(
+            dark: dark,
+            style: style,
+            design: design,
+          );
+        },
+        onAudioChanged: ({
+          required bool sound,
+          required bool music,
+        }) {
+          setState(() {
+            _soundEnabled = sound;
+            _musicEnabled = music;
+          });
+
+          SoundManager.instance.muted = !sound;
+          SoundManager.instance.clickMuted = !sound;
+          SoundManager.instance.musicMuted = !music;
+        },
+      ),
     );
   }
 }
 
 // ══════════════════════════════════════════════════════════════
-// INTERFACE / ESTILOS
+// DESIGN
 // ══════════════════════════════════════════════════════════════
 
 enum AppDesign {
@@ -68,7 +158,7 @@ enum DrawerSection {
 }
 
 // ══════════════════════════════════════════════════════════════
-// CORES
+// APPCOLORS
 // ══════════════════════════════════════════════════════════════
 
 class AppColors {
@@ -82,8 +172,22 @@ class AppColors {
     this.design = AppDesign.custom,
   ]);
 
+  // ───────────────────────────────────────────────────────────
+  // BACKGROUND
+  // ───────────────────────────────────────────────────────────
+
   Color get bg {
     switch (style) {
+      case AppStyle.classic:
+        return isDark
+            ? const Color(0xFF242424)
+            : const Color(0xFFFFFFFF);
+
+      case AppStyle.playful:
+        return isDark
+            ? const Color(0xFF211523)
+            : const Color(0xFFFFF5FB);
+
       case AppStyle.ocean:
         return isDark
             ? const Color(0xFF071E29)
@@ -97,22 +201,22 @@ class AppColors {
       case AppStyle.monochrome:
         return isDark
             ? const Color(0xFF181818)
-            : const Color(0xFFF6F6F6);
-
-      case AppStyle.playful:
-        return isDark
-            ? const Color(0xFF211523)
-            : const Color(0xFFFFF5FB);
-
-      case AppStyle.classic:
-        return isDark
-            ? const Color(0xFF242424)
-            : const Color(0xFFFFFFFF);
+            : const Color(0xFFF5F5F5);
     }
   }
 
   Color get bgCardNeutral {
     switch (style) {
+      case AppStyle.classic:
+        return isDark
+            ? const Color(0xFF2C2C2E)
+            : const Color(0xFFF5F5F5);
+
+      case AppStyle.playful:
+        return isDark
+            ? const Color(0xFF35233A)
+            : const Color(0xFFFFE9F5);
+
       case AppStyle.ocean:
         return isDark
             ? const Color(0xFF103746)
@@ -127,21 +231,21 @@ class AppColors {
         return isDark
             ? const Color(0xFF292929)
             : const Color(0xFFFFFFFF);
-
-      case AppStyle.playful:
-        return isDark
-            ? const Color(0xFF35233A)
-            : const Color(0xFFFFE9F5);
-
-      case AppStyle.classic:
-        return isDark
-            ? const Color(0xFF2C2C2E)
-            : const Color(0xFFF5F5F5);
     }
   }
 
   Color get textMain {
     switch (style) {
+      case AppStyle.classic:
+        return isDark
+            ? const Color(0xFFF2F2F2)
+            : const Color(0xFF242424);
+
+      case AppStyle.playful:
+        return isDark
+            ? const Color(0xFFFFECF8)
+            : const Color(0xFF321D2E);
+
       case AppStyle.ocean:
         return isDark
             ? const Color(0xFFE8FBFF)
@@ -156,16 +260,6 @@ class AppColors {
         return isDark
             ? const Color(0xFFF2F2F2)
             : const Color(0xFF252525);
-
-      case AppStyle.playful:
-        return isDark
-            ? const Color(0xFFFFECF8)
-            : const Color(0xFF321D2E);
-
-      case AppStyle.classic:
-        return isDark
-            ? const Color(0xFFF2F2F2)
-            : const Color(0xFF242424);
     }
   }
 
@@ -175,19 +269,33 @@ class AppColors {
         : const Color(0xFF6E6E73);
   }
 
+  Color get textSecondary {
+    return isDark
+        ? const Color(0xFFA8A8AC)
+        : const Color(0xFF555555);
+  }
+
+  Color get textTertiary {
+    return isDark
+        ? const Color(0xFF6E6E73)
+        : const Color(0xFF888888);
+  }
+
   Color get divider {
     return isDark
         ? const Color(0xFF3D3D40)
         : const Color(0xFFE0E0E0);
   }
 
-  Color get drawerBg => bgCardNeutral;
+  Color get border => divider;
 
   Color get overlay {
     return isDark
         ? const Color(0x99000000)
         : const Color(0x66000000);
   }
+
+  Color get drawerBg => bgCardNeutral;
 
   Color get drawerShadow {
     return isDark
@@ -198,7 +306,7 @@ class AppColors {
   Color get neutralShadow {
     return isDark
         ? const Color(0x40000000)
-        : const Color(0x1A000000);
+        : const Color(0x20000000);
   }
 
   Color get switchThumb => Colors.white;
@@ -209,8 +317,20 @@ class AppColors {
         : const Color(0x30000000);
   }
 
+  // ───────────────────────────────────────────────────────────
+  // PRIMARY
+  // ───────────────────────────────────────────────────────────
+
   Color get primary {
     switch (style) {
+      case AppStyle.classic:
+        return const Color(0xFF58CC02);
+
+      case AppStyle.playful:
+        return isDark
+            ? const Color(0xFFFF75B9)
+            : const Color(0xFFFF4B8C);
+
       case AppStyle.ocean:
         return isDark
             ? const Color(0xFF64D8FF)
@@ -225,14 +345,6 @@ class AppColors {
         return isDark
             ? const Color(0xFFE0E0E0)
             : const Color(0xFF424242);
-
-      case AppStyle.playful:
-        return isDark
-            ? const Color(0xFFFF75B9)
-            : const Color(0xFFFF4B8C);
-
-      case AppStyle.classic:
-        return green;
     }
   }
 
@@ -243,26 +355,31 @@ class AppColors {
     );
   }
 
+  // ───────────────────────────────────────────────────────────
+  // ESTADOS
+  // ───────────────────────────────────────────────────────────
+
   Color get danger {
     return isDark
         ? const Color(0xFFFF6B6B)
         : const Color(0xFFD32F2F);
   }
 
-  static const green =
-      Color(0xFF58CC02);
+  Color get success {
+    return const Color(0xFF58CC02);
+  }
 
-  static const greenShadow =
-      Color(0xFF46A302);
+  Color get warning {
+    return const Color(0xFFFFC800);
+  }
 
-  static const red =
-      Color(0xFFFF4B4B);
+  Color get info {
+    return const Color(0xFF1CB0F6);
+  }
 
-  static const redShadow =
-      Color(0xFFD63D3D);
-
-  static const orange =
-      Color(0xFFFF9600);
+  // ───────────────────────────────────────────────────────────
+  // CARD 0
+  // ───────────────────────────────────────────────────────────
 
   Color get c0Bg {
     return isDark
@@ -282,6 +399,10 @@ class AppColors {
         : const Color(0x591CB0F6);
   }
 
+  // ───────────────────────────────────────────────────────────
+  // CARD 1
+  // ───────────────────────────────────────────────────────────
+
   Color get c1Bg {
     return isDark
         ? const Color(0xFF4A3320)
@@ -299,6 +420,10 @@ class AppColors {
         ? const Color(0xFF302014)
         : const Color(0x59FF9600);
   }
+
+  // ───────────────────────────────────────────────────────────
+  // CARD 2
+  // ───────────────────────────────────────────────────────────
 
   Color get c2Bg {
     return isDark
@@ -318,6 +443,10 @@ class AppColors {
         : const Color(0x5958CC02);
   }
 
+  // ───────────────────────────────────────────────────────────
+  // CARD 3
+  // ───────────────────────────────────────────────────────────
+
   Color get c3Bg {
     return isDark
         ? const Color(0xFF4A2333)
@@ -335,6 +464,10 @@ class AppColors {
         ? const Color(0xFF2E1521)
         : const Color(0x59FF4B8C);
   }
+
+  // ───────────────────────────────────────────────────────────
+  // CARD 4
+  // ───────────────────────────────────────────────────────────
 
   Color get c4Bg {
     return isDark
@@ -354,6 +487,10 @@ class AppColors {
         : const Color(0x59CE82FF);
   }
 
+  // ───────────────────────────────────────────────────────────
+  // CARD 5
+  // ───────────────────────────────────────────────────────────
+
   Color get c5Bg {
     return isDark
         ? const Color(0xFF453A16)
@@ -370,6 +507,185 @@ class AppColors {
     return isDark
         ? const Color(0xFF2B240E)
         : const Color(0x59FFC800);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // CORREÇÃO DOS JOGOS
+  // ═══════════════════════════════════════════════════════════
+
+  List<Color> get cardBgList {
+    return [
+      c0Bg,
+      c1Bg,
+      c2Bg,
+      c3Bg,
+      c4Bg,
+      c5Bg,
+    ];
+  }
+
+  List<Color> get cardFgList {
+    return [
+      c0Fg,
+      c1Fg,
+      c2Fg,
+      c3Fg,
+      c4Fg,
+      c5Fg,
+    ];
+  }
+
+  List<Color> get cardShadowList {
+    return [
+      c0Shadow,
+      c1Shadow,
+      c2Shadow,
+      c3Shadow,
+      c4Shadow,
+      c5Shadow,
+    ];
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // RAIOS
+  // ═══════════════════════════════════════════════════════════
+
+  double get radiusSmall {
+    switch (design) {
+      case AppDesign.material:
+        return 8;
+
+      case AppDesign.custom:
+        return 12;
+    }
+  }
+
+  double get radiusMedium {
+    switch (design) {
+      case AppDesign.material:
+        return 12;
+
+      case AppDesign.custom:
+        return 16;
+    }
+  }
+
+  double get radiusLarge {
+    switch (design) {
+      case AppDesign.material:
+        return 16;
+
+      case AppDesign.custom:
+        return 20;
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// THEME
+// ══════════════════════════════════════════════════════════════
+
+class AppTheme {
+  static ThemeData build({
+    required AppColors colors,
+    required bool isDark,
+    required AppDesign design,
+  }) {
+    final brightness =
+        isDark
+            ? Brightness.dark
+            : Brightness.light;
+
+    if (design ==
+        AppDesign.material) {
+      return ThemeData(
+        useMaterial3: true,
+        brightness:
+            brightness,
+        scaffoldBackgroundColor:
+            colors.bg,
+        colorScheme:
+            ColorScheme.fromSeed(
+          seedColor:
+              colors.primary,
+          brightness:
+              brightness,
+        ),
+        appBarTheme:
+            AppBarTheme(
+          backgroundColor:
+              Colors.transparent,
+          surfaceTintColor:
+              Colors.transparent,
+          elevation:
+              0,
+          scrolledUnderElevation:
+              0,
+          foregroundColor:
+              colors.textMain,
+        ),
+        cardTheme:
+            CardThemeData(
+          color:
+              colors.bgCardNeutral,
+          elevation:
+              0,
+          shape:
+              RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(
+              12,
+            ),
+          ),
+        ),
+        switchTheme:
+            SwitchThemeData(
+          thumbColor:
+              WidgetStateProperty.resolveWith(
+            (states) {
+              if (states.contains(
+                WidgetState.selected,
+              )) {
+                return colors.primary;
+              }
+
+              return colors.switchThumb;
+            },
+          ),
+          trackColor:
+              WidgetStateProperty.resolveWith(
+            (states) {
+              if (states.contains(
+                WidgetState.selected,
+              )) {
+                return colors.primary
+                    .withOpacity(
+                  0.35,
+                );
+              }
+
+              return colors.divider;
+            },
+          ),
+        ),
+      );
+    }
+
+    return ThemeData(
+      useMaterial3:
+          false,
+      brightness:
+          brightness,
+      scaffoldBackgroundColor:
+          colors.bg,
+      colorScheme:
+          ColorScheme.fromSeed(
+        seedColor:
+            colors.primary,
+        brightness:
+            brightness,
+      ),
+    );
   }
 }
 
@@ -414,11 +730,15 @@ const List<String> kAllLetters = [
   'z',
 ];
 
-final List<String> kConsonants = kAllLetters
-    .where(
-      (letter) => !kVowels.contains(letter),
-    )
-    .toList();
+final List<String> kConsonants =
+    kAllLetters
+        .where(
+          (letter) =>
+              !kVowels.contains(
+            letter,
+          ),
+        )
+        .toList();
 
 String buildSyllable(
   String consonant,
@@ -429,14 +749,30 @@ String buildSyllable(
       ? consonant.toUpperCase()
       : consonant.toLowerCase();
 
-  final v = vowel.toLowerCase();
+  final v =
+      vowel.toLowerCase();
 
-  if (consonant.toLowerCase() == 'q') {
-    if (v == 'e') return '${c}ue';
-    if (v == 'i') return '${c}ui';
-    if (v == 'a') return '${c}ua';
-    if (v == 'o') return '${c}uo';
-    if (v == 'u') return '${c}u';
+  if (consonant.toLowerCase() ==
+      'q') {
+    if (v == 'e') {
+      return '${c}ue';
+    }
+
+    if (v == 'i') {
+      return '${c}ui';
+    }
+
+    if (v == 'a') {
+      return '${c}ua';
+    }
+
+    if (v == 'o') {
+      return '${c}uo';
+    }
+
+    if (v == 'u') {
+      return '${c}u';
+    }
   }
 
   return '$c$v';
@@ -447,94 +783,125 @@ String buildSyllable(
 // ══════════════════════════════════════════════════════════════
 
 class AssetUtils {
-  static List<String>? _assets;
+  static List<String>? _cachedAssets;
 
-  static Future<List<String>> assets() async {
-    if (_assets != null) {
-      return _assets!;
+  static Future<List<String>>
+      getAssets() async {
+    if (_cachedAssets !=
+        null) {
+      return _cachedAssets!;
     }
 
     final manifest =
-        await AssetManifest.loadFromAssetBundle(
+        await AssetManifest
+            .loadFromAssetBundle(
       rootBundle,
     );
 
-    _assets = manifest
-        .listAssets()
-        .toList(
-          growable: false,
-        );
+    _cachedAssets =
+        manifest
+            .listAssets()
+            .toList(
+              growable: false,
+            );
 
-    return _assets!;
+    return _cachedAssets!;
+  }
+
+  static Future<List<String>>
+      assets() async {
+    return getAssets();
+  }
+
+  static String _normalizePath(
+    String value,
+  ) {
+    var path =
+        value.trim();
+
+    path =
+        path.replaceAll(
+      '\\',
+      '/',
+    );
+
+    path =
+        path.replaceFirst(
+      RegExp(
+        r'^/+',
+      ),
+      '',
+    );
+
+    return path;
   }
 
   static Future<bool> exists(
     String path,
   ) async {
-    final all =
-        await assets();
+    final normalized =
+        _normalizePath(
+      path,
+    );
 
-    if (all.contains(path)) {
+    final all =
+        await getAssets();
+
+    if (all.contains(
+      normalized,
+    )) {
       return true;
     }
 
-    if (all.contains('assets/$path')) {
+    if (all.contains(
+      'assets/$normalized',
+    )) {
       return true;
     }
 
     return false;
   }
 
-  // ──────────────────────────────────────────────────────────
-  // NOVO MÉTODO QUE ESTAVA A FALTAR
-  // ──────────────────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────
+  // CORREÇÃO DO DETAIL SCREEN
+  // ───────────────────────────────────────────────────────────
 
-  static Future<List<String>> getAssetsInFolder(
+  static Future<List<String>>
+      getAssetsInFolder(
     String folderPath,
   ) async {
     final all =
-        await assets();
+        await getAssets();
 
-    String normalized =
-        folderPath.trim();
-
-    if (normalized.isEmpty) {
-      return const [];
-    }
-
-    normalized =
-        normalized.replaceAll(
-      '\\',
-      '/',
+    var folder =
+        _normalizePath(
+      folderPath,
     );
 
-    normalized =
-        normalized.replaceFirst(
-      RegExp(r'^/+'),
-      '',
-    );
-
-    if (normalized.startsWith(
+    if (folder
+        .startsWith(
       'assets/',
     )) {
-      normalized =
-          normalized.substring(
+      folder =
+          folder.substring(
         'assets/'.length,
       );
     }
 
-    normalized =
-        normalized.replaceFirst(
-      RegExp(r'/+$'),
+    folder =
+        folder.replaceFirst(
+      RegExp(
+        r'/+$',
+      ),
       '',
     );
 
-    if (normalized.isEmpty) {
+    if (folder.isEmpty) {
       return const [];
     }
 
     final prefix =
-        'assets/$normalized/';
+        'assets/$folder/';
 
     final result =
         <String>[];
@@ -546,28 +913,16 @@ class AssetUtils {
         continue;
       }
 
-      final remaining =
+      final relative =
           asset.substring(
         prefix.length,
       );
 
-      if (remaining.isEmpty) {
+      if (relative.isEmpty) {
         continue;
       }
 
-      // Somente arquivos diretamente
-      // dentro da pasta.
-      //
-      // Assim:
-      //
-      // assets/images/ca/1.png
-      //
-      // entra.
-      //
-      // assets/images/ca/sub/2.png
-      //
-      // não entra.
-      if (remaining.contains(
+      if (relative.contains(
         '/',
       )) {
         continue;
@@ -580,20 +935,21 @@ class AssetUtils {
 
     result.sort();
 
-    return List<String>.unmodifiable(
+    return List.unmodifiable(
       result,
     );
   }
 }
 
 // ══════════════════════════════════════════════════════════════
-// SOM + FALLBACK
+// SOUND MANAGER
 // ══════════════════════════════════════════════════════════════
 
 class SoundManager {
   SoundManager._();
 
-  static final SoundManager instance =
+  static final SoundManager
+      instance =
       SoundManager._();
 
   final AudioPlayer _player =
@@ -603,12 +959,14 @@ class SoundManager {
       FlutterTts();
 
   bool muted = false;
+
   bool clickMuted = false;
+
   bool musicMuted = false;
 
   bool _ttsReady = false;
 
-  Future<void> _prepareTts() async {
+  Future<void> _initTts() async {
     if (_ttsReady) {
       return;
     }
@@ -640,7 +998,8 @@ class SoundManager {
       return;
     }
 
-    if (await AssetUtils.exists(
+    if (await AssetUtils
+        .exists(
       'audio/pressing.wav',
     )) {
       await _playAsset(
@@ -652,41 +1011,43 @@ class SoundManager {
 
     await speak(
       'clique',
-      rate: 0.55,
+      rate:
+          0.55,
     );
   }
 
   Future<void> play(
-    String text,
+    String value,
   ) async {
-    final value =
-        text.trim().toLowerCase();
+    final text =
+        value.trim().toLowerCase();
 
-    if (value.isEmpty ||
+    if (text.isEmpty ||
         muted) {
       return;
     }
 
-    if (value.length == 1) {
+    if (text.length ==
+        1) {
       await playLetter(
-        value,
+        text,
       );
 
       return;
     }
 
     if (_looksLikeSyllable(
-      value,
+      text,
     )) {
       await playSyllable(
-        value,
+        text,
       );
 
       return;
     }
 
     await playWord(
-      value,
+      text,
     );
   }
 
@@ -702,14 +1063,17 @@ class SoundManager {
     }
 
     final folder =
-        kVowels.contains(value)
+        kVowels.contains(
+          value,
+        )
             ? 'audio/vowels'
             : 'audio/consonants';
 
     final path =
         '$folder/$value.wav';
 
-    if (await AssetUtils.exists(
+    if (await AssetUtils
+        .exists(
       path,
     )) {
       await _playAsset(
@@ -719,9 +1083,11 @@ class SoundManager {
       return;
     }
 
+    // FALLBACK
     await speak(
       value,
-      rate: 0.30,
+      rate:
+          0.30,
     );
   }
 
@@ -752,9 +1118,12 @@ class SoundManager {
     if (consonant !=
         null) {
       final path =
-          'audio/syllables/$consonant/$value.wav';
+          'audio/syllables/'
+          '$consonant/'
+          '$value.wav';
 
-      if (await AssetUtils.exists(
+      if (await AssetUtils
+          .exists(
         path,
       )) {
         await _playAsset(
@@ -765,9 +1134,11 @@ class SoundManager {
       }
     }
 
+    // FALLBACK
     await speak(
       value,
-      rate: 0.34,
+      rate:
+          0.34,
     );
   }
 
@@ -798,9 +1169,12 @@ class SoundManager {
     if (consonant !=
         null) {
       final path =
-          'audio/syllables/$consonant/${value}_ex.wav';
+          'audio/syllables/'
+          '$consonant/'
+          '${value}_ex.wav';
 
-      if (await AssetUtils.exists(
+      if (await AssetUtils
+          .exists(
         path,
       )) {
         await _playAsset(
@@ -813,7 +1187,8 @@ class SoundManager {
 
     await speak(
       value,
-      rate: 0.34,
+      rate:
+          0.34,
     );
   }
 
@@ -828,22 +1203,25 @@ class SoundManager {
       return;
     }
 
-    final filename = value
-        .replaceAll(
-          RegExp(
-            r'[^a-z0-9áàâãéêíóôõúç_ ]',
-          ),
-          '',
-        )
-        .replaceAll(
-          ' ',
-          '_',
-        );
+    final filename =
+        value
+            .replaceAll(
+              RegExp(
+                r'[^a-z0-9áàâãéêíóôõúç_ ]',
+              ),
+              '',
+            )
+            .replaceAll(
+              ' ',
+              '_',
+            );
 
     final path =
-        'audio/words/$filename.wav';
+        'audio/words/'
+        '$filename.wav';
 
-    if (await AssetUtils.exists(
+    if (await AssetUtils
+        .exists(
       path,
     )) {
       await _playAsset(
@@ -853,9 +1231,11 @@ class SoundManager {
       return;
     }
 
+    // FALLBACK
     await speak(
       value,
-      rate: 0.36,
+      rate:
+          0.36,
     );
   }
 
@@ -869,11 +1249,12 @@ class SoundManager {
     }
 
     try {
-      await _prepareTts();
+      await _initTts();
 
       await _tts.stop();
 
-      await _tts.setSpeechRate(
+      await _tts
+          .setSpeechRate(
         rate,
       );
 
@@ -945,10 +1326,16 @@ class SoundManager {
       await _tts.stop();
     } catch (_) {}
   }
+
+  Future<void> dispose() async {
+    await stop();
+
+    await _player.dispose();
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
-// ÍCONE ADAPTÁVEL
+// APP ICON
 // ══════════════════════════════════════════════════════════════
 
 class AppIcon
@@ -970,33 +1357,52 @@ class AppIcon
   Widget build(
     BuildContext context,
   ) {
+    // MATERIAL
     if (colors.design ==
-            AppDesign.material ||
-        customAsset == null) {
+        AppDesign.material) {
       return Icon(
         materialIcon,
-        size: size,
-        color: colors.textMain,
+        size:
+            size,
+        color:
+            colors.textMain,
       );
     }
 
-    return Image.asset(
-      customAsset!,
-      width: size,
-      height: size,
-      fit: BoxFit.contain,
-      errorBuilder:
-          (
-        _,
-        __,
-        ___,
-      ) {
-        return Icon(
-          materialIcon,
-          size: size,
-          color: colors.textMain,
-        );
-      },
+    // CUSTOM
+    if (customAsset !=
+        null) {
+      return Image.asset(
+        customAsset!,
+        width:
+            size,
+        height:
+            size,
+        fit:
+            BoxFit.contain,
+        errorBuilder:
+            (
+          _,
+          __,
+          ___,
+        ) {
+          return Icon(
+            materialIcon,
+            size:
+                size,
+            color:
+                colors.textMain,
+          );
+        },
+      );
+    }
+
+    return Icon(
+      materialIcon,
+      size:
+          size,
+      color:
+          colors.textMain,
     );
   }
 }
