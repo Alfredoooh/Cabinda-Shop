@@ -34,7 +34,7 @@ class _MyAppState extends State<MyApp> {
     final base = ThemeData(
       brightness: brightness,
       fontFamily: 'Roboto',
-      scaffoldBackgroundColor: isDark ? const Color(0xFF111111) : const Color(0xFFF2F2F7),
+      scaffoldBackgroundColor: isDark ? const Color(0xFF1C1D1F) : const Color(0xFFF2F2F7),
     );
     return base.copyWith(
       extensions: <ThemeExtension<dynamic>>[
@@ -47,6 +47,19 @@ class _MyAppState extends State<MyApp> {
 // ---------------------------------------------------------------------------
 // Theme Extension
 // ---------------------------------------------------------------------------
+// PALETA — valores de referência (hex ao lado de cada token)
+//
+// ACCENT (substituiu o azul): um teal dessaturado, funciona bem em ambos os modos
+//   light  -> 0xFF3D8B7D  (teal médio, pouco saturado)
+//   dark   -> 0xFF6FB3A3  (teal claro suave, sem neon)
+//
+// DARK MODE — base neutra "limpa": nada de preto AMOLED (0xFF000000/0xFF111111)
+// nem cinza claro demais. Usa-se um cinza-carvão médio como fundo, com camadas
+// de superfície subindo em passos pequenos e consistentes:
+//   background        -> 0xFF1C1D1F
+//   surface (cards)   -> 0xFF26282B
+//   surface elevated  -> 0xFF2E3134  (dialogs, sheets, segmented bg)
+//   surface sunken    -> 0xFF232527  (inputs, track de switch/progress)
 @immutable
 class AppColors extends ThemeExtension<AppColors> {
   final bool isDark;
@@ -54,74 +67,74 @@ class AppColors extends ThemeExtension<AppColors> {
   AppColors({required this.isDark});
 
   // Base
-  Color get background => isDark ? const Color(0xFF111111) : const Color(0xFFF2F2F7);
-  Color get groupLabel => isDark ? const Color(0xFF4A4A4A) : const Color(0xFF8E8E93);
-  Color get cardBg => isDark ? const Color(0xFF1C1C1E) : Colors.white;
-  Color get cardShadow => isDark ? const Color(0x4D000000) : const Color(0x1A000000);
-  Color get textPrimary => isDark ? Colors.white : Colors.black;
-  Color get textSecondary => isDark ? const Color(0xFF888888) : const Color(0xFF3C3C43);
-  Color get textTertiary => isDark ? const Color(0xFF666666) : const Color(0xFF8E8E93);
-  Color get textQuaternary => isDark ? const Color(0xFF777777) : const Color(0xFF8E8E93);
+  Color get background => isDark ? const Color(0xFF1C1D1F) : const Color(0xFFF2F2F7);
+  Color get groupLabel => isDark ? const Color(0xFF8A8D91) : const Color(0xFF8E8E93);
+  Color get cardBg => isDark ? const Color(0xFF26282B) : Colors.white;
+  Color get cardShadow => isDark ? const Color(0x33000000) : const Color(0x1A000000);
+  Color get textPrimary => isDark ? const Color(0xFFF2F2F0) : Colors.black;
+  Color get textSecondary => isDark ? const Color(0xFFB4B6B9) : const Color(0xFF3C3C43);
+  Color get textTertiary => isDark ? const Color(0xFF8F9194) : const Color(0xFF8E8E93);
+  Color get textQuaternary => isDark ? const Color(0xFF96989B) : const Color(0xFF8E8E93);
 
   // Icons
-  Color get iconBlue => isDark ? const Color(0xFF5BA9DD) : const Color(0xFF007AFF);
+  Color get iconBlue => isDark ? const Color(0xFF6FB3A3) : const Color(0xFF3D8B7D); // accent (teal)
   Color get iconGreen => isDark ? const Color(0xFF6FDCAE) : const Color(0xFF34C759);
   Color get iconRed => isDark ? const Color(0xFFEF9797) : const Color(0xFFFF3B30);
-  Color get iconGray => isDark ? const Color(0xFF999999) : const Color(0xFF8E8E93);
-  Color get chevron => isDark ? const Color(0xFF444444) : const Color(0xFFC7C7CC);
+  Color get iconGray => isDark ? const Color(0xFF9A9C9F) : const Color(0xFF8E8E93);
+  Color get chevron => isDark ? const Color(0xFF55585B) : const Color(0xFFC7C7CC);
 
   // Inputs
-  Color get inputBg => isDark ? const Color(0xFF1C1C1E) : Colors.white;
-  Color get inputHint => isDark ? const Color(0xFF5A5A5A) : const Color(0xFFC7C7CC);
-  Color get inputIcon => isDark ? const Color(0xFF666666) : const Color(0xFF8E8E93);
-  Color get inputFocusBorder => isDark ? const Color(0xFF2E8BC9) : const Color(0xFF007AFF);
+  Color get inputBg => isDark ? const Color(0xFF232527) : Colors.white;
+  Color get inputHint => isDark ? const Color(0xFF74767A) : const Color(0xFFC7C7CC);
+  Color get inputIcon => isDark ? const Color(0xFF86888B) : const Color(0xFF8E8E93);
+  Color get inputFocusBorder => isDark ? const Color(0xFF6FB3A3) : const Color(0xFF3D8B7D); // accent
   Color get inputErrorBorder => isDark ? const Color(0xFFE05E5E) : const Color(0xFFFF3B30);
-  Color get clearBtnBg => isDark ? const Color(0xFF333333) : const Color(0xFFD1D1D6);
-  Color get clearBtnFg => isDark ? const Color(0xFF999999) : const Color(0xFF8E8E93);
+  Color get clearBtnBg => isDark ? const Color(0xFF3A3D40) : const Color(0xFFD1D1D6);
+  Color get clearBtnFg => isDark ? const Color(0xFFAEB0B3) : const Color(0xFF8E8E93);
 
   // Segmented
-  Color get segmentedBg => isDark ? const Color(0xFF1A1A1A) : const Color(0xFFE5E5EA);
-  Color get segmentedActiveBg => isDark ? const Color(0xFF2E8BC9) : const Color(0xFF007AFF);
-  Color get segmentedInactiveText => isDark ? const Color(0xFF777777) : const Color(0xFF8E8E93);
+  Color get segmentedBg => isDark ? const Color(0xFF232527) : const Color(0xFFE5E5EA);
+  Color get segmentedActiveBg => isDark ? const Color(0xFF6FB3A3) : const Color(0xFF3D8B7D); // accent
+  Color get segmentedInactiveText => isDark ? const Color(0xFF8F9194) : const Color(0xFF8E8E93);
 
   // Switches, Checkboxes, Radios
-  Color get switchTrackInactive => isDark ? const Color(0xFF333333) : const Color(0xFFE5E5EA);
+  Color get switchTrackInactive => isDark ? const Color(0xFF3A3D40) : const Color(0xFFE5E5EA);
   Color get switchThumb => Colors.white;
-  Color get checkboxUnchecked => isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE5E5EA);
-  Color get radioUnchecked => isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE5E5EA);
+  Color get checkboxUnchecked => isDark ? const Color(0xFF35373A) : const Color(0xFFE5E5EA);
+  Color get radioUnchecked => isDark ? const Color(0xFF35373A) : const Color(0xFFE5E5EA);
 
   // Buttons
-  Color get btnPrimary => isDark ? const Color(0xFF2E8BC9) : const Color(0xFF007AFF);
+  Color get btnPrimary => isDark ? const Color(0xFF6FB3A3) : const Color(0xFF3D8B7D); // accent
   Color get btnDanger => isDark ? const Color(0xFFE05E5E) : const Color(0xFFFF3B30);
   Color get btnSuccess => isDark ? const Color(0xFF4EC994) : const Color(0xFF34C759);
   Color get btnWarning => isDark ? const Color(0xFFF0A500) : const Color(0xFFFF9500);
-  Color get btnSecondary => isDark ? const Color(0xFF232323) : const Color(0xFFF2F2F7);
-  Color get btnGhostText => isDark ? const Color(0xFF999999) : const Color(0xFF8E8E93);
-  Color get btnOutlineBlueFg => isDark ? const Color(0xFF4FA3D8) : const Color(0xFF007AFF);
-  Color get btnOutlineBlueBorder => isDark ? const Color(0xFF2E6F96) : const Color(0xFF007AFF);
+  Color get btnSecondary => isDark ? const Color(0xFF2E3134) : const Color(0xFFF2F2F7);
+  Color get btnGhostText => isDark ? const Color(0xFFA0A2A5) : const Color(0xFF8E8E93);
+  Color get btnOutlineBlueFg => isDark ? const Color(0xFF86C4B6) : const Color(0xFF3D8B7D); // accent fg
+  Color get btnOutlineBlueBorder => isDark ? const Color(0xFF4C7C71) : const Color(0xFF3D8B7D); // accent border
   Color get btnOutlineDangerFg => isDark ? const Color(0xFFE08080) : const Color(0xFFFF3B30);
   Color get btnOutlineDangerBorder => isDark ? const Color(0xFF96403F) : const Color(0xFFFF3B30);
-  Color get tintBlueBg => isDark ? const Color(0x262E8BC9) : const Color(0x1A007AFF);
-  Color get tintBlueFg => isDark ? const Color(0xFF6DB4E6) : const Color(0xFF007AFF);
+  Color get tintBlueBg => isDark ? const Color(0x266FB3A3) : const Color(0x1A3D8B7D); // accent tint bg
+  Color get tintBlueFg => isDark ? const Color(0xFF8BC7BA) : const Color(0xFF3D8B7D); // accent tint fg
   Color get tintRedBg => isDark ? const Color(0x26E05E5E) : const Color(0x1AFF3B30);
   Color get tintRedFg => isDark ? const Color(0xFFEF9797) : const Color(0xFFFF3B30);
 
   // Dialog
-  Color get dialogActionsBg => isDark ? const Color(0xFF252525) : const Color(0xFFF2F2F7);
+  Color get dialogActionsBg => isDark ? const Color(0xFF2E3134) : const Color(0xFFF2F2F7);
 
   // Cards extras
-  Color get eventPreviewBg => isDark ? const Color(0xFF1A1A1A) : const Color(0xFFF2F2F7);
-  Color get eventDateBg => isDark ? const Color(0xFF232325) : Colors.white;
-  Color get eventActionsBg => isDark ? const Color(0xFF252525) : const Color(0xFFF2F2F7);
+  Color get eventPreviewBg => isDark ? const Color(0xFF232527) : const Color(0xFFF2F2F7);
+  Color get eventDateBg => isDark ? const Color(0xFF2E3134) : Colors.white;
+  Color get eventActionsBg => isDark ? const Color(0xFF2E3134) : const Color(0xFFF2F2F7);
   Color get alertWarningBg => isDark ? const Color(0x1AF0A500) : const Color(0x1AFF9500);
   Color get alertDangerBg => isDark ? const Color(0x1AE05E5E) : const Color(0x1AFF3B30);
-  Color get progressTrack => isDark ? const Color(0xFF262626) : const Color(0xFFE5E5EA);
-  Color get progressFill => isDark ? const Color(0xFF2E8BC9) : const Color(0xFF007AFF);
-  Color get addCardBorder => isDark ? const Color(0xFF2A2A2A) : const Color(0xFFC7C7CC);
-  Color get addCardText => isDark ? const Color(0xFF777777) : const Color(0xFF8E8E93);
-  Color get addCardIcon => isDark ? const Color(0xFF666666) : const Color(0xFF8E8E93);
-  Color get sheetHandle => isDark ? const Color(0xFF3A3A3C) : const Color(0xFFD1D1D6);
-  Color get sheetFieldBorder => isDark ? const Color(0xFF262626) : const Color(0xFFE5E5EA);
+  Color get progressTrack => isDark ? const Color(0xFF35373A) : const Color(0xFFE5E5EA);
+  Color get progressFill => isDark ? const Color(0xFF6FB3A3) : const Color(0xFF3D8B7D); // accent
+  Color get addCardBorder => isDark ? const Color(0xFF3E4144) : const Color(0xFFC7C7CC);
+  Color get addCardText => isDark ? const Color(0xFF8F9194) : const Color(0xFF8E8E93);
+  Color get addCardIcon => isDark ? const Color(0xFF86888B) : const Color(0xFF8E8E93);
+  Color get sheetHandle => isDark ? const Color(0xFF4A4D50) : const Color(0xFFD1D1D6);
+  Color get sheetFieldBorder => isDark ? const Color(0xFF35373A) : const Color(0xFFE5E5EA);
 
   @override
   AppColors copyWith({bool? isDark}) => AppColors(isDark: isDark ?? this.isDark);
@@ -176,8 +189,12 @@ class _ComponentsPageState extends State<ComponentsPage> {
   @override
   void dispose() {
     _searchController.dispose();
-    for (final node in _otpFocusNodes) node.dispose();
-    for (final controller in _otpControllers) controller.dispose();
+    for (final node in _otpFocusNodes) {
+      node.dispose();
+    }
+    for (final controller in _otpControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -411,9 +428,9 @@ class _ComponentsPageState extends State<ComponentsPage> {
       context: context,
       barrierColor: Colors.black54,
       builder: (dialogContext) {
-        final colors = Theme.of(dialogContext).extension<AppColors>()!;
+        final dColors = Theme.of(dialogContext).extension<AppColors>()!;
         return Dialog(
-          backgroundColor: colors.cardBg,
+          backgroundColor: dColors.cardBg,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(22, 26, 22, 10),
@@ -425,7 +442,7 @@ class _ComponentsPageState extends State<ComponentsPage> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: colors.textPrimary,
+                    color: dColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -434,7 +451,7 @@ class _ComponentsPageState extends State<ComponentsPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13.5,
-                    color: colors.textSecondary,
+                    color: dColors.textSecondary,
                     height: 1.5,
                   ),
                 ),
@@ -442,7 +459,7 @@ class _ComponentsPageState extends State<ComponentsPage> {
                 Container(
                   padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
-                    color: colors.dialogActionsBg,
+                    color: dColors.dialogActionsBg,
                     borderRadius: BorderRadius.circular(50),
                   ),
                   child: Row(
@@ -451,7 +468,7 @@ class _ComponentsPageState extends State<ComponentsPage> {
                         child: _dialogButton(
                           dialogContext,
                           'Eliminar',
-                          bg: colors.btnDanger,
+                          bg: dColors.btnDanger,
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -459,7 +476,7 @@ class _ComponentsPageState extends State<ComponentsPage> {
                         child: _dialogButton(
                           dialogContext,
                           'Cancelar',
-                          bg: colors.btnPrimary,
+                          bg: dColors.btnPrimary,
                         ),
                       ),
                     ],
@@ -553,8 +570,17 @@ class _ComponentsPageState extends State<ComponentsPage> {
     );
   }
 
-  // Lista pixel-perfect: container pai com shadow, overflow hidden, gap de 3px
+  // Lista pixel-perfect: container pai com shadow, overflow hidden, gap de 3px.
+  // Radius por item:
+  //  - único item          -> 28 em todos os cantos
+  //  - primeiro item (topo) -> topo 28 (inalterado) / fundo 10 (levemente curvo)
+  //  - último item (fundo)  -> topo 10 (levemente curvo) / fundo 28 (inalterado)
+  //  - itens do meio         -> 8 em todos os cantos (já era assim)
   Widget _buildListCardWithRows(List<_ListRowData> rows) {
+    const bigRadius = Radius.circular(28);
+    const softRadius = Radius.circular(10); // curvatura leve pedida para o cantos internos do 1º/último
+    const midRadius = Radius.circular(8);
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
@@ -573,13 +599,23 @@ class _ComponentsPageState extends State<ComponentsPage> {
           final isLast = i == rows.length - 1;
           BorderRadius radius;
           if (isFirst && rows.length == 1) {
-            radius = const BorderRadius.all(Radius.circular(28));
+            radius = BorderRadius.all(bigRadius);
           } else if (isFirst) {
-            radius = const BorderRadius.vertical(top: Radius.circular(28));
+            radius = BorderRadius.only(
+              topLeft: bigRadius,
+              topRight: bigRadius,
+              bottomLeft: softRadius,
+              bottomRight: softRadius,
+            );
           } else if (isLast) {
-            radius = const BorderRadius.vertical(bottom: Radius.circular(28));
+            radius = BorderRadius.only(
+              topLeft: softRadius,
+              topRight: softRadius,
+              bottomLeft: bigRadius,
+              bottomRight: bigRadius,
+            );
           } else {
-            radius = const BorderRadius.all(Radius.circular(8));
+            radius = BorderRadius.all(midRadius);
           }
           return Column(
             children: [
@@ -1183,9 +1219,13 @@ class _ComponentsPageState extends State<ComponentsPage> {
 
   Widget _buildSheetInputRow(AppColors sheetColors, {required IconData icon, required String hint, required bool isFirst, required bool isLast}) {
     BorderRadius radius;
-    if (isFirst) radius = const BorderRadius.vertical(top: Radius.circular(28));
-    else if (isLast) radius = const BorderRadius.vertical(bottom: Radius.circular(28));
-    else radius = const BorderRadius.all(Radius.circular(8));
+    if (isFirst) {
+      radius = const BorderRadius.vertical(top: Radius.circular(28));
+    } else if (isLast) {
+      radius = const BorderRadius.vertical(bottom: Radius.circular(28));
+    } else {
+      radius = const BorderRadius.all(Radius.circular(8));
+    }
 
     return Container(
       decoration: BoxDecoration(color: sheetColors.cardBg, borderRadius: radius),
@@ -1227,7 +1267,14 @@ class _ComponentsPageState extends State<ComponentsPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text('Tema claro', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.textPrimary)),
-        Switch(value: !widget.isDark, onChanged: (_) => widget.onThemeToggle(), activeColor: colors.switchThumb, activeTrackColor: colors.segmentedActiveBg, inactiveThumbColor: colors.switchThumb, inactiveTrackColor: colors.switchTrackInactive),
+        Switch(
+          value: !widget.isDark,
+          onChanged: (_) => widget.onThemeToggle(),
+          activeColor: colors.switchThumb,
+          activeTrackColor: colors.segmentedActiveBg,
+          inactiveThumbColor: colors.switchThumb,
+          inactiveTrackColor: colors.switchTrackInactive,
+        ),
       ],
     );
   }
@@ -1276,7 +1323,7 @@ class _ComponentsPageState extends State<ComponentsPage> {
           children: [
             _buildButton(label: 'Secundário', variant: BtnVariant.secondary, size: ButtonSize.medium, onTap: () {}),
             _buildButton(label: 'Ghost', variant: BtnVariant.ghost, size: ButtonSize.medium, onTap: () {}),
-            _buildButton(label: 'Outline azul', variant: BtnVariant.outline, size: ButtonSize.medium, onTap: () {}),
+            _buildButton(label: 'Outline', variant: BtnVariant.outline, size: ButtonSize.medium, onTap: () {}),
           ],
         ),
         const SizedBox(height: 26),
