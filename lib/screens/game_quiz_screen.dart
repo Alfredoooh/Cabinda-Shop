@@ -1189,6 +1189,12 @@ class _GameQuizScreenState extends State<GameQuizScreen>
                                             .value) *
                                     7;
 
+                            final speakerScale =
+                                1 +
+                                    _speakerController
+                                            .value *
+                                        1.2;
+
                             return Transform.translate(
                               offset:
                                   Offset(
@@ -1286,7 +1292,7 @@ class _GameQuizScreenState extends State<GameQuizScreen>
 
                                 Transform.scale(
                                   scale:
-                                      1.0 + (_speakerController.value * 1.2),
+                                      speakerScale,
                                   child:
                                       Material(
                                     color:

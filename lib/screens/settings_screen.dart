@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../main.dart' show AppColors, SoundManager;
@@ -35,558 +34,282 @@ class SettingsScreen extends StatefulWidget {
   });
 
   @override
-  State<SettingsScreen> createState() =>
-      _SettingsScreenState();
+  State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState
-    extends State<SettingsScreen> {
+class _SettingsScreenState extends State<SettingsScreen> {
   late bool _isDark;
   late bool _soundEnabled;
   late bool _musicEnabled;
   late bool _voiceEnabled;
 
-  late AppColors _colors;
+  AppColors get colors => AppColors(_isDark);
 
   @override
   void initState() {
     super.initState();
+    _isDark = widget.isDark;
+    _soundEnabled = widget.soundEnabled;
+    _musicEnabled = widget.musicEnabled;
+    _voiceEnabled = widget.voiceEnabled;
+  }
 
-    _isDark =
-        widget.isDark;
-
-    _soundEnabled =
-        widget.soundEnabled;
-
-    _musicEnabled =
-        widget.musicEnabled;
-
-    _voiceEnabled =
-        widget.voiceEnabled;
-
-    _colors =
-        AppColors(
-      _isDark,
+  void _saveAndClose() {
+    Navigator.of(context).pop(
+      AppSettingsResult(
+        isDark: _isDark,
+        soundEnabled: _soundEnabled,
+        musicEnabled: _musicEnabled,
+        voiceEnabled: _voiceEnabled,
+      ),
     );
+  }
 
+  void _setSound(bool value) {
+    setState(() => _soundEnabled = value);
+    SoundManager.instance.muted = !value;
+  }
+
+  void _setVoice(bool value) {
+    setState(() => _voiceEnabled = value);
+    SoundManager.instance.voiceEnabled = value;
+  }
+
+  void _setTheme(bool value) {
+    setState(() => _isDark = value);
     _updateSystemBars();
   }
 
   void _updateSystemBars() {
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor:
-            Colors.transparent,
-        systemNavigationBarColor:
-            Colors.transparent,
-        statusBarBrightness:
-            _isDark
-                ? Brightness.dark
-                : Brightness.light,
-        statusBarIconBrightness:
-            _isDark
-                ? Brightness.light
-                : Brightness.dark,
-        systemNavigationBarIconBrightness:
-            _isDark
-                ? Brightness.light
-                : Brightness.dark,
-      ),
-    );
-  }
-
-  void _updateColors() {
-    _colors =
-        AppColors(
-      _isDark,
-    );
-  }
-
-  void _toggleSound(
-    bool value,
-  ) {
-    setState(() {
-      _soundEnabled =
-          value;
-    });
-
-    SoundManager
-        .instance
-        .muted =
-        !_soundEnabled;
-
-    SoundManager
-        .instance
-        .clickMuted =
-        !_soundEnabled;
-
-    if (_soundEnabled) {
-      SoundManager
-          .instance
-          .playClick();
-    }
-  }
-
-  void _toggleMusic(
-    bool value,
-  ) {
-    setState(() {
-      _musicEnabled =
-          value;
-    });
-
-    SoundManager
-        .instance
-        .musicMuted =
-        !_musicEnabled;
-  }
-
-  void _toggleVoice(
-    bool value,
-  ) {
-    setState(() {
-      _voiceEnabled =
-          value;
-    });
-
-    // O fallback de voz usa SoundManager.
-    // Quando desativado, impedimos o TTS.
-    //
-    // O estado fica no Settings/Home e os jogos
-    // devem verificar voiceEnabled antes de
-    // chamar o fallback.
-  }
-
-  void _toggleTheme(
-    bool value,
-  ) {
-    setState(() {
-      _isDark =
-          value;
-
-      _updateColors();
-    });
-
-    _updateSystemBars();
-  }
-
-  void _close() {
-    Navigator.of(
-      context,
-    ).pop(
-      AppSettingsResult(
-        isDark:
-            _isDark,
-        soundEnabled:
-            _soundEnabled,
-        musicEnabled:
-            _musicEnabled,
-        voiceEnabled:
-            _voiceEnabled,
-      ),
-    );
+    // A HomeScreen faz a sincronização definitiva quando esta página fecha.
   }
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
-    final colors =
-        _colors;
+  Widget build(BuildContext context) {
+    final c = colors;
 
-    return AnnotatedRegion<
-        SystemUiOverlayStyle>(
-      value:
-          SystemUiOverlayStyle(
-        statusBarColor:
-            Colors.transparent,
-        systemNavigationBarColor:
-            Colors.transparent,
-        statusBarBrightness:
-            _isDark
-                ? Brightness.dark
-                : Brightness.light,
-        statusBarIconBrightness:
-            _isDark
-                ? Brightness.light
-                : Brightness.dark,
-        systemNavigationBarIconBrightness:
-            _isDark
-                ? Brightness.light
-                : Brightness.dark,
-      ),
-      child:
-          Scaffold(
-        backgroundColor:
-            colors.bg,
-        body:
-            SafeArea(
-          bottom:
-              false,
-          child:
-              Column(
-            children: [
-              _buildHeader(
-                colors,
+    return Scaffold(
+      backgroundColor: c.bg,
+      appBar: AppBar(
+        backgroundColor: c.bg,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        titleSpacing: 0,
+        leading: GestureDetector(
+          onTap: _saveAndClose,
+          child: Center(
+            child: SvgPicture.asset(
+              'assets/icons/back.svg',
+              width: 20,
+              height: 20,
+              colorFilter: ColorFilter.mode(
+                c.textMain,
+                BlendMode.srcIn,
               ),
-
-              Expanded(
-                child:
-                    ListView(
-                  physics:
-                      const BouncingScrollPhysics(),
-                  padding:
-                      const EdgeInsets.fromLTRB(
-                    16,
-                    8,
-                    16,
-                    32,
-                  ),
-                  children: [
-                    _buildSection(
-                      colors,
-                      title:
-                          'Som',
-                      children: [
-                        _buildSetting(
-                          colors:
-                              colors,
-                          title:
-                              'Sons de clique',
-                          subtitle:
-                              'Sons usados ao tocar nos elementos do app.',
-                          icon:
-                              'assets/icons/speaker-icon.svg',
-                          enabled:
-                              _soundEnabled,
-                          onChanged:
-                              _toggleSound,
-                        ),
-                        const SizedBox(
-                          height:
-                              10,
-                        ),
-                        _buildSetting(
-                          colors:
-                              colors,
-                          title:
-                              'Música',
-                          subtitle:
-                              'Música durante jogos e conteúdos.',
-                          icon:
-                              'assets/icons/music_on.svg',
-                          enabled:
-                              _musicEnabled,
-                          onChanged:
-                              _toggleMusic,
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(
-                      height:
-                          24,
-                    ),
-
-                    _buildSection(
-                      colors,
-                      title:
-                          'Aparência',
-                      children: [
-                        _buildSetting(
-                          colors:
-                              colors,
-                          title:
-                              'Tema escuro',
-                          subtitle:
-                              _isDark
-                                  ? 'Tema escuro ativo.'
-                                  : 'Tema claro ativo.',
-                          icon:
-                              'assets/icons/settings.svg',
-                          enabled:
-                              _isDark,
-                          onChanged:
-                              _toggleTheme,
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(
-                      height:
-                          24,
-                    ),
-
-                    _buildSection(
-                      colors,
-                      title:
-                          'Acessibilidade',
-                      children: [
-                        _buildSetting(
-                          colors:
-                              colors,
-                          title:
-                              'Leitura por voz',
-                          subtitle:
-                              'Usa voz de fallback quando o áudio não estiver disponível.',
-                          icon:
-                              'assets/icons/speaker-icon.svg',
-                          enabled:
-                              _voiceEnabled,
-                          onChanged:
-                              _toggleVoice,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
+          ),
+        ),
+        title: Text(
+          'Definições',
+          style: TextStyle(
+            fontFamily: 'ComicSansMS',
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+            color: c.textMain,
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader(
-    AppColors colors,
-  ) {
-    return SizedBox(
-      height:
-          62,
-      child:
-          Row(
+      body: ListView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 28),
         children: [
-          const SizedBox(
-            width:
-                10,
+          _Section(
+            colors: c,
+            title: 'Som',
+            children: [
+              _SettingTile(
+                colors: c,
+                icon: 'assets/icons/speaker-icon.svg',
+                title: 'Sons de clique',
+                subtitle: 'Sons ao tocar nos elementos do app.',
+                value: _soundEnabled,
+                onChanged: _setSound,
+              ),
+              const SizedBox(height: 10),
+              _SettingTile(
+                colors: c,
+                icon: 'assets/icons/music_on.svg',
+                title: 'Música',
+                subtitle: 'Música dos jogos e conteúdos.',
+                value: _musicEnabled,
+                onChanged: (value) {
+                  setState(() => _musicEnabled = value);
+                },
+              ),
+            ],
           ),
-
-          _IconButton(
-            colors:
-                colors,
-            asset:
-                'assets/icons/back.svg',
-            onTap:
-                _close,
+          const SizedBox(height: 24),
+          _Section(
+            colors: c,
+            title: 'Aparência',
+            children: [
+              _SettingTile(
+                colors: c,
+                icon: _isDark
+                    ? 'assets/icons/moon-icon.svg'
+                    : 'assets/icons/sun-icon.svg',
+                title: 'Tema escuro',
+                subtitle: _isDark
+                    ? 'Tema escuro ativo.'
+                    : 'Tema claro ativo.',
+                value: _isDark,
+                onChanged: _setTheme,
+              ),
+            ],
           ),
-
-          const SizedBox(
-            width:
-                12,
-          ),
-
-          Text(
-            'Definições',
-            style:
-                TextStyle(
-              fontFamily:
-                  'ComicSansMS',
-              fontSize:
-                  21,
-              fontWeight:
-                  FontWeight.w700,
-              color:
-                  colors.textMain,
-            ),
-          ),
-
-          const Spacer(),
-
-          Padding(
-            padding:
-                const EdgeInsets.only(
-              right:
-                  14,
-            ),
-            child:
-                _LocalIcon(
-              asset:
-                  'assets/icons/settings.svg',
-              size:
-                  21,
-              color:
-                  colors.textMuted,
-            ),
+          const SizedBox(height: 24),
+          _Section(
+            colors: c,
+            title: 'Acessibilidade',
+            children: [
+              _SettingTile(
+                colors: c,
+                icon: 'assets/icons/speaker-icon.svg',
+                title: 'Leitura por voz',
+                subtitle:
+                    'Usar voz automática quando um áudio não existir.',
+                value: _voiceEnabled,
+                onChanged: _setVoice,
+              ),
+            ],
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildSection(
-    AppColors colors, {
-    required String title,
-    required List<Widget> children,
-  }) {
+class _Section extends StatelessWidget {
+  final AppColors colors;
+  final String title;
+  final List<Widget> children;
+
+  const _Section({
+    required this.colors,
+    required this.title,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding:
-              const EdgeInsets.only(
-            left:
-                4,
-            bottom:
-                10,
-          ),
-          child:
-              Text(
+          padding: const EdgeInsets.only(left: 4, bottom: 9),
+          child: Text(
             title,
-            style:
-                TextStyle(
-              fontFamily:
-                  'ComicSansMS',
-              fontSize:
-                  15,
-              fontWeight:
-                  FontWeight.w700,
-              color:
-                  colors.textMain,
+            style: TextStyle(
+              fontFamily: 'ComicSansMS',
+              fontWeight: FontWeight.w700,
+              fontSize: 15,
+              color: colors.textMain,
             ),
           ),
         ),
-
         ...children,
       ],
     );
   }
+}
 
-  Widget _buildSetting({
-    required AppColors colors,
-    required String title,
-    required String subtitle,
-    required String icon,
-    required bool enabled,
-    required ValueChanged<bool>
-        onChanged,
-  }) {
+class _SettingTile extends StatelessWidget {
+  final AppColors colors;
+  final String icon;
+  final String title;
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _SettingTile({
+    required this.colors,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      width:
-          double.infinity,
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal:
-            14,
-        vertical:
-            13,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 13,
       ),
-      decoration:
-          BoxDecoration(
-        color:
-            colors.bgCardNeutral,
-        borderRadius:
-            BorderRadius.circular(
-          16,
-        ),
-        border:
-            Border.all(
-          color:
-              colors.divider,
+      decoration: BoxDecoration(
+        color: colors.bgCardNeutral,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colors.divider,
         ),
       ),
-      child:
-          Row(
+      child: Row(
         children: [
           Container(
-            width:
-                40,
-            height:
-                40,
-            decoration:
-                BoxDecoration(
-              color:
-                  enabled
-                      ? colors.primary
-                          .withOpacity(
-                      0.12,
-                    )
-                      : colors.bg,
-              borderRadius:
-                  BorderRadius.circular(
-                12,
-              ),
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: value
+                  ? colors.primary.withOpacity(0.12)
+                  : colors.bg,
+              borderRadius: BorderRadius.circular(12),
             ),
-            child:
-                Center(
-              child:
-                  _LocalIcon(
-                asset:
-                    icon,
-                size:
-                    21,
-                color:
-                    enabled
-                        ? colors.primary
-                        : colors.textMuted,
+            child: Center(
+              child: SvgPicture.asset(
+                icon,
+                width: 20,
+                height: 20,
+                colorFilter: ColorFilter.mode(
+                  value ? colors.primary : colors.textMuted,
+                  BlendMode.srcIn,
+                ),
               ),
             ),
           ),
-
-          const SizedBox(
-            width:
-                12,
-          ),
-
+          const SizedBox(width: 12),
           Expanded(
-            child:
-                Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style:
-                      TextStyle(
-                    fontFamily:
-                        'ComicSansMS',
-                    fontWeight:
-                        FontWeight.w700,
-                    fontSize:
-                        15,
-                    color:
-                        colors.textMain,
+                  style: TextStyle(
+                    fontFamily: 'ComicSansMS',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    color: colors.textMain,
                   ),
                 ),
-
-                const SizedBox(
-                  height:
-                      3,
-                ),
-
+                const SizedBox(height: 3),
                 Text(
                   subtitle,
-                  maxLines:
-                      2,
-                  overflow:
-                      TextOverflow.ellipsis,
-                  style:
-                      TextStyle(
-                    fontSize:
-                        12,
-                    height:
-                        1.35,
-                    color:
-                        colors.textMuted,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 1.3,
+                    color: colors.textMuted,
                   ),
                 ),
               ],
             ),
           ),
-
-          const SizedBox(
-            width:
-                10,
-          ),
-
-          _LocalSwitch(
-            colors:
-                colors,
-            value:
-                enabled,
-            onChanged:
-                onChanged,
+          const SizedBox(width: 10),
+          _CustomSwitch(
+            colors: colors,
+            value: value,
+            onChanged: onChanged,
           ),
         ],
       ),
@@ -594,268 +317,46 @@ class _SettingsScreenState
   }
 }
 
-// ══════════════════════════════════════════════════════════════
-// LOCAL ICON
-// ══════════════════════════════════════════════════════════════
-
-class _LocalIcon
-    extends StatelessWidget {
-  final String asset;
-  final double size;
-  final Color color;
-
-  const _LocalIcon({
-    required this.asset,
-    required this.size,
-    required this.color,
-  });
-
-  @override
-  Widget build(
-    BuildContext context,
-  ) {
-    return SvgPicture.asset(
-      asset,
-      width:
-          size,
-      height:
-          size,
-      fit:
-          BoxFit.contain,
-      colorFilter:
-          ColorFilter.mode(
-        color,
-        BlendMode.srcIn,
-      ),
-      errorBuilder:
-          (
-        context,
-        error,
-        stackTrace,
-      ) {
-        return const SizedBox(
-          width:
-              1,
-          height:
-              1,
-        );
-      },
-    );
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
-// ICON BUTTON
-// ══════════════════════════════════════════════════════════════
-
-class _IconButton
-    extends StatefulWidget {
-  final AppColors colors;
-  final String asset;
-  final VoidCallback onTap;
-
-  const _IconButton({
-    required this.colors,
-    required this.asset,
-    required this.onTap,
-  });
-
-  @override
-  State<_IconButton>
-      createState() =>
-          _IconButtonState();
-}
-
-class _IconButtonState
-    extends State<_IconButton> {
-  bool _pressed =
-      false;
-
-  @override
-  Widget build(
-    BuildContext context,
-  ) {
-    return GestureDetector(
-      behavior:
-          HitTestBehavior.opaque,
-      onTap:
-          widget.onTap,
-      onTapDown:
-          (_) {
-        setState(
-          () {
-            _pressed =
-                true;
-          },
-        );
-      },
-      onTapUp:
-          (_) {
-        setState(
-          () {
-            _pressed =
-                false;
-          },
-        );
-      },
-      onTapCancel:
-          () {
-        setState(
-          () {
-            _pressed =
-                false;
-          },
-        );
-      },
-      child:
-          AnimatedContainer(
-        duration:
-            const Duration(
-          milliseconds:
-              90,
-        ),
-        width:
-            42,
-        height:
-            42,
-        transform:
-            Matrix4.identity()
-              ..translate(
-                0.0,
-                _pressed
-                    ? 2.0
-                    : 0.0,
-              ),
-        decoration:
-            BoxDecoration(
-          color:
-              widget.colors.bgCardNeutral,
-          borderRadius:
-              BorderRadius.circular(
-            12,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color:
-                  widget.colors
-                      .neutralShadow,
-              offset:
-                  Offset(
-                0,
-                _pressed
-                    ? 1
-                    : 3,
-              ),
-            ),
-          ],
-        ),
-        child:
-            Center(
-          child:
-              _LocalIcon(
-            asset:
-                widget.asset,
-            size:
-                20,
-            color:
-                widget.colors.textMain,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
-// CUSTOM SWITCH
-// ══════════════════════════════════════════════════════════════
-
-class _LocalSwitch
-    extends StatelessWidget {
+class _CustomSwitch extends StatelessWidget {
   final AppColors colors;
   final bool value;
-  final ValueChanged<bool>
-      onChanged;
+  final ValueChanged<bool> onChanged;
 
-  const _LocalSwitch({
+  const _CustomSwitch({
     required this.colors,
     required this.value,
     required this.onChanged,
   });
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return GestureDetector(
-      behavior:
-          HitTestBehavior.opaque,
-      onTap:
-          () => onChanged(
-        !value,
-      ),
-      child:
-          AnimatedContainer(
-        duration:
-            const Duration(
-          milliseconds:
-              200,
+      onTap: () => onChanged(!value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 52,
+        height: 30,
+        padding: const EdgeInsets.all(3),
+        decoration: BoxDecoration(
+          color: value ? colors.primary : colors.divider,
+          borderRadius: BorderRadius.circular(18),
         ),
-        width:
-            52,
-        height:
-            30,
-        padding:
-            const EdgeInsets.all(
-          3,
-        ),
-        decoration:
-            BoxDecoration(
-          color:
-              value
-                  ? colors.primary
-                  : colors.divider,
-          borderRadius:
-              BorderRadius.circular(
-            18,
-          ),
-        ),
-        child:
-            AnimatedAlign(
-          duration:
-              const Duration(
-            milliseconds:
-                220,
-          ),
-          curve:
-              Curves.easeOut,
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
           alignment:
-              value
-                  ? Alignment.centerRight
-                  : Alignment.centerLeft,
-          child:
-              Container(
-            width:
-                24,
-            height:
-                24,
-            decoration:
-                BoxDecoration(
-              color:
-                  colors.switchThumb,
-              shape:
-                  BoxShape.circle,
+              value ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: colors.switchThumb,
+              shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color:
-                      colors.switchThumbShadow,
-                  offset:
-                      const Offset(
-                    0,
-                    2,
-                  ),
-                  blurRadius:
-                      4,
+                  color: colors.switchThumbShadow,
+                  offset: const Offset(0, 2),
+                  blurRadius: 4,
                 ),
               ],
             ),

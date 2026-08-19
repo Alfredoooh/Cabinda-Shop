@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:audioplayers/audioplayers.dart';
-import '../main.dart' show AppColors, SoundManager;
+import '../main.dart' show AppColors;
 
 final AudioPlayer _soundPlayer = AudioPlayer();
 final AudioPlayer _musicPlayer = AudioPlayer();
@@ -129,7 +129,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
 
   Future<void> _playSound(String asset) async {
     if (!_soundOn) return;
-    if (asset == 'audio/pressing.wav' && SoundManager.instance.clickMuted) return;
 
     try {
       await _soundPlayer.stop();
@@ -141,7 +140,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
 
   Future<void> _startMusic() async {
     if (_musicStarted) {
-      if (_musicOn && !SoundManager.instance.musicMuted) {
+      if (_musicOn) {
         try {
           await _musicPlayer.resume();
         } catch (_) {}
@@ -158,7 +157,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
 
       await _musicPlayer.setVolume(0.35);
 
-      if (_musicOn && !SoundManager.instance.musicMuted) {
+      if (_musicOn) {
         await _musicPlayer.play(
           AssetSource('songs/playing_song.mp3'),
         );
@@ -180,7 +179,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     setState(() {
       _musicOn = !_musicOn;
     });
-    SoundManager.instance.musicMuted = !_musicOn;
 
     try {
       if (_musicOn) {
@@ -877,11 +875,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
               width: 50,
               height: 50,
               errorBuilder: (_, __, ___) {
-                return Icon(
-                  Icons.star,
-                  size: 50,
-                  color: colors.textMain,
-                );
+                return const SizedBox(width: 50, height: 50);
               },
             ),
 

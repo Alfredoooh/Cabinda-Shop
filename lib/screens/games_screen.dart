@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:audioplayers/audioplayers.dart';
-import '../main.dart' show AppColors, SoundManager;
+import '../main.dart' show AppColors;
 import 'game_memory_screen.dart';
 import 'game_quiz_screen.dart';
-import 'game_word_builder_screen.dart';
-
 
 final AudioPlayer _soundPlayer = AudioPlayer();
 
@@ -43,19 +41,6 @@ class GamesScreen extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 14),
-        _GameCard(
-          colors: colors,
-          titulo: 'Monta a Palavra',
-          descricao: 'Junta letras e sílabas para formar palavras!',
-          coverPath: 'assets/covers/game_word_builder_cover.png',
-          corIndex: 4,
-          onTap: () => Navigator.of(context).push(
-            CupertinoPageRoute(
-              builder: (_) => GameWordBuilderScreen(colors: colors),
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -86,7 +71,6 @@ class _GameCardState extends State<_GameCard> {
   bool _pressed = false;
 
   Future<void> _playPress() async {
-    if (SoundManager.instance.clickMuted) return;
     try {
       await _soundPlayer.stop();
       await _soundPlayer.play(AssetSource('audio/pressing.wav'));
@@ -169,12 +153,12 @@ class _GameCardState extends State<_GameCard> {
                     padding: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 20),
                     decoration: BoxDecoration(
-                      color: widget.colors.primary,
+                      color: AppColors.green,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
-                          color: widget.colors.primaryShadow,
-                          offset: const Offset(0, 4),
+                          color: AppColors.greenShadow,
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),

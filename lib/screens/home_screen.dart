@@ -1,40 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter/services.dart';
 import '../main.dart'
-    show AppColors, AppDesign, AppStyle, GridMode, DrawerSection, SoundManager, kConsonants;
+    show AppColors, GridMode, DrawerSection, SoundManager, kConsonants;
 import 'detail_screen.dart';
 import 'games_screen.dart';
 import 'playlist_covers_screen.dart';
 import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  final AppColors? initialColors;
-  final bool? initialDark;
-  final AppStyle? initialStyle;
-  final AppDesign? initialDesign;
-
-  const HomeScreen({
-    super.key,
-    this.initialColors,
-    this.initialDark,
-    this.initialStyle,
-    this.initialDesign,
-  });
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  late bool isDark;
-  late AppStyle appStyle;
-  late AppDesign appDesign;
+  bool isDark = false;
   GridMode currentMode = GridMode.all;
   DrawerSection currentSection = DrawerSection.alphabet;
   bool soundEnabled = true;
-  bool musicEnabled = true;
 
   late AnimationController _drawerController;
   late Animation<Offset> _drawerSlide;
@@ -47,10 +32,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    isDark = widget.initialDark ?? widget.initialColors?.isDark ?? false;
-    appStyle = widget.initialStyle ?? widget.initialColors?.style ?? AppStyle.classic;
-    appDesign = widget.initialDesign ?? widget.initialColors?.design ?? AppDesign.custom;
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _drawerController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 340),
@@ -83,28 +64,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void toggleTheme() => setState(() => isDark = !isDark);
 
-  Future<void> openSettings() async {
-    final result = await Navigator.of(context).push<AppSettingsResult>(
-      CupertinoPageRoute(
-        builder: (_) => SettingsScreen(
-          colors: AppColors(isDark, appStyle, appDesign),
-          isDark: isDark,
-          style: appStyle,
-          design: appDesign,
-          soundEnabled: soundEnabled,
-          musicEnabled: musicEnabled,
-        ),
-      ),
-    );
-    if (result == null || !mounted) return;
-    setState(() {
-      isDark = result.isDark;
-      appStyle = result.style;
-      appDesign = result.design;
-      soundEnabled = result.soundEnabled;
-      musicEnabled = result.musicEnabled;
-    });
-  }
+  bool voiceEnabled = true;
 
   void toggleSound() {
     setState(() {
@@ -113,11 +73,37 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
 
+  void openSettings() async {
+    closeDrawer();
+    final result = await Navigator.of(context).push<AppSettingsResult>(
+      CupertinoPageRoute(
+        builder: (_) => SettingsScreen(
+          colors: AppColors(isDark),
+          isDark: isDark,
+          soundEnabled: soundEnabled,
+          musicEnabled: true,
+          voiceEnabled: voiceEnabled,
+        ),
+      ),
+    );
+
+    if (!mounted || result == null) return;
+
+    setState(() {
+      isDark = result.isDark;
+      soundEnabled = result.soundEnabled;
+      voiceEnabled = result.voiceEnabled;
+    });
+
+    SoundManager.instance.muted = !soundEnabled;
+    SoundManager.instance.voiceEnabled = voiceEnabled;
+  }
+
   void openDetail(int consonantIndex) {
     Navigator.of(context).push(
       CupertinoPageRoute(
         builder: (_) => DetailScreen(
-          colors: AppColors(isDark, appStyle, appDesign),
+          colors: AppColors(isDark),
           initialConsonantIndex: consonantIndex,
         ),
       ),
@@ -148,24 +134,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors(isDark, appStyle, appDesign);
+    final colors = AppColors(isDark);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final drawerWidth = screenWidth * _drawerWidthFactor;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        systemNavigationBarColor: Colors.transparent,
-        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-        systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-      ),
-      child: Scaffold(
+    return Scaffold(
       backgroundColor: colors.bg,
       body: Stack(
         children: [
           // Conteúdo principal
           SafeArea(
-            bottom: false,
-            child: Column(
+              bottom: false,
+              child: Column(
                 children: [
                   _AppBarWidget(
                     colors: colors,
@@ -214,6 +194,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ],
               ),
             ),
+          ),
 
           // Overlay escuro
           if (_drawerOpen)
@@ -252,7 +233,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
         ],
       ),
-    ),
     );
   }
 }
@@ -461,12 +441,12 @@ class _ToggleButton extends StatelessWidget {
               : Matrix4.identity(),
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
           decoration: BoxDecoration(
-            color: active ? colors.primary : Colors.transparent,
+            color: active ? AppColors.green : Colors.transparent,
             borderRadius: BorderRadius.circular(16),
             boxShadow: active
                 ? [
-                    BoxShadow(
-                      color: colors.primaryShadow,
+                    const BoxShadow(
+                      color: AppColors.greenShadow,
                       offset: Offset(0, 4),
                     ),
                   ]
@@ -728,41 +708,13 @@ class _AppDrawer extends StatelessWidget {
                   _DrawerItem(
                     colors: colors,
                     label: 'Definições',
-                    assetPath: null,
-                    iconData: Icons.settings_rounded,
+                    assetPath: 'assets/icons/settings.svg',
                     active: false,
                     onTap: onSettingsTap,
                   ),
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: colors.divider)),
-              ),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Tema',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: colors.textMain,
-                      ),
-                    ),
-                    _ThemeSwitch(
-                      colors: colors,
-                      isDark: isDark,
-                      onTap: onThemeToggle,
-                    ),
-                  ],
-                ),
-              ),
             ),
           ],
         ),
@@ -774,16 +726,14 @@ class _AppDrawer extends StatelessWidget {
 class _DrawerItem extends StatefulWidget {
   final AppColors colors;
   final String label;
-  final String? assetPath;
-  final IconData? iconData;
+  final String assetPath;
   final bool active;
   final VoidCallback onTap;
 
   const _DrawerItem({
     required this.colors,
     required this.label,
-    this.assetPath,
-    this.iconData,
+    required this.assetPath,
     required this.active,
     required this.onTap,
   });
@@ -797,9 +747,9 @@ class _DrawerItemState extends State<_DrawerItem> {
 
   @override
   Widget build(BuildContext context) {
-    final bg = widget.active ? widget.colors.primary : widget.colors.bgCardNeutral;
+    final bg = widget.active ? AppColors.green : widget.colors.bgCardNeutral;
     final shadowColor =
-        widget.active ? widget.colors.primaryShadow : widget.colors.divider;
+        widget.active ? AppColors.greenShadow : widget.colors.divider;
     final labelColor =
         widget.active ? Colors.white : widget.colors.textMain;
 
@@ -826,17 +776,25 @@ class _DrawerItemState extends State<_DrawerItem> {
         ),
         child: Row(
           children: [
-            if (widget.iconData != null)
-              Icon(widget.iconData, size: 24, color: labelColor)
-            else if (widget.assetPath != null)
-              Image.asset(
-                widget.assetPath!,
-                width: 24,
-                height: 24,
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) =>
-                    const SizedBox(width: 24, height: 24),
-              ),
+            widget.assetPath.toLowerCase().endsWith('.svg')
+                ? SvgPicture.asset(
+                    widget.assetPath,
+                    width: 24,
+                    height: 24,
+                    fit: BoxFit.contain,
+                    colorFilter: ColorFilter.mode(
+                      labelColor,
+                      BlendMode.srcIn,
+                    ),
+                  )
+                : Image.asset(
+                    widget.assetPath,
+                    width: 24,
+                    height: 24,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) =>
+                        const SizedBox(width: 24, height: 24),
+                  ),
             const SizedBox(width: 14),
             Text(
               widget.label,
