@@ -20,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   GridMode currentMode = GridMode.all;
   DrawerSection currentSection = DrawerSection.alphabet;
   bool soundEnabled = true;
+  bool musicEnabled = true;
 
   late AnimationController _drawerController;
   late Animation<Offset> _drawerSlide;
@@ -70,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     setState(() {
       soundEnabled = !soundEnabled;
       SoundManager.instance.muted = !soundEnabled;
+      SoundManager.instance.clickMuted = !soundEnabled;
     });
   }
 
@@ -81,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           colors: AppColors(isDark),
           isDark: isDark,
           soundEnabled: soundEnabled,
-          musicEnabled: true,
+          musicEnabled: musicEnabled,
           voiceEnabled: voiceEnabled,
         ),
       ),
@@ -92,10 +94,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     setState(() {
       isDark = result.isDark;
       soundEnabled = result.soundEnabled;
+      musicEnabled = result.musicEnabled;
       voiceEnabled = result.voiceEnabled;
     });
 
     SoundManager.instance.muted = !soundEnabled;
+    SoundManager.instance.clickMuted = !soundEnabled;
+    SoundManager.instance.musicMuted = !musicEnabled;
     SoundManager.instance.voiceEnabled = voiceEnabled;
   }
 
@@ -194,7 +199,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ],
               ),
             ),
-          ),
 
           // Overlay escuro
           if (_drawerOpen)
@@ -714,7 +718,6 @@ class _AppDrawer extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
             ),
           ],
         ),

@@ -1292,7 +1292,7 @@ class _GameQuizScreenState extends State<GameQuizScreen>
 
                                 Transform.scale(
                                   scale:
-                                      speakerScale,
+                                      1.0 + (_speakerController.value * 1.2),
                                   child:
                                       Material(
                                     color:

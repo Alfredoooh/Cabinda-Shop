@@ -83,6 +83,13 @@ class AppColors {
   static const redShadow = Color(0xFFD63D3D);
   static const orange = Color(0xFFFF9600);
 
+  Color get primary => green;
+  Color get accentPrimary => green;
+  Color get success => green;
+  Color get danger => red;
+  Color get warning => orange;
+  Color get info => const Color(0xFF1CB0F6);
+
   List<Color> get cardBgList => [c0Bg, c1Bg, c2Bg, c3Bg, c4Bg, c5Bg];
   List<Color> get cardFgList => [c0Fg, c1Fg, c2Fg, c3Fg, c4Fg, c5Fg];
   List<Color> get cardShadowList =>
@@ -115,6 +122,23 @@ enum GridMode { all, vowels, consonants }
 enum DrawerSection { alphabet, games, videos }
 
 class AssetUtils {
+  static Future<List<String>> getAssets() async {
+    final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+    return manifest.listAssets().toList(growable: false);
+  }
+
+  static String _normalize(String path) {
+    var value = path.trim().replaceAll('\\', '/');
+    value = value.replaceFirst(RegExp(r'^/+'), '');
+    return value;
+  }
+
+  static Future<bool> exists(String path) async {
+    final normalized = _normalize(path);
+    final assets = await getAssets();
+    return assets.contains(normalized) || assets.contains('assets/$normalized');
+  }
+
   static Future<List<String>> getAssetsInFolder(String folder) async {
     final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
     final keys = manifest.listAssets().where((key) =>
@@ -134,6 +158,8 @@ class SoundManager {
   final FlutterTts _tts = FlutterTts();
 
   bool muted = false;
+  bool clickMuted = false;
+  bool musicMuted = false;
   bool voiceEnabled = true;
   bool _ttsReady = false;
 
