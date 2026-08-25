@@ -1,4 +1,4 @@
-// home_screen.dart
+// home_screen.dart — trilha vertical mais compacta
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -400,8 +400,6 @@ class _AppBarWidget extends StatelessWidget {
   }
 }
 
-/// Botão circular do appbar com efeito pressionável real,
-/// igual ao usado nos cartões de letra (translada + reduz sombra).
 class _PressableIconButton extends StatefulWidget {
   final AppColors colors;
   final Widget child;
@@ -503,7 +501,7 @@ class _ToggleButton extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────
-// Alphabet section — trilha vertical estilo Duolingo
+// Alphabet section — trilha vertical compacta
 // ─────────────────────────────────────────────
 class _AlphabetSection extends StatelessWidget {
   final AppColors colors;
@@ -531,9 +529,7 @@ class _AlphabetSection extends StatelessWidget {
     }
   }
 
-  /// Deslocamento horizontal em zigue-zague (como os níveis do Duolingo).
   double _offsetForIndex(int index, double amplitude) {
-    // Padrão de 4 passos: centro -> direita -> centro -> esquerda -> repete
     final phase = index % 4;
     switch (phase) {
       case 0:
@@ -557,13 +553,14 @@ class _AlphabetSection extends StatelessWidget {
     final amplitude = math.min(screenWidth * 0.16, 70.0);
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 28, 16, 40),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
       itemCount: letters.length,
       itemBuilder: (context, index) {
         final letter = letters[index];
         final dx = _offsetForIndex(index, amplitude);
         return Padding(
-          padding: const EdgeInsets.only(bottom: 22),
+          // era 22 — reduzido para diminuir a altura total da trilha
+          padding: const EdgeInsets.only(bottom: 10),
           child: Center(
             child: Transform.translate(
               offset: Offset(dx, 0),
@@ -608,6 +605,10 @@ class _LetterNode extends StatefulWidget {
 class _LetterNodeState extends State<_LetterNode> {
   bool _pressed = false;
 
+  // diâmetro reduzido de 92 → 68, e o "degrau" 3D de 10 → 6
+  static const double diameter = 68;
+  static const double stepDepth = 6;
+
   Color _generateLetterColor({
     required bool isDark,
     required int letterIndex,
@@ -616,11 +617,11 @@ class _LetterNodeState extends State<_LetterNode> {
     final hue = (letterIndex * 360.0 / 26.0) % 360.0;
     if (foreground) {
       return HSLColor.fromAHSL(
-        1, hue, isDark ? 0.55 : 0.70, isDark ? 0.75 : 0.42,
+        1, hue, isDark ? 0.60 : 0.70, isDark ? 0.58 : 0.42,
       ).toColor();
     } else {
       return HSLColor.fromAHSL(
-        1, hue, isDark ? 0.35 : 0.45, isDark ? 0.24 : 0.92,
+        1, hue, isDark ? 0.35 : 0.45, isDark ? 0.20 : 0.92,
       ).toColor();
     }
   }
@@ -634,9 +635,14 @@ class _LetterNodeState extends State<_LetterNode> {
       letterIndex: letterIndex,
       foreground: true,
     );
-    final rim = fg.withOpacity(widget.colors.isDark ? 0.55 : 0.35);
-
-    const double diameter = 92;
+    // sombra/base mais escura que o topo, para dar profundidade
+    // sem depender do contraste do fundo do card
+    final rim = HSLColor.fromColor(fg)
+        .withLightness(
+          (HSLColor.fromColor(fg).lightness - (widget.colors.isDark ? 0.14 : 0.16))
+              .clamp(0.0, 1.0),
+        )
+        .toColor();
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -649,24 +655,22 @@ class _LetterNodeState extends State<_LetterNode> {
       onTapCancel: () => setState(() => _pressed = false),
       child: SizedBox(
         width: diameter,
-        height: diameter + 10,
+        height: diameter + stepDepth,
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
-            // "Base" do botão (dá a sensação de profundidade 3D)
             Positioned(
-              top: 10,
+              top: stepDepth,
               child: Container(
                 width: diameter,
                 height: diameter,
                 decoration: BoxDecoration(shape: BoxShape.circle, color: rim),
               ),
             ),
-            // Topo do botão, que desce ao pressionar
             AnimatedPositioned(
               duration: const Duration(milliseconds: 90),
               curve: Curves.easeOut,
-              top: _pressed ? 6 : 0,
+              top: _pressed ? stepDepth - 2 : 0,
               child: Container(
                 width: diameter,
                 height: diameter,
@@ -674,7 +678,7 @@ class _LetterNodeState extends State<_LetterNode> {
                   shape: BoxShape.circle,
                   color: fg,
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.25),
+                    color: Colors.white.withOpacity(0.22),
                     width: 2,
                   ),
                 ),
@@ -683,7 +687,7 @@ class _LetterNodeState extends State<_LetterNode> {
                     widget.letter.toUpperCase(),
                     style: const TextStyle(
                       fontFamily: 'ComicSansMS',
-                      fontSize: 36,
+                      fontSize: 26,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
