@@ -5,7 +5,17 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'screens/home_screen.dart';
 
 void main() {
+  applySystemUi(false);
   runApp(const AlfabetoApp());
+}
+
+void applySystemUi(bool isDark) {
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+    statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+  ));
 }
 
 class AlfabetoApp extends StatelessWidget {
@@ -20,6 +30,7 @@ class AlfabetoApp extends StatelessWidget {
     );
   }
 }
+
 
 class AppColors {
   final bool isDark;
@@ -104,17 +115,25 @@ const List<String> kAllLetters = [
 final List<String> kConsonants =
     kAllLetters.where((l) => !kVowels.contains(l)).toList();
 
+const List<String> kQVowels = ['a', 'e', 'i', 'o'];
+
+List<String> vowelsForConsonant(String consonant) =>
+    consonant.toLowerCase() == 'q' ? kQVowels : kVowels;
+
+String displayConsonant(String consonant, {required bool upper}) {
+  if (consonant.toLowerCase() == 'q') return upper ? 'QU' : 'Qu';
+  return upper ? consonant.toUpperCase() : consonant.toLowerCase();
+}
+
 String buildSyllable(String consonant, String vowel, bool consonantUpper) {
-  final cRaw =
-      consonantUpper ? consonant.toUpperCase() : consonant.toLowerCase();
+  final c = consonant.toLowerCase();
   final v = vowel.toLowerCase();
-  if (consonant.toLowerCase() == 'q') {
-    if (v == 'e') return '${cRaw}ue';
-    if (v == 'i') return '${cRaw}ui';
-    if (v == 'a') return '${cRaw}ua';
-    if (v == 'o') return '${cRaw}uo';
-    if (v == 'u') return '${cRaw}u';
+  if (c == 'q') {
+    if (!kQVowels.contains(v)) return '';
+    final prefix = consonantUpper ? 'QU' : 'qu';
+    return '$prefix$v';
   }
+  final cRaw = consonantUpper ? consonant.toUpperCase() : consonant.toLowerCase();
   return '$cRaw$v';
 }
 

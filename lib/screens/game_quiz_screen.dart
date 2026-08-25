@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 import '../main.dart'
-    show AppColors, SoundManager, kConsonants, kVowels, buildSyllable;
+    show AppColors, SoundManager, kConsonants, kVowels, buildSyllable, vowelsForConsonant;
 
 enum _QuizMode {
   letters,
@@ -215,7 +215,7 @@ class _GameQuizScreenState extends State<GameQuizScreen>
     final syllables = <String>[];
 
     for (final consoante in kConsonants) {
-      for (final vogal in kVowels) {
+      for (final vogal in vowelsForConsonant(consoante)) {
         syllables.add(
           buildSyllable(
             consoante,

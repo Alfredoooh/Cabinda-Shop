@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../main.dart' show AppColors, SoundManager, kVowels, kConsonants, buildSyllable;
+import '../main.dart' show AppColors, SoundManager, kVowels, kConsonants, buildSyllable, vowelsForConsonant, displayConsonant;
 
 class DetailScreen extends StatefulWidget {
   final AppColors colors;
@@ -134,14 +134,14 @@ class _DetailScreenState extends State<DetailScreen>
                           children: [
                             _CaseTab(
                               colors: colors,
-                              label: '${consonant.toUpperCase()}+a',
+                              label: '${displayConsonant(consonant, upper: true)}+a',
                               active: isUpperCase,
                               onTap: () => switchCase(true),
                             ),
                             const SizedBox(width: 4),
                             _CaseTab(
                               colors: colors,
-                              label: '$consonant+a',
+                              label: '${displayConsonant(consonant, upper: false)}+a',
                               active: !isUpperCase,
                               onTap: () => switchCase(false),
                             ),
@@ -348,7 +348,7 @@ class _SyllablePane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayLetter = isUpper ? consonant.toUpperCase() : consonant;
+    final displayLetter = displayConsonant(consonant, upper: isUpper);
     final soundLetter = consonant.toLowerCase();
 
     return SingleChildScrollView(
@@ -377,14 +377,14 @@ class _SyllablePane extends StatelessWidget {
                     ),
                   ),
                 ),
-                for (final vowel in kVowels)
+                for (final vowel in vowelsForConsonant(consonant))
                   _SyllableRow(
                     colors: colors,
                     consonantDisplay: displayLetter,
                     consonantSound: soundLetter,
                     vowel: vowel,
                     syllable: buildSyllable(consonant, vowel, isUpper),
-                    isLast: vowel == kVowels.last,
+                    isLast: vowel == vowelsForConsonant(consonant).last,
                     onPlaySound: onPlaySound,
                   ),
               ],

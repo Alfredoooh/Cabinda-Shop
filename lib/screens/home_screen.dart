@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart'
-    show AppColors, GridMode, DrawerSection, SoundManager, kConsonants;
+    show AppColors, GridMode, DrawerSection, SoundManager, ThemePrefs, kConsonants, applySystemUi;
 import 'detail_screen.dart';
 import 'games_screen.dart';
 import 'playlist_covers_screen.dart';
@@ -36,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    applySystemUi(isDark);
     _loadTheme();
     _drawerController = AnimationController(
       vsync: this,
@@ -54,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final saved = await ThemePrefs.getIsDark();
     if (mounted && saved != null) {
       setState(() => isDark = saved);
+      applySystemUi(saved);
     }
   }
 
@@ -76,6 +78,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void toggleTheme() {
     setState(() => isDark = !isDark);
+    applySystemUi(isDark);
     ThemePrefs.setIsDark(isDark);
   }
 
@@ -105,6 +108,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     setState(() {
       isDark = result.isDark;
+      applySystemUi(isDark);
       soundEnabled = result.soundEnabled;
       musicEnabled = result.musicEnabled;
       voiceEnabled = result.voiceEnabled;

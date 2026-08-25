@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../main.dart' show AppColors, SoundManager;
+import '../main.dart' show AppColors, SoundManager, applySystemUi;
 import 'home_screen.dart' show ThemePrefs;
 
 class AppSettingsResult {
@@ -83,6 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _setTheme(bool value) {
     setState(() => _isDark = value);
+    applySystemUi(value);
     ThemePrefs.setIsDark(value);
   }
 
