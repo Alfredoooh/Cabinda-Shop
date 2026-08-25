@@ -46,11 +46,11 @@ class _DetailScreenState extends State<DetailScreen>
 
   void switchCase(bool upper) {
     if (isUpperCase == upper) {
-      playSound(kConsonants[currentConsonantIndex]);
+      _playDebug(kConsonants[currentConsonantIndex]);
       return;
     }
     setState(() => isUpperCase = upper);
-    playSound(kConsonants[currentConsonantIndex]);
+    _playDebug(kConsonants[currentConsonantIndex]);
     if (upper) {
       _slideController.reverse();
     } else {
@@ -78,8 +78,20 @@ class _DetailScreenState extends State<DetailScreen>
     }
   }
 
+  // Wrapper temporário com debugPrint para diagnosticar o som mudo.
+  // Depois de confirmares que os assets existem/tocam, podes voltar a
+  // chamar apenas SoundManager.instance.play(letterOrSyllable) direto.
   void playSound(String letterOrSyllable) {
-    SoundManager.instance.play(letterOrSyllable);
+    debugPrint('[DetailScreen] playSound chamado com: "$letterOrSyllable"');
+    SoundManager.instance.play(letterOrSyllable).then((_) {
+      debugPrint('[DetailScreen] play() concluído para "$letterOrSyllable"');
+    }).catchError((e, st) {
+      debugPrint('[DetailScreen] ERRO ao tocar "$letterOrSyllable": $e');
+    });
+  }
+
+  void _playDebug(String consonant) {
+    playSound(consonant.toLowerCase());
   }
 
   @override
@@ -171,39 +183,49 @@ class _DetailScreenState extends State<DetailScreen>
                   builder: (context, child) {
                     final width = MediaQuery.of(context).size.width;
                     final curved = _slideAnim.value;
-                    return Transform.translate(
-                      offset: Offset(-width * curved, 0),
-                      child: SizedBox(
-                        width: width * 2,
-                        child: Row(
-                          children: [
-                            SizedBox(
+                    return Stack(
+                      children: [
+                        Positioned.fill(
+                          child: Transform.translate(
+                            offset: Offset(-width * curved, 0),
+                            child: SizedBox(
                               width: width,
-                              child: Opacity(
-                                opacity: (1 - curved).clamp(0.0, 1.0),
-                                child: _SyllablePane(
-                                  colors: colors,
-                                  consonant: consonant,
-                                  isUpper: true,
-                                  onPlaySound: playSound,
+                              child: IgnorePointer(
+                                ignoring: curved > 0.5,
+                                child: Opacity(
+                                  opacity: (1 - curved).clamp(0.0, 1.0),
+                                  child: _SyllablePane(
+                                    colors: colors,
+                                    consonant: consonant,
+                                    isUpper: true,
+                                    onPlaySound: playSound,
+                                  ),
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              width: width,
-                              child: Opacity(
-                                opacity: curved.clamp(0.0, 1.0),
-                                child: _SyllablePane(
-                                  colors: colors,
-                                  consonant: consonant,
-                                  isUpper: false,
-                                  onPlaySound: playSound,
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+                        Positioned.fill(
+                          child: Transform.translate(
+                            offset: Offset(width * (1 - curved), 0),
+                            child: SizedBox(
+                              width: width,
+                              child: IgnorePointer(
+                                ignoring: curved <= 0.5,
+                                child: Opacity(
+                                  opacity: curved.clamp(0.0, 1.0),
+                                  child: _SyllablePane(
+                                    colors: colors,
+                                    consonant: consonant,
+                                    isUpper: false,
+                                    onPlaySound: playSound,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),
