@@ -99,7 +99,7 @@ flutter:
     #- assets/images/syllables/c/a/
     #- assets/images/syllables/c/e/
     #- assets/images/syllables/c/i/
-    #- assets/images/syllables/c/o/
+      #- assets/images/syllables/c/o/
     #- assets/images/syllables/c/u/
     #- assets/images/syllables/d/a/
     #- assets/images/syllables/d/e/
