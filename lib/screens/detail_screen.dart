@@ -134,14 +134,14 @@ class _DetailScreenState extends State<DetailScreen>
                           children: [
                             _CaseTab(
                               colors: colors,
-                              label: '${displayConsonant(consonant, upper: true)}+a',
+                              label: consonant.toLowerCase() == 'q' ? 'Q+u+a' : '${displayConsonant(consonant, upper: true)}+a',
                               active: isUpperCase,
                               onTap: () => switchCase(true),
                             ),
                             const SizedBox(width: 4),
                             _CaseTab(
                               colors: colors,
-                              label: '${displayConsonant(consonant, upper: false)}+a',
+                              label: consonant.toLowerCase() == 'q' ? 'q+u+a' : '${displayConsonant(consonant, upper: false)}+a',
                               active: !isUpperCase,
                               onTap: () => switchCase(false),
                             ),
@@ -382,6 +382,7 @@ class _SyllablePane extends StatelessWidget {
                     colors: colors,
                     consonantDisplay: displayLetter,
                     consonantSound: soundLetter,
+                    middleVowel: consonant.toLowerCase() == 'q' ? 'u' : null,
                     vowel: vowel,
                     syllable: buildSyllable(consonant, vowel, isUpper),
                     isLast: vowel == vowelsForConsonant(consonant).last,
@@ -400,6 +401,7 @@ class _SyllableRow extends StatelessWidget {
   final AppColors colors;
   final String consonantDisplay;
   final String consonantSound;
+  final String? middleVowel;
   final String vowel;
   final String syllable;
   final bool isLast;
@@ -409,6 +411,7 @@ class _SyllableRow extends StatelessWidget {
     required this.colors,
     required this.consonantDisplay,
     required this.consonantSound,
+    this.middleVowel,
     required this.vowel,
     required this.syllable,
     required this.isLast,
@@ -433,6 +436,14 @@ class _SyllableRow extends StatelessWidget {
             onTap: () => onPlaySound(consonantSound),
           ),
           _Operator(colors: colors, symbol: '+'),
+          if (middleVowel != null) ...[
+            _SmallLetterButton(
+              colors: colors,
+              label: middleVowel!,
+              onTap: () => onPlaySound(middleVowel!),
+            ),
+            _Operator(colors: colors, symbol: '+'),
+          ],
           _SmallLetterButton(
             colors: colors,
             label: vowel,

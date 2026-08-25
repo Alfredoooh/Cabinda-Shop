@@ -121,7 +121,7 @@ List<String> vowelsForConsonant(String consonant) =>
     consonant.toLowerCase() == 'q' ? kQVowels : kVowels;
 
 String displayConsonant(String consonant, {required bool upper}) {
-  if (consonant.toLowerCase() == 'q') return upper ? 'QU' : 'Qu';
+  if (consonant.toLowerCase() == 'q') return 'Q';
   return upper ? consonant.toUpperCase() : consonant.toLowerCase();
 }
 
