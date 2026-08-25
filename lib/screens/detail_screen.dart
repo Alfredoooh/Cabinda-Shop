@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../main.dart' show AppColors, SoundManager, kVowels, kConsonants, buildSyllable, vowelsForConsonant, displayConsonant;
+import '../main.dart'
+    show
+        AppColors,
+        SoundManager,
+        kVowels,
+        kConsonants,
+        buildSyllable,
+        vowelsForConsonant,
+        displayConsonant;
 
 class DetailScreen extends StatefulWidget {
   final AppColors colors;
@@ -27,11 +35,14 @@ class _DetailScreenState extends State<DetailScreen>
   @override
   void initState() {
     super.initState();
+
     currentConsonantIndex = widget.initialConsonantIndex;
+
     _slideController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 480),
     );
+
     _slideAnim = CurvedAnimation(
       parent: _slideController,
       curve: Curves.easeInOutCubicEmphasized,
@@ -44,13 +55,28 @@ class _DetailScreenState extends State<DetailScreen>
     super.dispose();
   }
 
+  // ÚNICO ponto de reprodução de áudio.
+  // Não existe TTS aqui.
+  void playSound(String value) {
+    final sound = value.trim().toLowerCase();
+
+    if (sound.isEmpty) return;
+
+    SoundManager.instance.play(sound);
+  }
+
   void switchCase(bool upper) {
     if (isUpperCase == upper) {
-      _playDebug(kConsonants[currentConsonantIndex]);
+      final consonant = kConsonants[currentConsonantIndex];
+      playSound(consonant);
       return;
     }
+
     setState(() => isUpperCase = upper);
-    _playDebug(kConsonants[currentConsonantIndex]);
+
+    final consonant = kConsonants[currentConsonantIndex];
+    playSound(consonant);
+
     if (upper) {
       _slideController.reverse();
     } else {
@@ -64,6 +90,7 @@ class _DetailScreenState extends State<DetailScreen>
         currentConsonantIndex--;
         isUpperCase = true;
       });
+
       _slideController.reverse();
     }
   }
@@ -74,24 +101,9 @@ class _DetailScreenState extends State<DetailScreen>
         currentConsonantIndex++;
         isUpperCase = true;
       });
+
       _slideController.reverse();
     }
-  }
-
-  // Wrapper temporário com debugPrint para diagnosticar o som mudo.
-  // Depois de confirmares que os assets existem/tocam, podes voltar a
-  // chamar apenas SoundManager.instance.play(letterOrSyllable) direto.
-  void playSound(String letterOrSyllable) {
-    debugPrint('[DetailScreen] playSound chamado com: "$letterOrSyllable"');
-    SoundManager.instance.play(letterOrSyllable).then((_) {
-      debugPrint('[DetailScreen] play() concluído para "$letterOrSyllable"');
-    }).catchError((e, st) {
-      debugPrint('[DetailScreen] ERRO ao tocar "$letterOrSyllable": $e');
-    });
-  }
-
-  void _playDebug(String consonant) {
-    playSound(consonant.toLowerCase());
   }
 
   @override
@@ -109,6 +121,7 @@ class _DetailScreenState extends State<DetailScreen>
               child: Row(
                 children: List.generate(kConsonants.length, (i) {
                   final filled = i <= currentConsonantIndex;
+
                   return Expanded(
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 350),
@@ -126,6 +139,7 @@ class _DetailScreenState extends State<DetailScreen>
                 }),
               ),
             ),
+
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
               child: Row(
@@ -137,6 +151,7 @@ class _DetailScreenState extends State<DetailScreen>
                     onTap: goPrev,
                   ),
                   const SizedBox(width: 8),
+
                   Expanded(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 220),
@@ -150,14 +165,18 @@ class _DetailScreenState extends State<DetailScreen>
                           children: [
                             _CaseTab(
                               colors: colors,
-                              label: consonant.toLowerCase() == 'q' ? 'Q+u+a' : '${displayConsonant(consonant, upper: true)}+a',
+                              label: consonant.toLowerCase() == 'q'
+                                  ? 'Q+u+a'
+                                  : '${displayConsonant(consonant, upper: true)}+a',
                               active: isUpperCase,
                               onTap: () => switchCase(true),
                             ),
                             const SizedBox(width: 4),
                             _CaseTab(
                               colors: colors,
-                              label: consonant.toLowerCase() == 'q' ? 'q+u+a' : '${displayConsonant(consonant, upper: false)}+a',
+                              label: consonant.toLowerCase() == 'q'
+                                  ? 'q+u+a'
+                                  : '${displayConsonant(consonant, upper: false)}+a',
                               active: !isUpperCase,
                               onTap: () => switchCase(false),
                             ),
@@ -166,16 +185,20 @@ class _DetailScreenState extends State<DetailScreen>
                       ),
                     ),
                   ),
+
                   const SizedBox(width: 8),
+
                   _NavButton(
                     colors: colors,
                     icon: _NavIconType.forward,
-                    enabled: currentConsonantIndex < kConsonants.length - 1,
+                    enabled:
+                        currentConsonantIndex < kConsonants.length - 1,
                     onTap: goNext,
                   ),
                 ],
               ),
             ),
+
             Expanded(
               child: ClipRect(
                 child: AnimatedBuilder(
@@ -183,8 +206,10 @@ class _DetailScreenState extends State<DetailScreen>
                   builder: (context, child) {
                     final width = MediaQuery.of(context).size.width;
                     final curved = _slideAnim.value;
+
                     return Stack(
                       children: [
+                        // MAIÚSCULA
                         Positioned.fill(
                           child: Transform.translate(
                             offset: Offset(-width * curved, 0),
@@ -193,7 +218,8 @@ class _DetailScreenState extends State<DetailScreen>
                               child: IgnorePointer(
                                 ignoring: curved > 0.5,
                                 child: Opacity(
-                                  opacity: (1 - curved).clamp(0.0, 1.0),
+                                  opacity:
+                                      (1 - curved).clamp(0.0, 1.0),
                                   child: _SyllablePane(
                                     colors: colors,
                                     consonant: consonant,
@@ -205,6 +231,8 @@ class _DetailScreenState extends State<DetailScreen>
                             ),
                           ),
                         ),
+
+                        // MINÚSCULA
                         Positioned.fill(
                           child: Transform.translate(
                             offset: Offset(width * (1 - curved), 0),
@@ -231,6 +259,7 @@ class _DetailScreenState extends State<DetailScreen>
                 ),
               ),
             ),
+
             Container(
               padding: EdgeInsets.fromLTRB(
                 16,
@@ -240,7 +269,9 @@ class _DetailScreenState extends State<DetailScreen>
               ),
               decoration: BoxDecoration(
                 color: colors.bg,
-                border: Border(top: BorderSide(color: colors.divider)),
+                border: Border(
+                  top: BorderSide(color: colors.divider),
+                ),
               ),
               child: Center(
                 child: ConstrainedBox(
@@ -296,8 +327,10 @@ class _NavButton extends StatelessWidget {
                   : 'assets/icons/chevron-left.svg',
               width: 22,
               height: 22,
-              colorFilter:
-                  ColorFilter.mode(colors.textMuted, BlendMode.srcIn),
+              colorFilter: ColorFilter.mode(
+                colors.textMuted,
+                BlendMode.srcIn,
+              ),
             ),
           ),
         ),
@@ -327,9 +360,14 @@ class _CaseTab extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 320),
           curve: Curves.easeInOutCubic,
-          padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
+          padding: const EdgeInsets.symmetric(
+            vertical: 9,
+            horizontal: 4,
+          ),
           decoration: BoxDecoration(
-            color: active ? AppColors.green : Colors.transparent,
+            color: active
+                ? AppColors.green
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
             boxShadow: active
                 ? [
@@ -346,7 +384,9 @@ class _CaseTab extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: active ? Colors.white : colors.textMuted,
+              color: active
+                  ? Colors.white
+                  : colors.textMuted,
             ),
             child: Text(
               label,
@@ -374,8 +414,10 @@ class _SyllablePane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayLetter = displayConsonant(consonant, upper: isUpper);
-    final soundLetter = consonant.toLowerCase();
+    final displayLetter = displayConsonant(
+      consonant,
+      upper: isUpper,
+    );
 
     return SingleChildScrollView(
       child: Center(
@@ -386,10 +428,14 @@ class _SyllablePane extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                // LETRA PRINCIPAL
                 GestureDetector(
-                  onTap: () => onPlaySound(soundLetter),
+                  onTap: () => onPlaySound(consonant),
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 4, bottom: 24),
+                    padding: const EdgeInsets.only(
+                      top: 4,
+                      bottom: 24,
+                    ),
                     child: Text(
                       displayLetter,
                       textAlign: TextAlign.center,
@@ -403,15 +449,26 @@ class _SyllablePane extends StatelessWidget {
                     ),
                   ),
                 ),
-                for (final vowel in vowelsForConsonant(consonant))
+
+                for (final vowel
+                    in vowelsForConsonant(consonant))
                   _SyllableRow(
                     colors: colors,
                     consonantDisplay: displayLetter,
-                    consonantSound: soundLetter,
-                    middleVowel: consonant.toLowerCase() == 'q' ? 'u' : null,
+                    consonantSound: consonant,
+                    middleVowel:
+                        consonant.toLowerCase() == 'q'
+                            ? 'u'
+                            : null,
                     vowel: vowel,
-                    syllable: buildSyllable(consonant, vowel, isUpper),
-                    isLast: vowel == vowelsForConsonant(consonant).last,
+                    syllable: buildSyllable(
+                      consonant,
+                      vowel,
+                      isUpper,
+                    ),
+                    isLast:
+                        vowel ==
+                        vowelsForConsonant(consonant).last,
                     onPlaySound: onPlaySound,
                   ),
               ],
@@ -447,11 +504,18 @@ class _SyllableRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 2),
+      padding: const EdgeInsets.symmetric(
+        vertical: 18,
+        horizontal: 2,
+      ),
       decoration: BoxDecoration(
         border: isLast
             ? null
-            : Border(bottom: BorderSide(color: colors.divider)),
+            : Border(
+                bottom: BorderSide(
+                  color: colors.divider,
+                ),
+              ),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -464,23 +528,41 @@ class _SyllableRow extends StatelessWidget {
                 _SmallLetterButton(
                   colors: colors,
                   label: consonantDisplay,
-                  onTap: () => onPlaySound(consonantSound),
+                  onTap: () => onPlaySound(
+                    consonantSound,
+                  ),
                 ),
-                _Operator(colors: colors, symbol: '+'),
+
+                _Operator(
+                  colors: colors,
+                  symbol: '+',
+                ),
+
                 if (middleVowel != null) ...[
                   _SmallLetterButton(
                     colors: colors,
                     label: middleVowel!,
-                    onTap: () => onPlaySound(middleVowel!),
+                    onTap: () => onPlaySound(
+                      middleVowel!,
+                    ),
                   ),
-                  _Operator(colors: colors, symbol: '+'),
+                  _Operator(
+                    colors: colors,
+                    symbol: '+',
+                  ),
                 ],
+
                 _SmallLetterButton(
                   colors: colors,
                   label: vowel,
                   onTap: () => onPlaySound(vowel),
                 ),
-                _Operator(colors: colors, symbol: '='),
+
+                _Operator(
+                  colors: colors,
+                  symbol: '=',
+                ),
+
                 _SyllableButton(
                   colors: colors,
                   label: syllable,
@@ -507,19 +589,27 @@ class _SmallLetterButton extends StatefulWidget {
   });
 
   @override
-  State<_SmallLetterButton> createState() => _SmallLetterButtonState();
+  State<_SmallLetterButton> createState() =>
+      _SmallLetterButtonState();
 }
 
-class _SmallLetterButtonState extends State<_SmallLetterButton> {
+class _SmallLetterButtonState
+    extends State<_SmallLetterButton> {
   bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap,
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
+      onTapDown: (_) => setState(
+        () => _pressed = true,
+      ),
+      onTapUp: (_) => setState(
+        () => _pressed = false,
+      ),
+      onTapCancel: () => setState(
+        () => _pressed = false,
+      ),
       child: AnimatedScale(
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOutBack,
@@ -527,15 +617,25 @@ class _SmallLetterButtonState extends State<_SmallLetterButton> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOutCubic,
-          transform: Matrix4.identity()..translate(0.0, _pressed ? 2.0 : 0.0),
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+          transform: Matrix4.identity()
+            ..translate(
+              0.0,
+              _pressed ? 2.0 : 0.0,
+            ),
+          padding: const EdgeInsets.symmetric(
+            vertical: 12,
+            horizontal: 18,
+          ),
           decoration: BoxDecoration(
             color: widget.colors.bgCardNeutral,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
                 color: widget.colors.neutralShadow,
-                offset: Offset(0, _pressed ? 1 : 3),
+                offset: Offset(
+                  0,
+                  _pressed ? 1 : 3,
+                ),
               ),
             ],
           ),
@@ -558,12 +658,17 @@ class _Operator extends StatelessWidget {
   final AppColors colors;
   final String symbol;
 
-  const _Operator({required this.colors, required this.symbol});
+  const _Operator({
+    required this.colors,
+    required this.symbol,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+      ),
       child: Opacity(
         opacity: 0.4,
         child: Text(
@@ -591,19 +696,27 @@ class _SyllableButton extends StatefulWidget {
   });
 
   @override
-  State<_SyllableButton> createState() => _SyllableButtonState();
+  State<_SyllableButton> createState() =>
+      _SyllableButtonState();
 }
 
-class _SyllableButtonState extends State<_SyllableButton> {
+class _SyllableButtonState
+    extends State<_SyllableButton> {
   bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap,
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
+      onTapDown: (_) => setState(
+        () => _pressed = true,
+      ),
+      onTapUp: (_) => setState(
+        () => _pressed = false,
+      ),
+      onTapCancel: () => setState(
+        () => _pressed = false,
+      ),
       child: AnimatedScale(
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOutBack,
@@ -611,15 +724,25 @@ class _SyllableButtonState extends State<_SyllableButton> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOutCubic,
-          transform: Matrix4.identity()..translate(0.0, _pressed ? 2.0 : 0.0),
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 22),
+          transform: Matrix4.identity()
+            ..translate(
+              0.0,
+              _pressed ? 2.0 : 0.0,
+            ),
+          padding: const EdgeInsets.symmetric(
+            vertical: 12,
+            horizontal: 22,
+          ),
           decoration: BoxDecoration(
             color: AppColors.green,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
                 color: AppColors.greenShadow,
-                offset: Offset(0, _pressed ? 1 : 3),
+                offset: Offset(
+                  0,
+                  _pressed ? 1 : 3,
+                ),
               ),
             ],
           ),
@@ -642,22 +765,33 @@ class _CloseButton extends StatefulWidget {
   final AppColors colors;
   final VoidCallback onTap;
 
-  const _CloseButton({required this.colors, required this.onTap});
+  const _CloseButton({
+    required this.colors,
+    required this.onTap,
+  });
 
   @override
-  State<_CloseButton> createState() => _CloseButtonState();
+  State<_CloseButton> createState() =>
+      _CloseButtonState();
 }
 
-class _CloseButtonState extends State<_CloseButton> {
+class _CloseButtonState
+    extends State<_CloseButton> {
   bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap,
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
+      onTapDown: (_) => setState(
+        () => _pressed = true,
+      ),
+      onTapUp: (_) => setState(
+        () => _pressed = false,
+      ),
+      onTapCancel: () => setState(
+        () => _pressed = false,
+      ),
       child: AnimatedScale(
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOutBack,
@@ -666,7 +800,11 @@ class _CloseButtonState extends State<_CloseButton> {
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOutCubic,
           width: double.infinity,
-          transform: Matrix4.identity()..translate(0.0, _pressed ? 3.0 : 0.0),
+          transform: Matrix4.identity()
+            ..translate(
+              0.0,
+              _pressed ? 3.0 : 0.0,
+            ),
           padding: const EdgeInsets.all(15),
           decoration: BoxDecoration(
             color: AppColors.red,
@@ -674,7 +812,10 @@ class _CloseButtonState extends State<_CloseButton> {
             boxShadow: [
               BoxShadow(
                 color: AppColors.redShadow,
-                offset: Offset(0, _pressed ? 1 : 4),
+                offset: Offset(
+                  0,
+                  _pressed ? 1 : 4,
+                ),
               ),
             ],
           ),
