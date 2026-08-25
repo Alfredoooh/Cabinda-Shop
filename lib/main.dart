@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home_screen.dart';
 
@@ -11,6 +10,16 @@ Future<void> main() async {
   await SoundManager.instance.preloadAssets([
     ...kVowels.map((v) => 'audio/vowels/$v.wav'),
     ...kConsonants.map((c) => 'audio/consonants/$c.wav'),
+    ...kConsonants.expand(
+      (c) => vowelsForConsonant(c).map(
+        (v) => 'audio/syllables/$c/${buildSyllable(c, v, false).toLowerCase()}.wav',
+      ),
+    ),
+    ...kConsonants.expand(
+      (c) => vowelsForConsonant(c).map(
+        (v) => 'audio/syllables/$c/${buildSyllable(c, v, false).toLowerCase()}_ex.wav',
+      ),
+    ),
     'audio/pressing.wav',
     'audio/correct.wav',
     'audio/wrong.wav',
@@ -231,7 +240,6 @@ class SoundManager {
   static final SoundManager instance = SoundManager._();
 
   final AudioPlayer _player = AudioPlayer();
-  final FlutterTts _tts = FlutterTts();
   final Map<String, List<AudioPlayer>> _assetPlayers = {};
   final Map<String, int> _assetCursors = {};
   final Set<String> _preloadedAssets = {};
@@ -241,19 +249,6 @@ class SoundManager {
   bool clickMuted = false;
   bool musicMuted = false;
   bool voiceEnabled = true;
-  bool _ttsReady = false;
-
-  Future<void> _initTts() async {
-    if (_ttsReady) return;
-
-    try {
-      await _tts.setLanguage('pt-PT');
-      await _tts.setSpeechRate(0.38);
-      await _tts.setPitch(1.0);
-      await _tts.setVolume(1.0);
-      _ttsReady = true;
-    } catch (_) {}
-  }
 
   Future<void> preloadAssets(Iterable<String> paths) async {
     final missing = paths.where((path) => !_preloadedAssets.contains(path));
@@ -308,12 +303,7 @@ class SoundManager {
         ? 'audio/vowels/$l.wav'
         : 'audio/consonants/$l.wav';
 
-    if (await AssetUtils.exists(path)) {
-      await playAsset(path);
-      return;
-    }
-
-    await _speakFallback(l, 0.30);
+    await playAsset(path);
   }
 
   Future<void> playSyllable(String syllable) async {
@@ -328,17 +318,11 @@ class SoundManager {
       }
     }
 
-    if (firstConsonant != null) {
-      final path =
-          'audio/syllables/$firstConsonant/$s.wav';
+    if (firstConsonant == null) return;
 
-      if (await AssetUtils.exists(path)) {
-        await playAsset(path);
-        return;
-      }
-    }
-
-    await _speakFallback(s, 0.34);
+    await playAsset(
+      'audio/syllables/$firstConsonant/$s.wav',
+    );
   }
 
   Future<void> playExample(String syllable) async {
@@ -353,17 +337,11 @@ class SoundManager {
       }
     }
 
-    if (firstConsonant != null) {
-      final path =
-          'audio/syllables/$firstConsonant/${s}_ex.wav';
+    if (firstConsonant == null) return;
 
-      if (await AssetUtils.exists(path)) {
-        await playAsset(path);
-        return;
-      }
-    }
-
-    await _speakFallback(s, 0.34);
+    await playAsset(
+      'audio/syllables/$firstConsonant/${s}_ex.wav',
+    );
   }
 
   Future<void> playWord(String word) async {
@@ -377,14 +355,7 @@ class SoundManager {
         )
         .replaceAll(' ', '_');
 
-    final path = 'audio/words/$fileName.wav';
-
-    if (await AssetUtils.exists(path)) {
-      await playAsset(path);
-      return;
-    }
-
-    await _speakFallback(value, 0.36);
+    await playAsset('audio/words/$fileName.wav');
   }
 
   Future<void> play(String text) async {
@@ -418,29 +389,12 @@ class SoundManager {
     }
   }
 
-  Future<void> _speakFallback(
-    String text,
-    double rate,
-  ) async {
-    if (!voiceEnabled || muted) return;
-
-    try {
-      await _initTts();
-      await _tts.stop();
-      await _tts.setSpeechRate(rate);
-      await _tts.speak(text);
-    } catch (_) {}
-  }
 
   Future<void> _play(String assetPath) => playAsset(assetPath);
 
   Future<void> stop() async {
     try {
       await _player.stop();
-    } catch (_) {}
-
-    try {
-      await _tts.stop();
     } catch (_) {}
   }
 
