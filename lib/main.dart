@@ -7,26 +7,31 @@ import 'screens/home_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppPrefs.load();
-  await SoundManager.instance.preloadAssets([
+  await SoundManager.instance.preloadAssets(_buildAllAudioPaths());
+  applySystemUi(false);
+  runApp(const AlfabetoApp());
+}
+
+List<String> _buildAllAudioPaths() {
+  final paths = <String>[
     ...kVowels.map((v) => 'audio/vowels/$v.wav'),
     ...kConsonants.map((c) => 'audio/consonants/$c.wav'),
-    ...kConsonants.expand(
-      (c) => vowelsForConsonant(c).map(
-        (v) => 'audio/syllables/$c/${buildSyllable(c, v, false).toLowerCase()}.wav',
-      ),
-    ),
-    ...kConsonants.expand(
-      (c) => vowelsForConsonant(c).map(
-        (v) => 'audio/syllables/$c/${buildSyllable(c, v, false).toLowerCase()}_ex.wav',
-      ),
-    ),
     'audio/pressing.wav',
     'audio/correct.wav',
     'audio/wrong.wav',
     'audio/win.wav',
-  ]);
-  applySystemUi(false);
-  runApp(const AlfabetoApp());
+  ];
+
+  for (final c in kConsonants) {
+    for (final v in vowelsForConsonant(c)) {
+      final syllable = buildSyllable(c, v, false);
+      if (syllable.isEmpty) continue;
+      paths.add('audio/syllables/$c/$syllable.wav');
+      paths.add('audio/syllables/$c/${syllable}_ex.wav');
+    }
+  }
+
+  return paths;
 }
 
 void applySystemUi(bool isDark) {
@@ -207,9 +212,13 @@ enum GridMode { all, vowels, consonants }
 enum DrawerSection { alphabet, games, videos }
 
 class AssetUtils {
+  static List<String>? _cachedAssets;
+
   static Future<List<String>> getAssets() async {
+    if (_cachedAssets != null) return _cachedAssets!;
     final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-    return manifest.listAssets().toList(growable: false);
+    _cachedAssets = manifest.listAssets().toList(growable: false);
+    return _cachedAssets!;
   }
 
   static String _normalize(String path) {
@@ -239,11 +248,10 @@ class SoundManager {
 
   static final SoundManager instance = SoundManager._();
 
-  final AudioPlayer _player = AudioPlayer();
   final Map<String, List<AudioPlayer>> _assetPlayers = {};
   final Map<String, int> _assetCursors = {};
   final Set<String> _preloadedAssets = {};
-  Future<void>? _preloadFuture;
+  final Set<String> _missingAssets = {};
 
   bool muted = false;
   bool clickMuted = false;
@@ -251,15 +259,22 @@ class SoundManager {
   bool voiceEnabled = true;
 
   Future<void> preloadAssets(Iterable<String> paths) async {
-    final missing = paths.where((path) => !_preloadedAssets.contains(path));
+    final missing = paths.where(
+      (path) => !_preloadedAssets.contains(path) && !_missingAssets.contains(path),
+    );
     if (missing.isEmpty) return;
     await _preload(missing);
   }
 
   Future<void> _preload(Iterable<String> paths) async {
     for (final path in paths.toSet()) {
-      if (_preloadedAssets.contains(path)) continue;
-      if (!await AssetUtils.exists(path)) continue;
+      if (_preloadedAssets.contains(path) || _missingAssets.contains(path)) continue;
+
+      if (!await AssetUtils.exists(path)) {
+        _missingAssets.add(path);
+        continue;
+      }
+
       final players = <AudioPlayer>[];
       for (var i = 0; i < 2; i++) {
         final player = AudioPlayer();
@@ -274,18 +289,23 @@ class SoundManager {
         _assetPlayers[path] = players;
         _assetCursors[path] = 0;
         _preloadedAssets.add(path);
+      } else {
+        _missingAssets.add(path);
       }
     }
   }
 
   Future<void> playAsset(String assetPath) async {
     if (muted) return;
+    if (_missingAssets.contains(assetPath)) return;
+
     var players = _assetPlayers[assetPath];
     if (players == null || players.isEmpty) {
       await preloadAssets([assetPath]);
       players = _assetPlayers[assetPath];
     }
     if (players == null || players.isEmpty) return;
+
     final cursor = _assetCursors[assetPath] ?? 0;
     final player = players[cursor % players.length];
     _assetCursors[assetPath] = cursor + 1;
@@ -317,12 +337,10 @@ class SoundManager {
         break;
       }
     }
-
     if (firstConsonant == null) return;
 
-    await playAsset(
-      'audio/syllables/$firstConsonant/$s.wav',
-    );
+    final path = 'audio/syllables/$firstConsonant/$s.wav';
+    await playAsset(path);
   }
 
   Future<void> playExample(String syllable) async {
@@ -336,12 +354,10 @@ class SoundManager {
         break;
       }
     }
-
     if (firstConsonant == null) return;
 
-    await playAsset(
-      'audio/syllables/$firstConsonant/${s}_ex.wav',
-    );
+    final path = 'audio/syllables/$firstConsonant/${s}_ex.wav';
+    await playAsset(path);
   }
 
   Future<void> playWord(String word) async {
@@ -355,7 +371,8 @@ class SoundManager {
         )
         .replaceAll(' ', '_');
 
-    await playAsset('audio/words/$fileName.wav');
+    final path = 'audio/words/$fileName.wav';
+    await playAsset(path);
   }
 
   Future<void> play(String text) async {
@@ -389,17 +406,24 @@ class SoundManager {
     }
   }
 
-
-  Future<void> _play(String assetPath) => playAsset(assetPath);
-
   Future<void> stop() async {
-    try {
-      await _player.stop();
-    } catch (_) {}
+    for (final players in _assetPlayers.values) {
+      for (final player in players) {
+        try {
+          await player.stop();
+        } catch (_) {}
+      }
+    }
   }
 
   Future<void> dispose() async {
     await stop();
-    await _player.dispose();
+    for (final players in _assetPlayers.values) {
+      for (final player in players) {
+        try {
+          await player.dispose();
+        } catch (_) {}
+      }
+    }
   }
 }

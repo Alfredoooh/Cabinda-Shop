@@ -46,11 +46,11 @@ class _DetailScreenState extends State<DetailScreen>
 
   void switchCase(bool upper) {
     if (isUpperCase == upper) {
-      _playDebug(kConsonants[currentConsonantIndex]);
+      playSound(kConsonants[currentConsonantIndex]);
       return;
     }
     setState(() => isUpperCase = upper);
-    _playDebug(kConsonants[currentConsonantIndex]);
+    playSound(kConsonants[currentConsonantIndex]);
     if (upper) {
       _slideController.reverse();
     } else {
@@ -79,13 +79,7 @@ class _DetailScreenState extends State<DetailScreen>
   }
 
   void playSound(String letterOrSyllable) {
-    final value = letterOrSyllable.trim().toLowerCase();
-    if (value.isEmpty) return;
-    SoundManager.instance.play(value);
-  }
-
-  void _playDebug(String consonant) {
-    playSound(consonant);
+    SoundManager.instance.play(letterOrSyllable);
   }
 
   @override
@@ -238,7 +232,7 @@ class _DetailScreenState extends State<DetailScreen>
               ),
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 480),
+                  constraints: const BoxConstraints(maxWidth: 420),
                   child: _CloseButton(
                     colors: colors,
                     onTap: () => Navigator.of(context).pop(),
@@ -255,7 +249,7 @@ class _DetailScreenState extends State<DetailScreen>
 
 enum _NavIconType { back, forward }
 
-class _NavButton extends StatelessWidget {
+class _NavButton extends StatefulWidget {
   final AppColors colors;
   final _NavIconType icon;
   final bool enabled;
@@ -269,29 +263,49 @@ class _NavButton extends StatelessWidget {
   });
 
   @override
+  State<_NavButton> createState() => _NavButtonState();
+}
+
+class _NavButtonState extends State<_NavButton> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    return AnimatedOpacity(
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOut,
-      opacity: enabled ? 1.0 : 0.35,
-      child: GestureDetector(
-        onTap: enabled ? onTap : null,
-        child: Container(
-          width: 46,
-          height: 46,
-          decoration: BoxDecoration(
-            color: colors.bgCardNeutral,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Center(
-            child: SvgPicture.asset(
-              icon == _NavIconType.forward
-                  ? 'assets/icons/chevron-right.svg'
-                  : 'assets/icons/chevron-left.svg',
-              width: 22,
-              height: 22,
-              colorFilter:
-                  ColorFilter.mode(colors.textMuted, BlendMode.srcIn),
+    final colors = widget.colors;
+    return GestureDetector(
+      onTap: widget.enabled ? widget.onTap : null,
+      onTapDown: widget.enabled ? (_) => setState(() => _pressed = true) : null,
+      onTapUp: widget.enabled ? (_) => setState(() => _pressed = false) : null,
+      onTapCancel: widget.enabled ? () => setState(() => _pressed = false) : null,
+      child: AnimatedScale(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutBack,
+        scale: _pressed ? 0.92 : 1.0,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 200),
+          opacity: widget.enabled ? 1.0 : 0.35,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOutCubic,
+            transform: Matrix4.identity()..translate(0.0, _pressed ? 2.0 : 0.0),
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: colors.bgCardNeutral,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: colors.neutralShadow,
+                  offset: Offset(0, _pressed ? 1 : 3),
+                ),
+              ],
+            ),
+            child: Icon(
+              widget.icon == _NavIconType.back
+                  ? Icons.arrow_back_ios_new_rounded
+                  : Icons.arrow_forward_ios_rounded,
+              size: 18,
+              color: colors.textMain,
             ),
           ),
         ),
@@ -319,32 +333,21 @@ class _CaseTab extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 320),
-          curve: Curves.easeInOutCubic,
-          padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: active ? AppColors.green : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
-            boxShadow: active
-                ? [
-                    const BoxShadow(
-                      color: AppColors.greenShadow,
-                      offset: Offset(0, 3),
-                    ),
-                  ]
-                : [],
           ),
-          child: AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 320),
-            curve: Curves.easeInOutCubic,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: active ? Colors.white : colors.textMuted,
-            ),
+          child: Center(
             child: Text(
               label,
-              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+                color: active ? Colors.white : colors.textMuted,
+              ),
             ),
           ),
         ),
@@ -357,7 +360,7 @@ class _SyllablePane extends StatelessWidget {
   final AppColors colors;
   final String consonant;
   final bool isUpper;
-  final ValueChanged<String> onPlaySound;
+  final void Function(String) onPlaySound;
 
   const _SyllablePane({
     required this.colors,
@@ -368,51 +371,28 @@ class _SyllablePane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayLetter = displayConsonant(consonant, upper: isUpper);
-    final soundLetter = consonant.toLowerCase();
+    final vowels = vowelsForConsonant(consonant);
+    final consonantSound = consonant.toLowerCase();
+    final consonantDisplay = displayConsonant(consonant, upper: isUpper);
 
-    return SingleChildScrollView(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  onTap: () => onPlaySound(soundLetter),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 4, bottom: 24),
-                    child: Text(
-                      displayLetter,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'ComicSansMS',
-                        fontSize: 64,
-                        fontWeight: FontWeight.w700,
-                        height: 1.0,
-                        color: colors.textMain,
-                      ),
-                    ),
-                  ),
-                ),
-                for (final vowel in vowelsForConsonant(consonant))
-                  _SyllableRow(
-                    colors: colors,
-                    consonantDisplay: displayLetter,
-                    consonantSound: soundLetter,
-                    middleVowel: consonant.toLowerCase() == 'q' ? 'u' : null,
-                    vowel: vowel,
-                    syllable: buildSyllable(consonant, vowel, isUpper),
-                    isLast: vowel == vowelsForConsonant(consonant).last,
-                    onPlaySound: onPlaySound,
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      itemCount: vowels.length,
+      itemBuilder: (context, index) {
+        final vowel = vowels[index];
+        final syllable = buildSyllable(consonant, vowel, isUpper);
+        final middleVowel = consonant.toLowerCase() == 'q' ? 'u' : null;
+        return _SyllableRow(
+          colors: colors,
+          consonantDisplay: consonantDisplay,
+          consonantSound: consonantSound,
+          vowel: vowel,
+          middleVowel: middleVowel,
+          syllable: syllable,
+          onPlaySound: onPlaySound,
+          isLast: index == vowels.length - 1,
+        );
+      },
     );
   }
 }
@@ -421,27 +401,27 @@ class _SyllableRow extends StatelessWidget {
   final AppColors colors;
   final String consonantDisplay;
   final String consonantSound;
-  final String? middleVowel;
   final String vowel;
+  final String? middleVowel;
   final String syllable;
+  final void Function(String) onPlaySound;
   final bool isLast;
-  final ValueChanged<String> onPlaySound;
 
   const _SyllableRow({
     required this.colors,
     required this.consonantDisplay,
     required this.consonantSound,
-    this.middleVowel,
     required this.vowel,
+    required this.middleVowel,
     required this.syllable,
-    required this.isLast,
     required this.onPlaySound,
+    required this.isLast,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 2),
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
       decoration: BoxDecoration(
         border: isLast
             ? null
