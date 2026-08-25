@@ -84,8 +84,8 @@ flutter:
     - assets/audio/syllables/q/
     - assets/audio/syllables/r/
     - assets/audio/syllables/s/
-    #- assets/audio/syllables/t/
-    #- assets/audio/syllables/v/
+    - assets/audio/syllables/t/
+    - assets/audio/syllables/v/
     #- assets/audio/syllables/w/
     #- assets/audio/syllables/x/
     #- assets/audio/syllables/y/
