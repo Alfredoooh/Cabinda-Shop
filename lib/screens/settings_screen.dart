@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../main.dart' show AppColors, SoundManager, applySystemUi;
+import '../main.dart' show AppColors, SoundManager, AppPrefs, applySystemUi;
 import 'home_screen.dart' show ThemePrefs;
 
 class AppSettingsResult {
@@ -69,16 +69,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _setSound(bool value) {
     setState(() => _soundEnabled = value);
-    SoundManager.instance.muted = !value;
+    AppPrefs.setSoundEnabled(value);
   }
 
   void _setMusic(bool value) {
     setState(() => _musicEnabled = value);
+    AppPrefs.setMusicEnabled(value);
   }
 
   void _setVoice(bool value) {
     setState(() => _voiceEnabled = value);
-    SoundManager.instance.voiceEnabled = value;
+    AppPrefs.setVoiceEnabled(value);
   }
 
   void _setTheme(bool value) {

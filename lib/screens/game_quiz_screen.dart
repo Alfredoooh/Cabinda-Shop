@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 import '../main.dart'
-    show AppColors, SoundManager, kConsonants, kVowels, buildSyllable, vowelsForConsonant;
+    show AppColors, SoundManager, AppPrefs, kConsonants, kVowels, buildSyllable, vowelsForConsonant;
 
 enum _QuizMode {
   letters,
@@ -133,6 +133,7 @@ class _GameQuizScreenState extends State<GameQuizScreen>
   @override
   void initState() {
     super.initState();
+    AppPrefs.load();
 
     _allSyllables = _buildAllSyllables();
 
@@ -234,6 +235,7 @@ class _GameQuizScreenState extends State<GameQuizScreen>
   // ════════════════════════════════════════════════════════════
 
   Future<void> _playPressSound() async {
+    if (SoundManager.instance.clickMuted) return;
     try {
       await _feedbackPlayer.stop();
 
@@ -248,6 +250,7 @@ class _GameQuizScreenState extends State<GameQuizScreen>
   Future<void> _playFeedback(
     String asset,
   ) async {
+    if (SoundManager.instance.muted) return;
     try {
       await _feedbackPlayer.stop();
 

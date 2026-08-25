@@ -45,8 +45,12 @@ class _DetailScreenState extends State<DetailScreen>
   }
 
   void switchCase(bool upper) {
-    if (isUpperCase == upper) return;
+    if (isUpperCase == upper) {
+      playSound(kConsonants[currentConsonantIndex]);
+      return;
+    }
     setState(() => isUpperCase = upper);
+    playSound(kConsonants[currentConsonantIndex]);
     if (upper) {
       _slideController.reverse();
     } else {
@@ -427,35 +431,43 @@ class _SyllableRow extends StatelessWidget {
             ? null
             : Border(bottom: BorderSide(color: colors.divider)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _SmallLetterButton(
-            colors: colors,
-            label: consonantDisplay,
-            onTap: () => onPlaySound(consonantSound),
-          ),
-          _Operator(colors: colors, symbol: '+'),
-          if (middleVowel != null) ...[
-            _SmallLetterButton(
-              colors: colors,
-              label: middleVowel!,
-              onTap: () => onPlaySound(middleVowel!),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.center,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _SmallLetterButton(
+                  colors: colors,
+                  label: consonantDisplay,
+                  onTap: () => onPlaySound(consonantSound),
+                ),
+                _Operator(colors: colors, symbol: '+'),
+                if (middleVowel != null) ...[
+                  _SmallLetterButton(
+                    colors: colors,
+                    label: middleVowel!,
+                    onTap: () => onPlaySound(middleVowel!),
+                  ),
+                  _Operator(colors: colors, symbol: '+'),
+                ],
+                _SmallLetterButton(
+                  colors: colors,
+                  label: vowel,
+                  onTap: () => onPlaySound(vowel),
+                ),
+                _Operator(colors: colors, symbol: '='),
+                _SyllableButton(
+                  colors: colors,
+                  label: syllable,
+                  onTap: () => onPlaySound(syllable),
+                ),
+              ],
             ),
-            _Operator(colors: colors, symbol: '+'),
-          ],
-          _SmallLetterButton(
-            colors: colors,
-            label: vowel,
-            onTap: () => onPlaySound(vowel),
-          ),
-          _Operator(colors: colors, symbol: '='),
-          _SyllableButton(
-            colors: colors,
-            label: syllable,
-            onTap: () => onPlaySound(syllable),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

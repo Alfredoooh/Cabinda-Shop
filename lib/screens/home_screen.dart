@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart'
-    show AppColors, GridMode, DrawerSection, SoundManager, ThemePrefs, kConsonants, applySystemUi;
+    show AppColors, GridMode, DrawerSection, SoundManager, ThemePrefs, AppPrefs, kConsonants, applySystemUi;
 import 'detail_screen.dart';
 import 'games_screen.dart';
 import 'playlist_covers_screen.dart';
@@ -38,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.initState();
     applySystemUi(isDark);
     _loadTheme();
+    _loadPreferences();
     _drawerController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 340),
@@ -57,6 +58,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       setState(() => isDark = saved);
       applySystemUi(saved);
     }
+  }
+
+  Future<void> _loadPreferences() async {
+    await AppPrefs.load();
+    if (!mounted) return;
+    setState(() {
+      soundEnabled = AppPrefs.soundEnabled;
+      musicEnabled = AppPrefs.musicEnabled;
+      voiceEnabled = AppPrefs.voiceEnabled;
+    });
   }
 
   @override
@@ -85,21 +96,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void toggleSound() {
     setState(() {
       soundEnabled = !soundEnabled;
-      SoundManager.instance.muted = !soundEnabled;
-      SoundManager.instance.clickMuted = !soundEnabled;
     });
   }
 
   void openSettings() async {
     closeDrawer();
+    await AppPrefs.load();
+    if (!mounted) return;
     final result = await Navigator.of(context).push<AppSettingsResult>(
       CupertinoPageRoute(
         builder: (_) => SettingsScreen(
           colors: AppColors(isDark),
           isDark: isDark,
-          soundEnabled: soundEnabled,
-          musicEnabled: musicEnabled,
-          voiceEnabled: voiceEnabled,
+          soundEnabled: AppPrefs.soundEnabled,
+          musicEnabled: AppPrefs.musicEnabled,
+          voiceEnabled: AppPrefs.voiceEnabled,
         ),
       ),
     );
@@ -114,10 +125,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       voiceEnabled = result.voiceEnabled;
     });
 
-    SoundManager.instance.muted = !soundEnabled;
-    SoundManager.instance.clickMuted = !soundEnabled;
-    SoundManager.instance.musicMuted = !musicEnabled;
-    SoundManager.instance.voiceEnabled = voiceEnabled;
+    AppPrefs.setSoundEnabled(soundEnabled);
+    AppPrefs.setMusicEnabled(musicEnabled);
+    AppPrefs.setVoiceEnabled(voiceEnabled);
   }
 
   void openDetail(int consonantIndex) {

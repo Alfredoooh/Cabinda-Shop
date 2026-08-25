@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppPrefs.load();
   applySystemUi(false);
   runApp(const AlfabetoApp());
 }
@@ -31,6 +34,52 @@ class AlfabetoApp extends StatelessWidget {
   }
 }
 
+
+class AppPrefs {
+  static const _soundKey = 'sound_enabled';
+  static const _musicKey = 'music_enabled';
+  static const _voiceKey = 'voice_enabled';
+
+  static bool soundEnabled = true;
+  static bool musicEnabled = true;
+  static bool voiceEnabled = true;
+
+  static Future<void> load() async {
+    final prefs = await SharedPreferences.getInstance();
+    soundEnabled = prefs.getBool(_soundKey) ?? true;
+    musicEnabled = prefs.getBool(_musicKey) ?? true;
+    voiceEnabled = prefs.getBool(_voiceKey) ?? true;
+    _applyToSoundManager();
+  }
+
+  static Future<void> setSoundEnabled(bool value) async {
+    soundEnabled = value;
+    _applyToSoundManager();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_soundKey, value);
+  }
+
+  static Future<void> setMusicEnabled(bool value) async {
+    musicEnabled = value;
+    _applyToSoundManager();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_musicKey, value);
+  }
+
+  static Future<void> setVoiceEnabled(bool value) async {
+    voiceEnabled = value;
+    _applyToSoundManager();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_voiceKey, value);
+  }
+
+  static void _applyToSoundManager() {
+    SoundManager.instance.muted = !soundEnabled;
+    SoundManager.instance.clickMuted = !soundEnabled;
+    SoundManager.instance.musicMuted = !musicEnabled;
+    SoundManager.instance.voiceEnabled = voiceEnabled;
+  }
+}
 
 class AppColors {
   final bool isDark;

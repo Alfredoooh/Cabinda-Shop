@@ -3,10 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:audioplayers/audioplayers.dart';
-import '../main.dart' show AppColors;
-
-final AudioPlayer _soundPlayer = AudioPlayer();
-final AudioPlayer _musicPlayer = AudioPlayer();
+import '../main.dart' show AppColors, AppPrefs;
 
 class GameMemoryScreen extends StatefulWidget {
   final AppColors colors;
@@ -22,6 +19,8 @@ class GameMemoryScreen extends StatefulWidget {
 
 class _GameMemoryScreenState extends State<GameMemoryScreen>
     with TickerProviderStateMixin {
+  final AudioPlayer _soundPlayer = AudioPlayer();
+  final AudioPlayer _musicPlayer = AudioPlayer();
   // ────────────────────────────────────────────────────────────
   // ESTADO
   // ────────────────────────────────────────────────────────────
@@ -99,6 +98,13 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   @override
   void initState() {
     super.initState();
+    AppPrefs.load().then((_) {
+      if (!mounted) return;
+      setState(() {
+        _soundOn = AppPrefs.soundEnabled;
+        _musicOn = AppPrefs.musicEnabled;
+      });
+    });
 
     _confettiController = AnimationController(
       vsync: this,
@@ -119,6 +125,8 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
 
     _soundPlayer.stop();
     _musicPlayer.stop();
+    _soundPlayer.dispose();
+    _musicPlayer.dispose();
 
     super.dispose();
   }
@@ -131,7 +139,6 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     if (!_soundOn) return;
 
     try {
-      await _soundPlayer.stop();
       await _soundPlayer.play(
         AssetSource(asset),
       );
@@ -169,6 +176,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     setState(() {
       _soundOn = !_soundOn;
     });
+    AppPrefs.setSoundEnabled(_soundOn);
 
     if (_soundOn) {
       await _playSound('audio/pressing.wav');
@@ -179,6 +187,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     setState(() {
       _musicOn = !_musicOn;
     });
+    AppPrefs.setMusicEnabled(_musicOn);
 
     try {
       if (_musicOn) {
