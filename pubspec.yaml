@@ -86,10 +86,10 @@ flutter:
     - assets/audio/syllables/s/
     - assets/audio/syllables/t/
     - assets/audio/syllables/v/
-    #- assets/audio/syllables/w/
-    #- assets/audio/syllables/x/
-    #- assets/audio/syllables/y/
-    #- assets/audio/syllables/z/
+    - assets/audio/syllables/w/
+    - assets/audio/syllables/x/
+    - assets/audio/syllables/y/
+    - assets/audio/syllables/z/
 #---------------images-----------  
     - assets/images/syllables/b/a/
     - assets/images/syllables/b/e/
