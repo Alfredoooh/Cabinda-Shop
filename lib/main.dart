@@ -8,6 +8,14 @@ import 'screens/home_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppPrefs.load();
+  await SoundManager.instance.preloadAssets([
+    ...kVowels.map((v) => 'audio/vowels/$v.wav'),
+    ...kConsonants.map((c) => 'audio/consonants/$c.wav'),
+    'audio/pressing.wav',
+    'audio/correct.wav',
+    'audio/wrong.wav',
+    'audio/win.wav',
+  ]);
   applySystemUi(false);
   runApp(const AlfabetoApp());
 }
@@ -224,6 +232,10 @@ class SoundManager {
 
   final AudioPlayer _player = AudioPlayer();
   final FlutterTts _tts = FlutterTts();
+  final Map<String, List<AudioPlayer>> _assetPlayers = {};
+  final Map<String, int> _assetCursors = {};
+  final Set<String> _preloadedAssets = {};
+  Future<void>? _preloadFuture;
 
   bool muted = false;
   bool clickMuted = false;
@@ -243,6 +255,51 @@ class SoundManager {
     } catch (_) {}
   }
 
+  Future<void> preloadAssets(Iterable<String> paths) async {
+    final missing = paths.where((path) => !_preloadedAssets.contains(path));
+    if (missing.isEmpty) return;
+    await _preload(missing);
+  }
+
+  Future<void> _preload(Iterable<String> paths) async {
+    for (final path in paths.toSet()) {
+      if (_preloadedAssets.contains(path)) continue;
+      if (!await AssetUtils.exists(path)) continue;
+      final players = <AudioPlayer>[];
+      for (var i = 0; i < 2; i++) {
+        final player = AudioPlayer();
+        try {
+          await player.setSource(AssetSource(path));
+          players.add(player);
+        } catch (_) {
+          await player.dispose();
+        }
+      }
+      if (players.isNotEmpty) {
+        _assetPlayers[path] = players;
+        _assetCursors[path] = 0;
+        _preloadedAssets.add(path);
+      }
+    }
+  }
+
+  Future<void> playAsset(String assetPath) async {
+    if (muted) return;
+    var players = _assetPlayers[assetPath];
+    if (players == null || players.isEmpty) {
+      await preloadAssets([assetPath]);
+      players = _assetPlayers[assetPath];
+    }
+    if (players == null || players.isEmpty) return;
+    final cursor = _assetCursors[assetPath] ?? 0;
+    final player = players[cursor % players.length];
+    _assetCursors[assetPath] = cursor + 1;
+    try {
+      await player.seek(Duration.zero);
+      await player.resume();
+    } catch (_) {}
+  }
+
   Future<void> playLetter(String letter) async {
     final l = letter.trim().toLowerCase();
     if (l.length != 1 || muted) return;
@@ -252,7 +309,7 @@ class SoundManager {
         : 'audio/consonants/$l.wav';
 
     if (await AssetUtils.exists(path)) {
-      await _play(path);
+      await playAsset(path);
       return;
     }
 
@@ -276,7 +333,7 @@ class SoundManager {
           'audio/syllables/$firstConsonant/$s.wav';
 
       if (await AssetUtils.exists(path)) {
-        await _play(path);
+        await playAsset(path);
         return;
       }
     }
@@ -301,7 +358,7 @@ class SoundManager {
           'audio/syllables/$firstConsonant/${s}_ex.wav';
 
       if (await AssetUtils.exists(path)) {
-        await _play(path);
+        await playAsset(path);
         return;
       }
     }
@@ -323,7 +380,7 @@ class SoundManager {
     final path = 'audio/words/$fileName.wav';
 
     if (await AssetUtils.exists(path)) {
-      await _play(path);
+      await playAsset(path);
       return;
     }
 
@@ -375,14 +432,7 @@ class SoundManager {
     } catch (_) {}
   }
 
-  Future<void> _play(String assetPath) async {
-    if (muted) return;
-
-    try {
-      await _player.stop();
-      await _player.play(AssetSource(assetPath));
-    } catch (_) {}
-  }
+  Future<void> _play(String assetPath) => playAsset(assetPath);
 
   Future<void> stop() async {
     try {

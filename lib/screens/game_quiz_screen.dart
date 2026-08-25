@@ -1727,7 +1727,7 @@ class _AnswerButton extends StatelessWidget {
           ),
           child:
               Text(
-            text.toUpperCase(),
+            text.toLowerCase(),
           ),
         ),
       ),

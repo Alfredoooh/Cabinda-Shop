@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:audioplayers/audioplayers.dart';
-import '../main.dart' show AppColors, AppPrefs;
+import '../main.dart' show AppColors, AppPrefs, SoundManager;
 
 class GameMemoryScreen extends StatefulWidget {
   final AppColors colors;
@@ -19,7 +19,6 @@ class GameMemoryScreen extends StatefulWidget {
 
 class _GameMemoryScreenState extends State<GameMemoryScreen>
     with TickerProviderStateMixin {
-  final AudioPlayer _soundPlayer = AudioPlayer();
   final AudioPlayer _musicPlayer = AudioPlayer();
   // ────────────────────────────────────────────────────────────
   // ESTADO
@@ -38,6 +37,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   bool _soundOn = true;
   bool _musicOn = true;
   bool _musicStarted = false;
+  Future<void>? _musicReady;
 
   static const List<String> _allLetters = [
     'A',
@@ -98,6 +98,9 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   @override
   void initState() {
     super.initState();
+    _musicReady = _musicPlayer.setSource(
+      AssetSource('songs/playing_song.mp3'),
+    );
     AppPrefs.load().then((_) {
       if (!mounted) return;
       setState(() {
@@ -108,7 +111,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
 
     _confettiController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1600),
+      duration: const Duration(milliseconds: 2200),
     )..addListener(() {
         if (mounted) {
           setState(() {});
@@ -123,9 +126,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
 
     _confettiController.dispose();
 
-    _soundPlayer.stop();
     _musicPlayer.stop();
-    _soundPlayer.dispose();
     _musicPlayer.dispose();
 
     super.dispose();
@@ -135,14 +136,9 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   // ÁUDIO
   // ────────────────────────────────────────────────────────────
 
-  Future<void> _playSound(String asset) async {
-    if (!_soundOn) return;
-
-    try {
-      await _soundPlayer.play(
-        AssetSource(asset),
-      );
-    } catch (_) {}
+  Future<void> _playSound(String asset) {
+    if (!_soundOn) return Future.value();
+    return SoundManager.instance.playAsset(asset);
   }
 
   Future<void> _startMusic() async {
@@ -158,6 +154,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
     _musicStarted = true;
 
     try {
+      await _musicReady;
       await _musicPlayer.setReleaseMode(
         ReleaseMode.loop,
       );
@@ -375,7 +372,7 @@ class _GameMemoryScreenState extends State<GameMemoryScreen>
   void _dispararConfete() {
     _confetti.clear();
 
-    for (int i = 0; i < 70; i++) {
+    for (int i = 0; i < 140; i++) {
       _confetti.add(
         _ConfettiParticle(_random),
       );
@@ -1735,7 +1732,7 @@ class _ConfettiParticle {
         angle =
             (random.nextDouble() - 0.5) *
                 pi *
-                0.9,
+                1.35,
         size =
             5 +
                 random.nextDouble() *
@@ -1789,15 +1786,16 @@ class _ConfettiPainter
           sin(
                 particle.angle,
               ) *
-              160 *
+              260 *
               progress;
 
       final dy =
-          -30 +
+          size.height *
+              0.08 +
           size.height *
               progress *
               progress *
-              0.95;
+              1.05;
 
       paint.color =
           particle.color.withOpacity(
