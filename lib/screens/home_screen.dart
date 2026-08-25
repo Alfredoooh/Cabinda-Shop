@@ -1,3 +1,5 @@
+// home_screen.dart
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -21,18 +23,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   DrawerSection currentSection = DrawerSection.alphabet;
   bool soundEnabled = true;
   bool musicEnabled = true;
+  bool voiceEnabled = true;
 
   late AnimationController _drawerController;
   late Animation<Offset> _drawerSlide;
   bool _drawerOpen = false;
 
   static const double _drawerWidthFactor = 0.78;
-
   static const Curve _drawerCurve = Curves.easeInOutCubic;
 
   @override
   void initState() {
     super.initState();
+    _loadTheme();
     _drawerController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 340),
@@ -44,6 +47,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       parent: _drawerController,
       curve: _drawerCurve,
     ));
+  }
+
+  Future<void> _loadTheme() async {
+    final saved = await ThemePrefs.getIsDark();
+    if (mounted && saved != null) {
+      setState(() => isDark = saved);
+    }
   }
 
   @override
@@ -63,9 +73,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
 
-  void toggleTheme() => setState(() => isDark = !isDark);
-
-  bool voiceEnabled = true;
+  void toggleTheme() {
+    setState(() => isDark = !isDark);
+    ThemePrefs.setIsDark(isDark);
+  }
 
   void toggleSound() {
     setState(() {
@@ -140,67 +151,62 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors(isDark);
-    final screenWidth = MediaQuery.of(context).size.width;
-    final drawerWidth = screenWidth * _drawerWidthFactor;
 
     return Scaffold(
       backgroundColor: colors.bg,
       body: Stack(
         children: [
-          // Conteúdo principal
           SafeArea(
-              bottom: false,
-              child: Column(
-                children: [
-                  _AppBarWidget(
-                    colors: colors,
-                    onMenuTap: openDrawer,
-                    currentSection: currentSection,
-                    currentMode: currentMode,
-                    onModeChange: (m) => setState(() => currentMode = m),
-                    soundEnabled: soundEnabled,
-                    onSoundToggle: toggleSound,
-                  ),
-                  Expanded(
-                    child: SafeArea(
-                      top: false,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 260),
-                        switchInCurve: const Cubic(0.22, 1, 0.36, 1),
-                        switchOutCurve: const Cubic(0.22, 1, 0.36, 1),
-                        transitionBuilder: (child, animation) {
-                          final slide = Tween<Offset>(
-                            begin: const Offset(0.06, 0),
-                            end: Offset.zero,
-                          ).animate(animation);
-                          return ClipRect(
-                            child: SlideTransition(
-                              position: slide,
-                              child: FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              ),
+            bottom: false,
+            child: Column(
+              children: [
+                _AppBarWidget(
+                  colors: colors,
+                  onMenuTap: openDrawer,
+                  currentSection: currentSection,
+                  currentMode: currentMode,
+                  onModeChange: (m) => setState(() => currentMode = m),
+                  soundEnabled: soundEnabled,
+                  onSoundToggle: toggleSound,
+                ),
+                Expanded(
+                  child: SafeArea(
+                    top: false,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 260),
+                      switchInCurve: const Cubic(0.22, 1, 0.36, 1),
+                      switchOutCurve: const Cubic(0.22, 1, 0.36, 1),
+                      transitionBuilder: (child, animation) {
+                        final slide = Tween<Offset>(
+                          begin: const Offset(0.06, 0),
+                          end: Offset.zero,
+                        ).animate(animation);
+                        return ClipRect(
+                          child: SlideTransition(
+                            position: slide,
+                            child: FadeTransition(
+                              opacity: animation,
+                              child: child,
                             ),
-                          );
-                        },
-                        layoutBuilder: (currentChild, previousChildren) {
-                          return Stack(
-                            alignment: Alignment.topCenter,
-                            children: [
-                              ...previousChildren,
-                              if (currentChild != null) currentChild,
-                            ],
-                          );
-                        },
-                        child: _buildSection(colors),
-                      ),
+                          ),
+                        );
+                      },
+                      layoutBuilder: (currentChild, previousChildren) {
+                        return Stack(
+                          alignment: Alignment.topCenter,
+                          children: [
+                            ...previousChildren,
+                            if (currentChild != null) currentChild,
+                          ],
+                        );
+                      },
+                      child: _buildSection(colors),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-
-          // Overlay escuro
+          ),
           if (_drawerOpen)
             AnimatedBuilder(
               animation: _drawerController,
@@ -215,8 +221,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
-
-          // Drawer
           if (_drawerOpen)
             SlideTransition(
               position: _drawerSlide,
@@ -238,6 +242,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ],
       ),
     );
+  }
+}
+
+// ─────────────────────────────────────────────
+// Persistência do tema
+// ─────────────────────────────────────────────
+class ThemePrefs {
+  static const _key = 'is_dark_theme';
+
+  static Future<bool?> getIsDark() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey(_key)) return null;
+    return prefs.getBool(_key);
+  }
+
+  static Future<void> setIsDark(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_key, value);
   }
 }
 
@@ -297,7 +319,17 @@ class _AppBarWidget extends StatelessWidget {
           children: [
             Row(
               children: [
-                _HamburgerButton(colors: colors, onTap: onMenuTap),
+                _PressableIconButton(
+                  colors: colors,
+                  onTap: onMenuTap,
+                  child: SvgPicture.asset(
+                    'assets/icons/menu-icon.svg',
+                    width: 18,
+                    height: 18,
+                    colorFilter:
+                        ColorFilter.mode(colors.textMuted, BlendMode.srcIn),
+                  ),
+                ),
                 const SizedBox(width: 10),
                 Image.asset(
                   _iconeAtivo,
@@ -307,10 +339,18 @@ class _AppBarWidget extends StatelessWidget {
                       const SizedBox(width: 22, height: 22),
                 ),
                 const Spacer(),
-                _SpeakerToggleButton(
+                _PressableIconButton(
                   colors: colors,
-                  soundEnabled: soundEnabled,
                   onTap: onSoundToggle,
+                  child: SvgPicture.asset(
+                    soundEnabled
+                        ? 'assets/icons/speaker-icon.svg'
+                        : 'assets/icons/speaker-off-icon.svg',
+                    width: 18,
+                    height: 18,
+                    colorFilter:
+                        ColorFilter.mode(colors.textMuted, BlendMode.srcIn),
+                  ),
                 ),
               ],
             ),
@@ -359,62 +399,51 @@ class _AppBarWidget extends StatelessWidget {
   }
 }
 
-class _HamburgerButton extends StatelessWidget {
+/// Botão circular do appbar com efeito pressionável real,
+/// igual ao usado nos cartões de letra (translada + reduz sombra).
+class _PressableIconButton extends StatefulWidget {
   final AppColors colors;
+  final Widget child;
   final VoidCallback onTap;
 
-  const _HamburgerButton({required this.colors, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(color: colors.bg, shape: BoxShape.circle),
-        child: Center(
-          child: SvgPicture.asset(
-            'assets/icons/menu-icon.svg',
-            width: 18,
-            height: 18,
-            colorFilter: ColorFilter.mode(colors.textMuted, BlendMode.srcIn),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SpeakerToggleButton extends StatelessWidget {
-  final AppColors colors;
-  final bool soundEnabled;
-  final VoidCallback onTap;
-
-  const _SpeakerToggleButton({
+  const _PressableIconButton({
     required this.colors,
-    required this.soundEnabled,
+    required this.child,
     required this.onTap,
   });
 
   @override
+  State<_PressableIconButton> createState() => _PressableIconButtonState();
+}
+
+class _PressableIconButtonState extends State<_PressableIconButton> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
+      behavior: HitTestBehavior.opaque,
+      onTap: widget.onTap,
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 90),
+        curve: Curves.easeOut,
+        transform: Matrix4.identity()..translate(0.0, _pressed ? 3.0 : 0.0),
         width: 38,
         height: 38,
-        decoration: BoxDecoration(color: colors.bg, shape: BoxShape.circle),
-        child: Center(
-          child: SvgPicture.asset(
-            soundEnabled
-                ? 'assets/icons/speaker-icon.svg'
-                : 'assets/icons/speaker-off-icon.svg',
-            width: 18,
-            height: 18,
-            colorFilter: ColorFilter.mode(colors.textMuted, BlendMode.srcIn),
-          ),
+        decoration: BoxDecoration(
+          color: widget.colors.bg,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: widget.colors.neutralShadow,
+              offset: Offset(0, _pressed ? 0 : 3),
+            ),
+          ],
         ),
+        child: Center(child: widget.child),
       ),
     );
   }
@@ -473,7 +502,7 @@ class _ToggleButton extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────
-// Alphabet section (com performance corrigida)
+// Alphabet section — trilha vertical estilo Duolingo
 // ─────────────────────────────────────────────
 class _AlphabetSection extends StatelessWidget {
   final AppColors colors;
@@ -501,56 +530,81 @@ class _AlphabetSection extends StatelessWidget {
     }
   }
 
+  /// Deslocamento horizontal em zigue-zague (como os níveis do Duolingo).
+  double _offsetForIndex(int index, double amplitude) {
+    // Padrão de 4 passos: centro -> direita -> centro -> esquerda -> repete
+    final phase = index % 4;
+    switch (phase) {
+      case 0:
+        return 0;
+      case 1:
+        return amplitude;
+      case 2:
+        return 0;
+      case 3:
+        return -amplitude;
+      default:
+        return 0;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isConsonantMode = currentMode == GridMode.consonants;
     final letters = _letters;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final amplitude = math.min(screenWidth * 0.16, 70.0);
 
-    // GridView.builder direto (sem shrinkWrap) → performance excelente
-    return GridView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(16, 28, 16, 40),
       itemCount: letters.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.05,
-      ),
       itemBuilder: (context, index) {
         final letter = letters[index];
-        return _LetterCard(
-          colors: colors,
-          letter: letter,
-          onTapDown: () => SoundManager.instance.playLetter(letter),
-          onTap: () {
-            if (isConsonantMode) {
-              onConsonantTap(kConsonants.indexOf(letter));
-            }
-          },
+        final dx = _offsetForIndex(index, amplitude);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 22),
+          child: Center(
+            child: Transform.translate(
+              offset: Offset(dx, 0),
+              child: _LetterNode(
+                colors: colors,
+                letter: letter,
+                index: index,
+                onTapDown: () => SoundManager.instance.playLetter(letter),
+                onTap: () {
+                  if (isConsonantMode) {
+                    onConsonantTap(kConsonants.indexOf(letter));
+                  }
+                },
+              ),
+            ),
+          ),
         );
       },
     );
   }
 }
 
-class _LetterCard extends StatefulWidget {
+class _LetterNode extends StatefulWidget {
   final AppColors colors;
   final String letter;
+  final int index;
   final VoidCallback? onTapDown;
   final VoidCallback onTap;
 
-  const _LetterCard({
+  const _LetterNode({
     required this.colors,
     required this.letter,
+    required this.index,
     this.onTapDown,
     required this.onTap,
   });
 
   @override
-  State<_LetterCard> createState() => _LetterCardState();
+  State<_LetterNode> createState() => _LetterNodeState();
 }
 
-class _LetterCardState extends State<_LetterCard> {
+class _LetterNodeState extends State<_LetterNode> {
   bool _pressed = false;
 
   Color _generateLetterColor({
@@ -574,17 +628,14 @@ class _LetterCardState extends State<_LetterCard> {
   Widget build(BuildContext context) {
     final letterIndex =
         widget.letter.toLowerCase().codeUnitAt(0) - 'a'.codeUnitAt(0);
-    final bg = _generateLetterColor(
-      isDark: widget.colors.isDark,
-      letterIndex: letterIndex,
-      foreground: false,
-    );
     final fg = _generateLetterColor(
       isDark: widget.colors.isDark,
       letterIndex: letterIndex,
       foreground: true,
     );
-    final shadow = fg.withOpacity(widget.colors.isDark ? 0.35 : 0.25);
+    final rim = fg.withOpacity(widget.colors.isDark ? 0.55 : 0.35);
+
+    const double diameter = 92;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -595,41 +646,47 @@ class _LetterCardState extends State<_LetterCard> {
       },
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 60),
-        transform: Matrix4.identity()..translate(0.0, _pressed ? 4.0 : 0.0),
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 6),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(color: shadow, offset: Offset(0, _pressed ? 1 : 4)),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
+      child: SizedBox(
+        width: diameter,
+        height: diameter + 10,
+        child: Stack(
+          alignment: Alignment.topCenter,
           children: [
-            Text(
-              widget.letter.toUpperCase(),
-              style: TextStyle(
-                fontFamily: 'ComicSansMS',
-                fontSize: 30,
-                fontWeight: FontWeight.w700,
-                color: fg,
+            // "Base" do botão (dá a sensação de profundidade 3D)
+            Positioned(
+              top: 10,
+              child: Container(
+                width: diameter,
+                height: diameter,
+                decoration: BoxDecoration(shape: BoxShape.circle, color: rim),
               ),
             ),
-            const SizedBox(width: 6),
-            Opacity(
-              opacity: 0.85,
-              child: Text(
-                widget.letter,
-                style: TextStyle(
-                  fontFamily: 'ComicSansMS',
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
+            // Topo do botão, que desce ao pressionar
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 90),
+              curve: Curves.easeOut,
+              top: _pressed ? 6 : 0,
+              child: Container(
+                width: diameter,
+                height: diameter,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
                   color: fg,
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.25),
+                    width: 2,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    widget.letter.toUpperCase(),
+                    style: const TextStyle(
+                      fontFamily: 'ComicSansMS',
+                      fontSize: 36,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -808,65 +865,6 @@ class _DrawerItemState extends State<_DrawerItem> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ThemeSwitch extends StatelessWidget {
-  final AppColors colors;
-  final bool isDark;
-  final VoidCallback onTap;
-
-  const _ThemeSwitch({
-    required this.colors,
-    required this.isDark,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 52,
-        height: 30,
-        padding: const EdgeInsets.all(3),
-        decoration: BoxDecoration(
-          color: colors.bgCardNeutral,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: AnimatedAlign(
-          duration: const Duration(milliseconds: 250),
-          alignment:
-              isDark ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: colors.switchThumb,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: colors.switchThumbShadow,
-                  offset: const Offset(0, 2),
-                  blurRadius: 4,
-                ),
-              ],
-            ),
-            child: Center(
-              child: SvgPicture.asset(
-                isDark
-                    ? 'assets/icons/moon-icon.svg'
-                    : 'assets/icons/sun-icon.svg',
-                width: 14,
-                height: 14,
-                colorFilter: const ColorFilter.mode(
-                    AppColors.orange, BlendMode.srcIn),
-              ),
-            ),
-          ),
         ),
       ),
     );

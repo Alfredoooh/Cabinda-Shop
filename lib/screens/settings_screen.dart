@@ -1,7 +1,9 @@
+// settings_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../main.dart' show AppColors, SoundManager;
+import 'home_screen.dart' show ThemePrefs;
 
 class AppSettingsResult {
   final bool isDark;
@@ -70,6 +72,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     SoundManager.instance.muted = !value;
   }
 
+  void _setMusic(bool value) {
+    setState(() => _musicEnabled = value);
+  }
+
   void _setVoice(bool value) {
     setState(() => _voiceEnabled = value);
     SoundManager.instance.voiceEnabled = value;
@@ -77,11 +83,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _setTheme(bool value) {
     setState(() => _isDark = value);
-    _updateSystemBars();
-  }
-
-  void _updateSystemBars() {
-    // A HomeScreen faz a sincronização definitiva quando esta página fecha.
+    // Persiste de imediato, para o tema sobreviver mesmo que
+    // o utilizador saia sem "guardar" via pop.
+    ThemePrefs.setIsDark(value);
   }
 
   @override
@@ -90,113 +94,185 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       backgroundColor: c.bg,
-      appBar: AppBar(
-        backgroundColor: c.bg,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        titleSpacing: 0,
-        leading: GestureDetector(
-          onTap: _saveAndClose,
-          child: Center(
-            child: SvgPicture.asset(
-              'assets/icons/back.svg',
-              width: 20,
-              height: 20,
-              colorFilter: ColorFilter.mode(
-                c.textMain,
-                BlendMode.srcIn,
+      body: SafeArea(
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+          children: [
+            Row(
+              children: [
+                _PressableCircleButton(
+                  colors: c,
+                  onTap: _saveAndClose,
+                  child: SvgPicture.asset(
+                    'assets/icons/back.svg',
+                    width: 18,
+                    height: 18,
+                    colorFilter: ColorFilter.mode(c.textMain, BlendMode.srcIn),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Definições',
+                  style: TextStyle(
+                    fontFamily: 'ComicSansMS',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 26,
+                    color: c.textMain,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.only(left: 54),
+              child: Text(
+                'Ajusta o app do teu jeitinho',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: c.textMuted,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ),
+            const SizedBox(height: 28),
+            _FunSection(
+              colors: c,
+              title: 'Som',
+              icon: 'assets/icons/speaker-icon.svg',
+              accent: AppColors.green,
+              children: [
+                _FunTile(
+                  colors: c,
+                  icon: 'assets/icons/speaker-icon.svg',
+                  title: 'Sons de clique',
+                  subtitle: 'Sons ao tocar nos elementos do ecrã.',
+                  accent: AppColors.green,
+                  value: _soundEnabled,
+                  onChanged: _setSound,
+                ),
+                const SizedBox(height: 12),
+                _FunTile(
+                  colors: c,
+                  icon: 'assets/icons/music_on.svg',
+                  title: 'Música',
+                  subtitle: 'Melodias nos jogos e conteúdos.',
+                  accent: AppColors.green,
+                  value: _musicEnabled,
+                  onChanged: _setMusic,
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            _FunSection(
+              colors: c,
+              title: 'Aparência',
+              icon: _isDark
+                  ? 'assets/icons/moon-icon.svg'
+                  : 'assets/icons/sun-icon.svg',
+              accent: AppColors.orange,
+              children: [
+                _FunTile(
+                  colors: c,
+                  icon: _isDark
+                      ? 'assets/icons/moon-icon.svg'
+                      : 'assets/icons/sun-icon.svg',
+                  title: 'Tema escuro',
+                  subtitle: _isDark
+                      ? 'Modo escuro ativado.'
+                      : 'Modo claro ativado.',
+                  accent: AppColors.orange,
+                  value: _isDark,
+                  onChanged: _setTheme,
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            _FunSection(
+              colors: c,
+              title: 'Acessibilidade',
+              icon: 'assets/icons/speaker-icon.svg',
+              accent: AppColors.red,
+              children: [
+                _FunTile(
+                  colors: c,
+                  icon: 'assets/icons/speaker-icon.svg',
+                  title: 'Leitura por voz',
+                  subtitle: 'Voz automática quando não há áudio.',
+                  accent: AppColors.red,
+                  value: _voiceEnabled,
+                  onChanged: _setVoice,
+                ),
+              ],
+            ),
+          ],
         ),
-        title: Text(
-          'Definições',
-          style: TextStyle(
-            fontFamily: 'ComicSansMS',
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-            color: c.textMain,
-          ),
-        ),
-      ),
-      body: ListView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 28),
-        children: [
-          _Section(
-            colors: c,
-            title: 'Som',
-            children: [
-              _SettingTile(
-                colors: c,
-                icon: 'assets/icons/speaker-icon.svg',
-                title: 'Sons de clique',
-                subtitle: 'Sons ao tocar nos elementos do app.',
-                value: _soundEnabled,
-                onChanged: _setSound,
-              ),
-              const SizedBox(height: 10),
-              _SettingTile(
-                colors: c,
-                icon: 'assets/icons/music_on.svg',
-                title: 'Música',
-                subtitle: 'Música dos jogos e conteúdos.',
-                value: _musicEnabled,
-                onChanged: (value) {
-                  setState(() => _musicEnabled = value);
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          _Section(
-            colors: c,
-            title: 'Aparência',
-            children: [
-              _SettingTile(
-                colors: c,
-                icon: _isDark
-                    ? 'assets/icons/moon-icon.svg'
-                    : 'assets/icons/sun-icon.svg',
-                title: 'Tema escuro',
-                subtitle: _isDark
-                    ? 'Tema escuro ativo.'
-                    : 'Tema claro ativo.',
-                value: _isDark,
-                onChanged: _setTheme,
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          _Section(
-            colors: c,
-            title: 'Acessibilidade',
-            children: [
-              _SettingTile(
-                colors: c,
-                icon: 'assets/icons/speaker-icon.svg',
-                title: 'Leitura por voz',
-                subtitle:
-                    'Usar voz automática quando um áudio não existir.',
-                value: _voiceEnabled,
-                onChanged: _setVoice,
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
 }
 
-class _Section extends StatelessWidget {
+class _PressableCircleButton extends StatefulWidget {
+  final AppColors colors;
+  final Widget child;
+  final VoidCallback onTap;
+
+  const _PressableCircleButton({
+    required this.colors,
+    required this.child,
+    required this.onTap,
+  });
+
+  @override
+  State<_PressableCircleButton> createState() =>
+      _PressableCircleButtonState();
+}
+
+class _PressableCircleButtonState extends State<_PressableCircleButton> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: widget.onTap,
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 90),
+        curve: Curves.easeOut,
+        transform: Matrix4.identity()..translate(0.0, _pressed ? 3.0 : 0.0),
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          color: widget.colors.bgCardNeutral,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: widget.colors.neutralShadow,
+              offset: Offset(0, _pressed ? 0 : 3),
+            ),
+          ],
+        ),
+        child: Center(child: widget.child),
+      ),
+    );
+  }
+}
+
+class _FunSection extends StatelessWidget {
   final AppColors colors;
   final String title;
+  final String icon;
+  final Color accent;
   final List<Widget> children;
 
-  const _Section({
+  const _FunSection({
     required this.colors,
     required this.title,
+    required this.icon,
+    required this.accent,
     required this.children,
   });
 
@@ -205,113 +281,145 @@ class _Section extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 9),
-          child: Text(
-            title,
-            style: TextStyle(
-              fontFamily: 'ComicSansMS',
-              fontWeight: FontWeight.w700,
-              fontSize: 15,
-              color: colors.textMain,
+        Row(
+          children: [
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: accent.withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: SvgPicture.asset(
+                  icon,
+                  width: 15,
+                  height: 15,
+                  colorFilter: ColorFilter.mode(accent, BlendMode.srcIn),
+                ),
+              ),
             ),
-          ),
+            const SizedBox(width: 10),
+            Text(
+              title,
+              style: TextStyle(
+                fontFamily: 'ComicSansMS',
+                fontWeight: FontWeight.w700,
+                fontSize: 17,
+                color: colors.textMain,
+              ),
+            ),
+          ],
         ),
+        const SizedBox(height: 12),
         ...children,
       ],
     );
   }
 }
 
-class _SettingTile extends StatelessWidget {
+class _FunTile extends StatelessWidget {
   final AppColors colors;
   final String icon;
   final String title;
   final String subtitle;
+  final Color accent;
   final bool value;
   final ValueChanged<bool> onChanged;
 
-  const _SettingTile({
+  const _FunTile({
     required this.colors,
     required this.icon,
     required this.title,
     required this.subtitle,
+    required this.accent,
     required this.value,
     required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 13,
-      ),
-      decoration: BoxDecoration(
-        color: colors.bgCardNeutral,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: colors.divider,
+    return GestureDetector(
+      onTap: () => onChanged(!value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: value ? accent.withOpacity(0.12) : colors.bgCardNeutral,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: value ? accent.withOpacity(0.5) : colors.divider,
+            width: value ? 2 : 1,
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: value
-                  ? colors.primary.withOpacity(0.12)
-                  : colors.bg,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: SvgPicture.asset(
-                icon,
-                width: 20,
-                height: 20,
-                colorFilter: ColorFilter.mode(
-                  value ? colors.primary : colors.textMuted,
-                  BlendMode.srcIn,
+        child: Row(
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: value ? accent : colors.bg,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: value
+                    ? [
+                        BoxShadow(
+                          color: accent.withOpacity(0.35),
+                          offset: const Offset(0, 3),
+                        ),
+                      ]
+                    : [],
+              ),
+              child: Center(
+                child: SvgPicture.asset(
+                  icon,
+                  width: 20,
+                  height: 20,
+                  colorFilter: ColorFilter.mode(
+                    value ? Colors.white : colors.textMuted,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontFamily: 'ComicSansMS',
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                    color: colors.textMain,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontFamily: 'ComicSansMS',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      color: colors.textMain,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  subtitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    height: 1.3,
-                    color: colors.textMuted,
+                  const SizedBox(height: 3),
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 1.3,
+                      color: colors.textMuted,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 10),
-          _CustomSwitch(
-            colors: colors,
-            value: value,
-            onChanged: onChanged,
-          ),
-        ],
+            const SizedBox(width: 10),
+            _CustomSwitch(
+              colors: colors,
+              accent: accent,
+              value: value,
+              onChanged: onChanged,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -319,11 +427,13 @@ class _SettingTile extends StatelessWidget {
 
 class _CustomSwitch extends StatelessWidget {
   final AppColors colors;
+  final Color accent;
   final bool value;
   final ValueChanged<bool> onChanged;
 
   const _CustomSwitch({
     required this.colors,
+    required this.accent,
     required this.value,
     required this.onChanged,
   });
@@ -338,14 +448,13 @@ class _CustomSwitch extends StatelessWidget {
         height: 30,
         padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
-          color: value ? colors.primary : colors.divider,
+          color: value ? accent : colors.divider,
           borderRadius: BorderRadius.circular(18),
         ),
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 220),
           curve: Curves.easeOut,
-          alignment:
-              value ? Alignment.centerRight : Alignment.centerLeft,
+          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
           child: Container(
             width: 24,
             height: 24,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../main.dart' show AppColors, SoundManager, kVowels, kConsonants, buildSyllable, AssetUtils;
+import '../main.dart' show AppColors, SoundManager, kVowels, kConsonants, buildSyllable;
 
 class DetailScreen extends StatefulWidget {
   final AppColors colors;
@@ -30,11 +30,11 @@ class _DetailScreenState extends State<DetailScreen>
     currentConsonantIndex = widget.initialConsonantIndex;
     _slideController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 320),
+      duration: const Duration(milliseconds: 480),
     );
     _slideAnim = CurvedAnimation(
       parent: _slideController,
-      curve: const Cubic(0.22, 1, 0.36, 1),
+      curve: Curves.easeInOutCubicEmphasized,
     );
   }
 
@@ -78,10 +78,6 @@ class _DetailScreenState extends State<DetailScreen>
     SoundManager.instance.play(letterOrSyllable);
   }
 
-  void playExampleSound(String syllable) {
-    SoundManager.instance.playExample(syllable);
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = widget.colors;
@@ -98,7 +94,9 @@ class _DetailScreenState extends State<DetailScreen>
                 children: List.generate(kConsonants.length, (i) {
                   final filled = i <= currentConsonantIndex;
                   return Expanded(
-                    child: Container(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 350),
+                      curve: Curves.easeInOutCubic,
                       margin: EdgeInsets.only(
                         right: i == kConsonants.length - 1 ? 0 : 4,
                       ),
@@ -168,30 +166,35 @@ class _DetailScreenState extends State<DetailScreen>
                   animation: _slideAnim,
                   builder: (context, child) {
                     final width = MediaQuery.of(context).size.width;
+                    final curved = _slideAnim.value;
                     return Transform.translate(
-                      offset: Offset(-width * _slideAnim.value, 0),
+                      offset: Offset(-width * curved, 0),
                       child: SizedBox(
                         width: width * 2,
                         child: Row(
                           children: [
                             SizedBox(
                               width: width,
-                              child: _SyllablePane(
-                                colors: colors,
-                                consonant: consonant,
-                                isUpper: true,
-                                onPlaySound: playSound,
-                                onPlayExampleSound: playExampleSound,
+                              child: Opacity(
+                                opacity: (1 - curved).clamp(0.0, 1.0),
+                                child: _SyllablePane(
+                                  colors: colors,
+                                  consonant: consonant,
+                                  isUpper: true,
+                                  onPlaySound: playSound,
+                                ),
                               ),
                             ),
                             SizedBox(
                               width: width,
-                              child: _SyllablePane(
-                                colors: colors,
-                                consonant: consonant,
-                                isUpper: false,
-                                onPlaySound: playSound,
-                                onPlayExampleSound: playExampleSound,
+                              child: Opacity(
+                                opacity: curved.clamp(0.0, 1.0),
+                                child: _SyllablePane(
+                                  colors: colors,
+                                  consonant: consonant,
+                                  isUpper: false,
+                                  onPlaySound: playSound,
+                                ),
                               ),
                             ),
                           ],
@@ -247,7 +250,9 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Opacity(
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
       opacity: enabled ? 1.0 : 0.35,
       child: GestureDetector(
         onTap: enabled ? onTap : null,
@@ -294,7 +299,8 @@ class _CaseTab extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 320),
+          curve: Curves.easeInOutCubic,
           padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
           decoration: BoxDecoration(
             color: active ? AppColors.green : Colors.transparent,
@@ -308,13 +314,17 @@ class _CaseTab extends StatelessWidget {
                   ]
                 : [],
           ),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
+          child: AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 320),
+            curve: Curves.easeInOutCubic,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
               color: active ? Colors.white : colors.textMuted,
+            ),
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
             ),
           ),
         ),
@@ -328,14 +338,12 @@ class _SyllablePane extends StatelessWidget {
   final String consonant;
   final bool isUpper;
   final ValueChanged<String> onPlaySound;
-  final ValueChanged<String> onPlayExampleSound;
 
   const _SyllablePane({
     required this.colors,
     required this.consonant,
     required this.isUpper,
     required this.onPlaySound,
-    required this.onPlayExampleSound,
   });
 
   @override
@@ -350,12 +358,12 @@ class _SyllablePane extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 GestureDetector(
                   onTap: () => onPlaySound(soundLetter),
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 4, bottom: 20),
+                    padding: const EdgeInsets.only(top: 4, bottom: 24),
                     child: Text(
                       displayLetter,
                       textAlign: TextAlign.center,
@@ -378,7 +386,6 @@ class _SyllablePane extends StatelessWidget {
                     syllable: buildSyllable(consonant, vowel, isUpper),
                     isLast: vowel == kVowels.last,
                     onPlaySound: onPlaySound,
-                    onPlayExampleSound: onPlayExampleSound,
                   ),
               ],
             ),
@@ -397,7 +404,6 @@ class _SyllableRow extends StatelessWidget {
   final String syllable;
   final bool isLast;
   final ValueChanged<String> onPlaySound;
-  final ValueChanged<String> onPlayExampleSound;
 
   const _SyllableRow({
     required this.colors,
@@ -407,21 +413,19 @@ class _SyllableRow extends StatelessWidget {
     required this.syllable,
     required this.isLast,
     required this.onPlaySound,
-    required this.onPlayExampleSound,
   });
 
   @override
   Widget build(BuildContext context) {
-    final folderPath = 'assets/images/syllables/$consonantSound/$vowel/';
-
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 2),
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 2),
       decoration: BoxDecoration(
         border: isLast
             ? null
             : Border(bottom: BorderSide(color: colors.divider)),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _SmallLetterButton(
             colors: colors,
@@ -440,137 +444,7 @@ class _SyllableRow extends StatelessWidget {
             label: syllable,
             onTap: () => onPlaySound(syllable),
           ),
-          const SizedBox(width: 8),
-          _SyllableImageThumbnail(
-            colors: colors,
-            folderPath: folderPath,
-            syllable: syllable,
-          ),
-          const Spacer(),
-          _SpeakerButton(
-            colors: colors,
-            onTap: () => onPlayExampleSound(syllable),
-          ),
         ],
-      ),
-    );
-  }
-}
-
-class _SyllableImageThumbnail extends StatelessWidget {
-  final AppColors colors;
-  final String folderPath;
-  final String syllable;
-
-  const _SyllableImageThumbnail({
-    required this.colors,
-    required this.folderPath,
-    required this.syllable,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<String>>(
-      future: AssetUtils.getAssetsInFolder(folderPath),
-      builder: (context, snapshot) {
-        final images = snapshot.data ?? [];
-        final hasImages = images.isNotEmpty;
-        return GestureDetector(
-          onTap: hasImages
-              ? () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => SyllableImagesScreen(
-                        colors: colors,
-                        title: syllable,
-                        images: images,
-                      ),
-                    ),
-                  );
-                }
-              : null,
-          child: Container(
-            width: 30,
-            height: 30,
-            decoration: BoxDecoration(
-              color: colors.bgCardNeutral,
-              shape: BoxShape.circle,
-              border: Border.all(color: colors.divider),
-            ),
-            child: ClipOval(
-              child: hasImages
-                  ? Image.asset(
-                      images.first,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const SizedBox(width: 14, height: 14),
-                    )
-                  : const SizedBox(width: 14, height: 14),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class SyllableImagesScreen extends StatelessWidget {
-  final AppColors colors;
-  final String title;
-  final List<String> images;
-
-  const SyllableImagesScreen({
-    super.key,
-    required this.colors,
-    required this.title,
-    required this.images,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: colors.bg,
-      appBar: AppBar(
-        backgroundColor: colors.bg,
-        elevation: 0,
-        leading: IconButton(
-          icon: SvgPicture.asset(
-            'assets/icons/chevron-left.svg',
-            width: 20,
-            height: 20,
-            colorFilter: ColorFilter.mode(colors.textMain, BlendMode.srcIn),
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: colors.textMain,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 1,
-        ),
-        itemCount: images.length,
-        itemBuilder: (context, index) {
-          return Container(
-            decoration: BoxDecoration(
-              color: colors.bgCardNeutral,
-              borderRadius: BorderRadius.circular(16),
-              image: DecorationImage(
-                image: AssetImage(images[index]),
-                fit: BoxFit.contain,
-              ),
-            ),
-          );
-        },
       ),
     );
   }
@@ -601,27 +475,33 @@ class _SmallLetterButtonState extends State<_SmallLetterButton> {
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 100),
-        transform: Matrix4.identity()..translate(0.0, _pressed ? 2.0 : 0.0),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        decoration: BoxDecoration(
-          color: widget.colors.bgCardNeutral,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: widget.colors.neutralShadow,
-              offset: Offset(0, _pressed ? 1 : 3),
+      child: AnimatedScale(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutBack,
+        scale: _pressed ? 0.92 : 1.0,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+          transform: Matrix4.identity()..translate(0.0, _pressed ? 2.0 : 0.0),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+          decoration: BoxDecoration(
+            color: widget.colors.bgCardNeutral,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: widget.colors.neutralShadow,
+                offset: Offset(0, _pressed ? 1 : 3),
+              ),
+            ],
+          ),
+          child: Text(
+            widget.label,
+            style: TextStyle(
+              fontFamily: 'ComicSansMS',
+              fontWeight: FontWeight.w700,
+              fontSize: 30,
+              color: widget.colors.textMain,
             ),
-          ],
-        ),
-        child: Text(
-          widget.label,
-          style: TextStyle(
-            fontFamily: 'ComicSansMS',
-            fontWeight: FontWeight.w700,
-            fontSize: 24,
-            color: widget.colors.textMain,
           ),
         ),
       ),
@@ -638,14 +518,14 @@ class _Operator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Opacity(
         opacity: 0.4,
         child: Text(
           symbol,
           style: TextStyle(
             fontWeight: FontWeight.w700,
-            fontSize: 18,
+            fontSize: 20,
             color: colors.textMain,
           ),
         ),
@@ -679,55 +559,33 @@ class _SyllableButtonState extends State<_SyllableButton> {
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 100),
-        transform: Matrix4.identity()..translate(0.0, _pressed ? 2.0 : 0.0),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        decoration: BoxDecoration(
-          color: AppColors.green,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.greenShadow,
-              offset: Offset(0, _pressed ? 1 : 3),
-            ),
-          ],
-        ),
-        child: Text(
-          widget.label,
-          style: const TextStyle(
-            fontFamily: 'ComicSansMS',
-            fontWeight: FontWeight.w700,
-            fontSize: 28,
-            color: Colors.white,
+      child: AnimatedScale(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutBack,
+        scale: _pressed ? 0.92 : 1.0,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+          transform: Matrix4.identity()..translate(0.0, _pressed ? 2.0 : 0.0),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 22),
+          decoration: BoxDecoration(
+            color: AppColors.green,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.greenShadow,
+                offset: Offset(0, _pressed ? 1 : 3),
+              ),
+            ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SpeakerButton extends StatelessWidget {
-  final AppColors colors;
-  final VoidCallback onTap;
-
-  const _SpeakerButton({required this.colors, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: const BoxDecoration(shape: BoxShape.circle),
-        child: Center(
-          child: SvgPicture.asset(
-            'assets/icons/speaker-icon.svg',
-            width: 22,
-            height: 22,
-            colorFilter:
-                ColorFilter.mode(colors.textMuted, BlendMode.srcIn),
+          child: Text(
+            widget.label,
+            style: const TextStyle(
+              fontFamily: 'ComicSansMS',
+              fontWeight: FontWeight.w700,
+              fontSize: 34,
+              color: Colors.white,
+            ),
           ),
         ),
       ),
@@ -755,28 +613,34 @@ class _CloseButtonState extends State<_CloseButton> {
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 100),
-        width: double.infinity,
-        transform: Matrix4.identity()..translate(0.0, _pressed ? 3.0 : 0.0),
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: AppColors.red,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.redShadow,
-              offset: Offset(0, _pressed ? 1 : 4),
-            ),
-          ],
-        ),
-        child: const Center(
-          child: Text(
-            'Fechar',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
+      child: AnimatedScale(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutBack,
+        scale: _pressed ? 0.97 : 1.0,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+          width: double.infinity,
+          transform: Matrix4.identity()..translate(0.0, _pressed ? 3.0 : 0.0),
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: AppColors.red,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.redShadow,
+                offset: Offset(0, _pressed ? 1 : 4),
+              ),
+            ],
+          ),
+          child: const Center(
+            child: Text(
+              'Fechar',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
