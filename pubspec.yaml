@@ -71,19 +71,19 @@ flutter:
     - assets/audio/consonants/
     - assets/audio/syllables/b/
     - assets/audio/syllables/c/
-    #- assets/audio/syllables/d/
-    #- assets/audio/syllables/f/
-    #- assets/audio/syllables/g/
-    #- assets/audio/syllables/h/
-    #- assets/audio/syllables/j/
-    #- assets/audio/syllables/k/
-    #- assets/audio/syllables/l/
-    #- assets/audio/syllables/m/
-    #- assets/audio/syllables/n/
-    #- assets/audio/syllables/p/
-    #- assets/audio/syllables/q/
-    #- assets/audio/syllables/r/
-    #- assets/audio/syllables/s/
+    - assets/audio/syllables/d/
+    - assets/audio/syllables/f/
+    - assets/audio/syllables/g/
+    - assets/audio/syllables/h/
+    - assets/audio/syllables/j/
+    - assets/audio/syllables/k/
+    - assets/audio/syllables/l/
+    - assets/audio/syllables/m/
+    - assets/audio/syllables/n/
+    - assets/audio/syllables/p/
+    - assets/audio/syllables/q/
+    - assets/audio/syllables/r/
+    - assets/audio/syllables/s/
     #- assets/audio/syllables/t/
     #- assets/audio/syllables/v/
     #- assets/audio/syllables/w/
