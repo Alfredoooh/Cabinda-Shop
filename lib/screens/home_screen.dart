@@ -1,4 +1,4 @@
-// home_screen.dart — trilha vertical mais compacta
+// screens/home_screen.dart — trilha vertical mais compacta
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -166,95 +166,107 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors(isDark);
+    final isAlphabet = currentSection == DrawerSection.alphabet;
+    // Cor do appbar/header nesta secção — a statusbar segue esta cor,
+    // exatamente como pedido: statusbar sempre igual à cor principal
+    // do appbar/header ativo.
+    final appBarColor = isAlphabet ? colors.bgCardNeutral : colors.bg;
 
-    return Scaffold(
-      backgroundColor: colors.bg,
-      body: Stack(
-        children: [
-          SafeArea(
-            bottom: false,
-            child: Column(
-              children: [
-                _AppBarWidget(
-                  colors: colors,
-                  onMenuTap: openDrawer,
-                  currentSection: currentSection,
-                  currentMode: currentMode,
-                  onModeChange: (m) => setState(() => currentMode = m),
-                  soundEnabled: soundEnabled,
-                  onSoundToggle: toggleSound,
-                ),
-                Expanded(
-                  child: SafeArea(
-                    top: false,
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 260),
-                      switchInCurve: const Cubic(0.22, 1, 0.36, 1),
-                      switchOutCurve: const Cubic(0.22, 1, 0.36, 1),
-                      transitionBuilder: (child, animation) {
-                        final slide = Tween<Offset>(
-                          begin: const Offset(0.06, 0),
-                          end: Offset.zero,
-                        ).animate(animation);
-                        return ClipRect(
-                          child: SlideTransition(
-                            position: slide,
-                            child: FadeTransition(
-                              opacity: animation,
-                              child: child,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: appBarColor,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+      ),
+      child: Scaffold(
+        backgroundColor: colors.bg,
+        body: Stack(
+          children: [
+            SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  _AppBarWidget(
+                    colors: colors,
+                    onMenuTap: openDrawer,
+                    currentSection: currentSection,
+                    currentMode: currentMode,
+                    onModeChange: (m) => setState(() => currentMode = m),
+                    soundEnabled: soundEnabled,
+                    onSoundToggle: toggleSound,
+                  ),
+                  Expanded(
+                    child: SafeArea(
+                      top: false,
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 260),
+                        switchInCurve: const Cubic(0.22, 1, 0.36, 1),
+                        switchOutCurve: const Cubic(0.22, 1, 0.36, 1),
+                        transitionBuilder: (child, animation) {
+                          final slide = Tween<Offset>(
+                            begin: const Offset(0.06, 0),
+                            end: Offset.zero,
+                          ).animate(animation);
+                          return ClipRect(
+                            child: SlideTransition(
+                              position: slide,
+                              child: FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      layoutBuilder: (currentChild, previousChildren) {
-                        return Stack(
-                          alignment: Alignment.topCenter,
-                          children: [
-                            ...previousChildren,
-                            if (currentChild != null) currentChild,
-                          ],
-                        );
-                      },
-                      child: _buildSection(colors),
+                          );
+                        },
+                        layoutBuilder: (currentChild, previousChildren) {
+                          return Stack(
+                            alignment: Alignment.topCenter,
+                            children: [
+                              ...previousChildren,
+                              if (currentChild != null) currentChild,
+                            ],
+                          );
+                        },
+                        child: _buildSection(colors),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (_drawerOpen)
+              AnimatedBuilder(
+                animation: _drawerController,
+                builder: (context, _) => GestureDetector(
+                  onTap: closeDrawer,
+                  child: Container(
+                    color: Color.lerp(
+                      Colors.transparent,
+                      colors.overlay,
+                      _drawerController.value,
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
-          if (_drawerOpen)
-            AnimatedBuilder(
-              animation: _drawerController,
-              builder: (context, _) => GestureDetector(
-                onTap: closeDrawer,
-                child: Container(
-                  color: Color.lerp(
-                    Colors.transparent,
-                    colors.overlay,
-                    _drawerController.value,
+              ),
+            if (_drawerOpen)
+              SlideTransition(
+                position: _drawerSlide,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: _AppDrawer(
+                    colors: colors,
+                    isDark: isDark,
+                    currentSection: currentSection,
+                    onSectionSelected: (s) {
+                      setState(() => currentSection = s);
+                      closeDrawer();
+                    },
+                    onThemeToggle: toggleTheme,
+                    onSettingsTap: openSettings,
                   ),
                 ),
               ),
-            ),
-          if (_drawerOpen)
-            SlideTransition(
-              position: _drawerSlide,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: _AppDrawer(
-                  colors: colors,
-                  isDark: isDark,
-                  currentSection: currentSection,
-                  onSectionSelected: (s) {
-                    setState(() => currentSection = s);
-                    closeDrawer();
-                  },
-                  onThemeToggle: toggleTheme,
-                  onSettingsTap: openSettings,
-                ),
-              ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -300,6 +312,10 @@ class _AppBarWidget extends StatelessWidget {
     required this.onSoundToggle,
   });
 
+  // Raio da curva em baixo do appbar — mesma referência visual
+  // pedida (appbar com curva côncava na base).
+  static const double _appBarCurveRadius = 28;
+
   String get _iconeAtivo {
     switch (currentSection) {
       case DrawerSection.alphabet:
@@ -322,12 +338,10 @@ class _AppBarWidget extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
         decoration: BoxDecoration(
           color: isAlphabet ? colors.bgCardNeutral : colors.bg,
-          borderRadius: isAlphabet
-              ? BorderRadius.zero
-              : const BorderRadius.only(
-                  bottomLeft: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
-                ),
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(_appBarCurveRadius),
+            bottomRight: Radius.circular(_appBarCurveRadius),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,3 +1,4 @@
+// main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -34,10 +35,10 @@ List<String> _buildAllAudioPaths() {
   return paths;
 }
 
-void applySystemUi(bool isDark) {
+void applySystemUi(bool isDark, {Color? statusBarColor}) {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
+    statusBarColor: statusBarColor ?? Colors.transparent,
     statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
     statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
   ));
@@ -243,15 +244,63 @@ class AssetUtils {
   }
 }
 
+/// Player dedicado a um asset, com estado próprio para evitar
+/// condições de corrida quando o mesmo asset é tocado repetidamente
+/// em sequência rápida (ex.: o utilizador carrega várias vezes seguidas
+/// na mesma letra).
+class _AssetPlayerSlot {
+  final AudioPlayer player;
+  bool _busy = false;
+  int _playToken = 0;
+
+  _AssetPlayerSlot(this.player);
+
+  bool get isFree => !_busy;
+
+  Future<void> play() async {
+    // Cada chamada gera o seu próprio token; se uma chamada mais
+    // recente já começou entretanto, esta antiga desiste em vez de
+    // pisar o play novo (o que antes provocava o "corte" do som).
+    final myToken = ++_playToken;
+    _busy = true;
+    try {
+      await player.stop();
+      if (myToken != _playToken) return;
+      await player.seek(Duration.zero);
+      if (myToken != _playToken) return;
+      await player.resume();
+    } catch (_) {
+      // silencioso: um player instável não deve derrubar o utilizador
+    } finally {
+      if (myToken == _playToken) {
+        _busy = false;
+      }
+    }
+  }
+
+  Future<void> dispose() async {
+    try {
+      await player.stop();
+    } catch (_) {}
+    try {
+      await player.dispose();
+    } catch (_) {}
+  }
+}
+
 class SoundManager {
   SoundManager._();
 
   static final SoundManager instance = SoundManager._();
 
-  final Map<String, List<AudioPlayer>> _assetPlayers = {};
-  final Map<String, int> _assetCursors = {};
+  // Pool maior (4 em vez de 2) para aguentar cliques rápidos e
+  // repetidos na mesma letra sem ficar sem player livre.
+  static const int _playersPerAsset = 4;
+
+  final Map<String, List<_AssetPlayerSlot>> _assetPlayers = {};
   final Set<String> _preloadedAssets = {};
   final Set<String> _missingAssets = {};
+  final Set<String> _preloadingInFlight = {};
 
   bool muted = false;
   bool clickMuted = false;
@@ -275,19 +324,26 @@ class SoundManager {
         continue;
       }
 
-      final players = <AudioPlayer>[];
-      for (var i = 0; i < 2; i++) {
+      final slots = <_AssetPlayerSlot>[];
+      for (var i = 0; i < _playersPerAsset; i++) {
         final player = AudioPlayer();
         try {
+          // setSource carrega o buffer para memória; isto é o que
+          // garante que o primeiro play() a seguir é instantâneo em
+          // vez de ter de ir buscar o ficheiro ao disco/assets.
           await player.setSource(AssetSource(path));
-          players.add(player);
+          // setReleaseMode(stop) evita que o player liberte o buffer
+          // sozinho depois de tocar, o que forçaria um re-load no
+          // clique seguinte.
+          await player.setReleaseMode(ReleaseMode.stop);
+          await player.setVolume(1.0);
+          slots.add(_AssetPlayerSlot(player));
         } catch (_) {
           await player.dispose();
         }
       }
-      if (players.isNotEmpty) {
-        _assetPlayers[path] = players;
-        _assetCursors[path] = 0;
+      if (slots.isNotEmpty) {
+        _assetPlayers[path] = slots;
         _preloadedAssets.add(path);
       } else {
         _missingAssets.add(path);
@@ -299,20 +355,38 @@ class SoundManager {
     if (muted) return;
     if (_missingAssets.contains(assetPath)) return;
 
-    var players = _assetPlayers[assetPath];
-    if (players == null || players.isEmpty) {
-      await preloadAssets([assetPath]);
-      players = _assetPlayers[assetPath];
+    var slots = _assetPlayers[assetPath];
+    if (slots == null || slots.isEmpty) {
+      // Asset ainda não pré-carregado (ex.: audio/words dinâmico).
+      // Evita pré-carregar o mesmo asset em paralelo duas vezes.
+      if (!_preloadingInFlight.contains(assetPath)) {
+        _preloadingInFlight.add(assetPath);
+        try {
+          await preloadAssets([assetPath]);
+        } finally {
+          _preloadingInFlight.remove(assetPath);
+        }
+      } else {
+        // outra chamada já está a pré-carregar; espera um pouco.
+        var tries = 0;
+        while (_preloadingInFlight.contains(assetPath) && tries < 20) {
+          await Future.delayed(const Duration(milliseconds: 25));
+          tries++;
+        }
+      }
+      slots = _assetPlayers[assetPath];
     }
-    if (players == null || players.isEmpty) return;
+    if (slots == null || slots.isEmpty) return;
 
-    final cursor = _assetCursors[assetPath] ?? 0;
-    final player = players[cursor % players.length];
-    _assetCursors[assetPath] = cursor + 1;
-    try {
-      await player.seek(Duration.zero);
-      await player.resume();
-    } catch (_) {}
+    // Escolhe o primeiro slot livre; se não houver nenhum livre,
+    // usa o primeiro na mesma (o token interno garante que não há
+    // corte cruzado entre chamadas).
+    final freeSlot = slots.firstWhere(
+      (s) => s.isFree,
+      orElse: () => slots!.first,
+    );
+
+    await freeSlot.play();
   }
 
   Future<void> playLetter(String letter) async {
@@ -407,22 +481,19 @@ class SoundManager {
   }
 
   Future<void> stop() async {
-    for (final players in _assetPlayers.values) {
-      for (final player in players) {
+    for (final slots in _assetPlayers.values) {
+      for (final slot in slots) {
         try {
-          await player.stop();
+          await slot.player.stop();
         } catch (_) {}
       }
     }
   }
 
   Future<void> dispose() async {
-    await stop();
-    for (final players in _assetPlayers.values) {
-      for (final player in players) {
-        try {
-          await player.dispose();
-        } catch (_) {}
+    for (final slots in _assetPlayers.values) {
+      for (final slot in slots) {
+        await slot.dispose();
       }
     }
   }
